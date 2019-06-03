@@ -10,8 +10,7 @@ jobs:
 - job: BuildOnWindows
   displayName: "Build and test on Windows"
   pool:
-    name: 'Hosted'
-    vmImage: 'windows-2019'
+    name: 'Hosted Windows 2019 with VS2019'
   steps:
   - task: MSBuild@1
     inputs:
@@ -20,8 +19,7 @@ jobs:
 - job: BuildOnLinux
   displayName: "Build and test on Linux"
   pool:
-    name: 'Hosted'
-    vmImage: 'ubuntu-16.04'
+    name: 'Hosted Ubuntu 1604'
   steps:
   - task: DotNetCoreCLI@2
     inputs:
