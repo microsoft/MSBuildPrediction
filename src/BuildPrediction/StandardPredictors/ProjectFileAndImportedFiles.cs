@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction.StandardPredictors
 {
+    using System.Collections.Generic;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Finds project filename and imports, as inputs.
     /// </summary>
@@ -17,7 +17,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
         {
             var inputs = new List<BuildInput>()
             {
-                new BuildInput(project.FullPath, false)
+                new BuildInput(project.FullPath, false),
             };
 
             foreach (ResolvedImport import in project.Imports)

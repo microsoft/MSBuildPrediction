@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using Microsoft.Build.Prediction;
-using Microsoft.Build.Prediction.StandardPredictors;
-using Microsoft.Build.Prediction.Tests;
-using Xunit;
-
 namespace BuildPredictionTests.StandardPredictors
 {
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    using System.IO;
+    using Microsoft.Build.Prediction;
+    using Microsoft.Build.Prediction.StandardPredictors;
+    using Microsoft.Build.Prediction.Tests;
+    using Xunit;
+
     public class ProjectFileAndImportedFilesTests : TestBase
     {
         internal const string ImportTestsDirectoryPath = @"TestsData\Import";
@@ -31,7 +31,7 @@ namespace BuildPredictionTests.StandardPredictors
             {
                 new BuildInput(Path.Combine(Environment.CurrentDirectory, ImportTestsDirectoryPath, NestedImportsProjectFileName), false),
                 new BuildInput(Path.Combine(Environment.CurrentDirectory, ImportTestsDirectoryPath, @"Import\NestedTargets.targets"), false),
-                new BuildInput(Path.Combine(Environment.CurrentDirectory, ImportTestsDirectoryPath, @"Import\NestedTargets2.targets"), false)
+                new BuildInput(Path.Combine(Environment.CurrentDirectory, ImportTestsDirectoryPath, @"Import\NestedTargets2.targets"), false),
             };
 
             BuildOutputDirectory[] expectedOutputs = null;

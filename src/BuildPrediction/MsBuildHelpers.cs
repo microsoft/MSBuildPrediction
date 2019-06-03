@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Exceptions;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Exceptions;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Helper methods for working with the MSBuild object model.
     /// </summary>
@@ -221,7 +221,7 @@ namespace Microsoft.Build.Prediction
             // it uses the internal Expander class with option ExpandPropertiesAndItems but not the
             // more extensive ExpandAll or ExpandMetadata.
             // https://github.com/Microsoft/msbuild/blob/master/src/Build/Instance/ProjectInstance.cs#L1763
-            if (condition.Contains("%("))
+            if (condition.IndexOf("%(", StringComparison.Ordinal) != -1)
             {
                 return false;
             }

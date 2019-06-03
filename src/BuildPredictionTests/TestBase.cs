@@ -1,27 +1,27 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-using Xunit;
-
 namespace Microsoft.Build.Prediction.Tests
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
+    using Xunit;
+
     /// <summary>
     /// Base class that provides helper methods for test code, including
     /// interfacing with sample files in the TestsData folder.
     /// </summary>
     public abstract class TestBase
     {
+        private static string assemblyLocation = TestHelpers.GetAssemblyLocation();
+
         static TestBase()
         {
-            MsBuildEnvironment.Setup(s_assemblyLocation);
+            MsBuildEnvironment.Setup(assemblyLocation);
         }
-
-        private static string s_assemblyLocation = TestHelpers.GetAssemblyLocation();
 
         /// <summary>
         /// Gets the relative path for resource files used by the test suite.
@@ -32,11 +32,11 @@ namespace Microsoft.Build.Prediction.Tests
         protected abstract string TestsDirectoryPath { get; }
 
         /// <summary>
-        /// Creates an absolute path using the assembly location as the root, followed by <see cref="TestsDirectoryPath"/>
+        /// Creates an absolute path using the assembly location as the root, followed by <see cref="TestsDirectoryPath"/>.
         /// </summary>
         protected string CreateAbsolutePath(string relativePath)
         {
-            return Path.Combine(s_assemblyLocation, TestsDirectoryPath, relativePath);
+            return Path.Combine(assemblyLocation, TestsDirectoryPath, relativePath);
         }
 
         protected void ParseAndVerifyProject(
@@ -63,8 +63,7 @@ namespace Microsoft.Build.Prediction.Tests
                 TestsDirectoryPath,
                 out StaticPredictions predictions);
 
-
-            IReadOnlyCollection<BuildInput> absolutePathInputs = expectedInputs.Select(i => 
+            IReadOnlyCollection<BuildInput> absolutePathInputs = expectedInputs.Select(i =>
                 new BuildInput(Path.Combine(project.DirectoryPath, i.Path), i.IsDirectory))
                     .ToList();
             Assert.True(success, "Prediction returned false (no predictions)");

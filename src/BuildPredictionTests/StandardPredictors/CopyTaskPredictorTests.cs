@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.IO;
-using Microsoft.Build.Prediction.StandardPredictors.CopyTask;
-using Xunit;
-
 namespace Microsoft.Build.Prediction.Tests.StandardPredictors
 {
+    using System;
+    using System.IO;
+    using Microsoft.Build.Prediction.StandardPredictors.CopyTask;
+    using Xunit;
+
     public class CopyTaskPredictorTests : TestBase
     {
-        internal const string CopyTestsDirectoryPath = @"TestsData\Copy\";
+        private const string CopyTestsDirectoryPath = @"TestsData\Copy\";
 
         private readonly BuildInput _copy1Dll = new BuildInput("copy1.dll", false);
         private readonly BuildInput _copy2Dll = new BuildInput("copy2.dll", false);

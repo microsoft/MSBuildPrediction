@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction.StandardPredictors
 {
+    using System.IO;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Scrapes the $(OutDir) or, if not found, $(OutputPath) as an output directory.
     /// </summary>

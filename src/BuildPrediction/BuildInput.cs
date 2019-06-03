@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-
 namespace Microsoft.Build.Prediction
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Data class for specifying a predicted build input, either a file or a directory.
     /// </summary>

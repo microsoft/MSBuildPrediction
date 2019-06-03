@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction
 {
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Executes a set of <see cref="IProjectStaticPredictor"/> instances against
     /// a <see cref="Microsoft.Build.Evaluation.Project"/> instance, aggregating
@@ -45,6 +45,7 @@ namespace Microsoft.Build.Prediction
         /// to the repository root directory, since inputs and outputs could lie outside of
         /// that directory.
         /// </summary>
+        /// <param name="project">The project to execute predictors against.</param>
         /// <returns>An object describing all predicted inputs and outputs.</returns>
         public StaticPredictions PredictInputsAndOutputs(Project project)
         {

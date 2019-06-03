@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Parses Copy tasks from Targets in the provided Project to predict inputs
     /// and outputs.
@@ -35,7 +35,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
         {
             // Determine the active Targets in this Project.
             var activeTargets = new Dictionary<string, ProjectTargetInstance>(StringComparer.OrdinalIgnoreCase);
-            
+
             // Start with the default Build target and all of its parent targets, the closure of its dependencies.
             project.AddToActiveTargets(MsBuildHelpers.BuildTargetAsCollection, activeTargets);
 
@@ -147,7 +147,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
         /// Validates that a task's outputs are sane. If so, predicts output directories.
         /// </summary>
         /// <param name="projectFullPath">The absolute path to the project instance. Can be null if the project was not loaded
-        /// from this</param>
+        /// from this.</param>
         /// <param name="inputs">The inputs specified in SourceFiles on a copy task.</param>
         /// <param name="outputs">
         /// The outputs specified in the DestinationFolder or DestinationFiles attribute on a copy task.

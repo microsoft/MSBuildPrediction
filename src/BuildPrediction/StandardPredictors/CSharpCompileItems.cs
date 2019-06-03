@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction.StandardPredictors
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Finds Compile items, typically but not necessarily always from csproj files, as inputs.
     /// </summary>
@@ -24,7 +24,6 @@ namespace Microsoft.Build.Prediction.StandardPredictors
             out StaticPredictions predictions)
         {
             // TODO: Need to determine how to normalize evaluated include selected below and determine if it is relative to project.
-
             List<BuildInput> itemInputs = project.GetItems(CompileItemName)
                 .Select(item => new BuildInput(
                     Path.Combine(project.DirectoryPath, item.EvaluatedInclude),

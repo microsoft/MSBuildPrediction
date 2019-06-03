@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-
 namespace Microsoft.Build.Prediction
 {
+    using System;
+
     /// <summary>
     /// Gets the appdomain-wide appropriate filesystem path string comparer
     /// appropriate to the current operating system.
