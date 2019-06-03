@@ -6,6 +6,7 @@
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\build\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <Deterministic>true</Deterministic>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <LangVersion>latest</LangVersion>
 
     <!-- Strong naming -->
     <SignAssembly>true</SignAssembly>
@@ -21,6 +22,11 @@
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)\build\stylecop.json">
       <Visible>false</Visible>
     </AdditionalFiles>
+  </ItemGroup>
+
+  <!-- Get the ref assemblies from a package to avoid depending on the rf assemblies being available on the machine -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-preview.2" IncludeAssets="Build" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
