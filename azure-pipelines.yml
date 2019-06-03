@@ -11,7 +11,7 @@ jobs:
   displayName: "Build and test on Windows"
   pool:
     name: 'Hosted'
-    vmImage: 'windows-latest'
+    vmImage: 'windows-2019'
   steps:
   - task: MSBuild@1
     inputs:
@@ -21,7 +21,7 @@ jobs:
   displayName: "Build and test on Linux"
   pool:
     name: 'Hosted'
-    vmImage: 'windows-latest'
+    vmImage: 'ubuntu-16.04'
   steps:
   - task: DotNetCoreCLI@2
     inputs:
