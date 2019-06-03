@@ -15,8 +15,8 @@ jobs:
   steps:
   - task: MSBuild@1
     inputs:
-      msbuildVersion: latest
-      msbuildArguments: '/restore'
+      solution: '**/*.sln'
+      msbuildVersion: '16.0'
 - job: BuildOnLinux
   displayName: "Build and test on Linux"
   pool:
@@ -25,4 +25,5 @@ jobs:
   steps:
   - task: DotNetCoreCLI@2
     inputs:
-      command: build
+      command: 'build'
+      projects: 'MSBuildPrediction.sln'
