@@ -6,6 +6,10 @@
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\build\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <Deterministic>true</Deterministic>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+
+    <!-- Strong naming -->
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\build\StrongNaming.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <!-- Analyzers -->
