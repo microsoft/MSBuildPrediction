@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Text.RegularExpressions;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
 {
+    using System;
+    using System.Text.RegularExpressions;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Class for a batch expression, e.g. '%(Compile.fileName).%(Compile.extension))'.
     /// </summary>

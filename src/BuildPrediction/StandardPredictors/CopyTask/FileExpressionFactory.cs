@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
 {
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Factory class that instantiates FileExpression classes. File expressions are MSBuild expressions that
     /// evaluate to a list of files (e.g. @(Compile -> '%(filename)') or %(None.filename)).

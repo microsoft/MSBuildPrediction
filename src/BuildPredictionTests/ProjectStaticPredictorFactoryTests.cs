@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using Xunit;
-
 namespace Microsoft.Build.Prediction.Tests
 {
+    using System.Collections.Generic;
+    using Xunit;
+
     public class ProjectStaticPredictorFactoryTests
     {
         [Fact]

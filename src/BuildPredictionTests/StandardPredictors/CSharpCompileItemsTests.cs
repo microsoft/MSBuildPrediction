@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using Microsoft.Build.Construction;
-using Microsoft.Build.Definition;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-using Microsoft.Build.Prediction.StandardPredictors;
-using Xunit;
-
 namespace Microsoft.Build.Prediction.Tests.StandardPredictors
 {
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.IO;
+    using Microsoft.Build.Construction;
+    using Microsoft.Build.Definition;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
+    using Microsoft.Build.Prediction.StandardPredictors;
+    using Xunit;
+
     // TODO: Need to add .NET Core and .NET Framework based examples including use of SDK includes.
     public class CSharpCompileItemsTests
     {

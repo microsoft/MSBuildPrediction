@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
-using Microsoft.Build.Locator;
-
 namespace Microsoft.Build.Prediction
 {
+    using System.IO;
+    using Microsoft.Build.Locator;
+
     /// <summary>
     /// Utility class that uses MSBuildLocator to find the current MSBuild
     /// binaries and SDKs needed for testing.

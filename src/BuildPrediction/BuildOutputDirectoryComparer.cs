@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Microsoft.Build.Prediction
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     /// <summary>
     /// Comparer class for <see cref="BuildOutputDirectory"/>.
     /// </summary>
@@ -32,7 +33,7 @@ namespace Microsoft.Build.Prediction
         {
             return PathComparer.Instance.GetHashCode(obj.Path) ^
                    (obj.PredictedBy.Count == 0 ? 0xAAAAAA : obj.PredictedBy.Count * 0xBB) ^
-                   obj.PredictedBy.Aggregate(0, (current, s) => current ^ s.GetHashCode());
+                   obj.PredictedBy.Aggregate(0, (current, s) => current ^ StringComparer.OrdinalIgnoreCase.GetHashCode(s));
         }
     }
 }

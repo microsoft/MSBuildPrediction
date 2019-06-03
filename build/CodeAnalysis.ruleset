@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="CodeAnalysis" Description=" " ToolsVersion="14.0">
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <!-- PrefixLocalCallsWithThis: We prefer avoiding "this." qualifications -->
+    <Rule Id="SA1101" Action="None" />
+    <!-- FieldNamesMustNotBeginWithUnderscore: We prefer underscore prefixes for private fields -->
+    <Rule Id="SA1309" Action="None" />
+  </Rules>
+</RuleSet>

@@ -1,0 +1,22 @@
+<Project>
+
+  <PropertyGroup>
+    <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\build\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <Deterministic>true</Deterministic>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <!-- Analyzers -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2" IncludeAssets="Analyzers;Build" PrivateAssets="All" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" IncludeAssets="Analyzers;Build" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)\build\stylecop.json">
+      <Visible>false</Visible>
+    </AdditionalFiles>
+  </ItemGroup>
+
+</Project>

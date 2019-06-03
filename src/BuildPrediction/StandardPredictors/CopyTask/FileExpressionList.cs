@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Contains a parsed list of file expressions as well as the list of files derived from evaluating said
     /// expressions.

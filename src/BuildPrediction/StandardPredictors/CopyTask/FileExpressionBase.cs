@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Microsoft.Build.Execution;
-
 namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// The abstract base class of an MSBuild item expression (e.g. @(Compile), %(Content.Filename), etc.)
     /// </summary>
@@ -39,11 +39,13 @@ namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
 #pragma warning disable CA1308 // Normalize strings to uppercase
                         trimmedExpression = trimmedExpression.ToLowerInvariant();
 #pragma warning restore CA1308 // Normalize strings to uppercase
+#pragma warning disable CA1307 // Specify StringComparison. We already normalized the string above
                         trimmedExpression = trimmedExpression.Replace("$(msbuildthisfiledirectory)", Path.GetDirectoryName(copyTaskFilePath) + "\\");
                         trimmedExpression = trimmedExpression.Replace("$(msbuildthisfile)", Path.GetFileName(copyTaskFilePath));
                         trimmedExpression = trimmedExpression.Replace("$(msbuildthisfileextension)", Path.GetExtension(copyTaskFilePath));
                         trimmedExpression = trimmedExpression.Replace("$(msbuildthisfilefullpath)", copyTaskFilePath);
                         trimmedExpression = trimmedExpression.Replace("$(msbuildthisfilename)", Path.GetFileNameWithoutExtension(copyTaskFilePath));
+#pragma warning restore CA1307 // Specify StringComparison
                     }
                 }
             }

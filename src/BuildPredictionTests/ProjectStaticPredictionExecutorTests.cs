@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Diagnostics;
-using Microsoft.Build.Construction;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-using Xunit;
-
 namespace Microsoft.Build.Prediction.Tests
 {
+    using System;
+    using System.Diagnostics;
+    using Microsoft.Build.Construction;
+    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
+    using Xunit;
+
     public class ProjectStaticPredictionExecutorTests
     {
         static ProjectStaticPredictionExecutorTests()
