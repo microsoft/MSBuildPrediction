@@ -1,0 +1,28 @@
+trigger:
+- master
+
+variables:
+  solution: 'MSBuildPrediction.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+jobs:
+- job: BuildOnWindows
+  displayName: "Build and test on Windows"
+  pool:
+    name: 'Hosted'
+    vmImage: 'windows-latest'
+  steps:
+  - task: MSBuild@1
+    inputs:
+      msbuildVersion: latest
+      msbuildArguments: '/restore'
+- job: BuildOnLinux
+  displayName: "Build and test on Linux"
+  pool:
+    name: 'Hosted'
+    vmImage: 'windows-latest'
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: build
