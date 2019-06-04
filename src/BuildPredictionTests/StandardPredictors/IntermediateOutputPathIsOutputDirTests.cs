@@ -13,11 +13,6 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
 
     public class IntermediateOutputPathIsOutputDirTests
     {
-        static IntermediateOutputPathIsOutputDirTests()
-        {
-            MsBuildEnvironment.Setup(TestHelpers.GetAssemblyLocation());
-        }
-
         [Fact]
         public void IntermediateOutputPathFoundAsOutputDir()
         {

@@ -7,7 +7,6 @@ namespace Microsoft.Build.Prediction.Tests
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Xml;
     using Microsoft.Build.Construction;
     using Microsoft.Build.Definition;
@@ -66,11 +65,6 @@ namespace Microsoft.Build.Prediction.Tests
                                    };
 
             return new Project(projectRootElement, globalProperties, toolsVersion: ProjectCollection.GlobalProjectCollection.DefaultToolsVersion);
-        }
-
-        public static string GetAssemblyLocation()
-        {
-            return Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
         }
 
         private static void CheckCollection<T>(IReadOnlyCollection<T> expected, IReadOnlyCollection<T> actual, IEqualityComparer<T> comparer, string type)

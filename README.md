@@ -9,7 +9,7 @@ Input and output predictions produced here can be used, for instance, for Projec
 TODO
 
 ## Design
-See [Design](documentation\design.md).
+See [Design](documentation/design.md).
 
 ## Contributing
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

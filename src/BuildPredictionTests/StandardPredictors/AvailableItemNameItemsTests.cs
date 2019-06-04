@@ -15,11 +15,6 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
     // TODO: Need to add .NET Core and .NET Framework based examples including use of SDK includes.
     public class AvailableItemNameItemsTests
     {
-        static AvailableItemNameItemsTests()
-        {
-            MsBuildEnvironment.Setup(TestHelpers.GetAssemblyLocation());
-        }
-
         [Fact]
         public void AvailableItemNamesFindItems()
         {

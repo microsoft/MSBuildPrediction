@@ -13,11 +13,6 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
     // TODO: Need to add .NET Core and .NET Framework based examples including use of SDK includes.
     public class CSharpCompileItemsTests
     {
-        static CSharpCompileItemsTests()
-        {
-            MsBuildEnvironment.Setup(TestHelpers.GetAssemblyLocation());
-        }
-
         [Fact]
         public void CSharpFilesFoundFromDirectListingInCsproj()
         {

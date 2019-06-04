@@ -15,11 +15,6 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
         private const string ImportTestsDirectoryPath = @"TestsData\Import";
         private const string NestedImportsProjectFileName = "NestedImports.csproj";
 
-        static ProjectFileAndImportedFilesTests()
-        {
-            MsBuildEnvironment.Setup(TestHelpers.GetAssemblyLocation());
-        }
-
         protected override string TestsDirectoryPath => ImportTestsDirectoryPath;
 
         [Fact]
