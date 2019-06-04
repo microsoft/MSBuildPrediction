@@ -3,11 +3,8 @@
 
 namespace Microsoft.Build.Prediction.Tests.StandardPredictors
 {
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Definition;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.StandardPredictors;
@@ -16,7 +13,6 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
     // TODO: Need to add .NET Core and .NET Framework based examples including use of SDK includes.
     public class CSharpCompileItemsTests
     {
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "testContext", Justification = "Needed for reflection")]
         static CSharpCompileItemsTests()
         {
             MsBuildEnvironment.Setup(TestHelpers.GetAssemblyLocation());

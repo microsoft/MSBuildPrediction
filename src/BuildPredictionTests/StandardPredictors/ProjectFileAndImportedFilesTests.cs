@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace BuildPredictionTests.StandardPredictors
+namespace Microsoft.Build.Prediction.Tests.StandardPredictors
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using Microsoft.Build.Prediction;
     using Microsoft.Build.Prediction.StandardPredictors;
@@ -13,10 +12,9 @@ namespace BuildPredictionTests.StandardPredictors
 
     public class ProjectFileAndImportedFilesTests : TestBase
     {
-        internal const string ImportTestsDirectoryPath = @"TestsData\Import";
-        internal const string NestedImportsProjectFileName = "NestedImports.csproj";
+        private const string ImportTestsDirectoryPath = @"TestsData\Import";
+        private const string NestedImportsProjectFileName = "NestedImports.csproj";
 
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "testContext", Justification = "Needed for reflection")]
         static ProjectFileAndImportedFilesTests()
         {
             MsBuildEnvironment.Setup(TestHelpers.GetAssemblyLocation());

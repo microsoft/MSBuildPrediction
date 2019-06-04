@@ -65,10 +65,7 @@ namespace Microsoft.Build.Prediction.Tests
                                        { "Configuration", "debug" },
                                    };
 
-            // TODO: Remove the hardcoded toolsVersion.
-            // We are hardcoding the toolVersion value since the Microsoft.Build version that we are currently using
-            // throws when calling Project.FromProjectRootElement(projectRootElement, new ProjectOptions());
-            return new Project(projectRootElement, globalProperties, toolsVersion: "4.0");
+            return new Project(projectRootElement, globalProperties, toolsVersion: ProjectCollection.GlobalProjectCollection.DefaultToolsVersion);
         }
 
         public static string GetAssemblyLocation()
