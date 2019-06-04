@@ -12,11 +12,6 @@ namespace Microsoft.Build.Prediction.Tests
 
     public class ProjectStaticPredictionExecutorTests
     {
-        static ProjectStaticPredictionExecutorTests()
-        {
-            MsBuildEnvironment.Setup(TestHelpers.GetAssemblyLocation());
-        }
-
         [Fact]
         public void EmptyPredictionsResultInEmptyAggregateResult()
         {

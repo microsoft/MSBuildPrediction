@@ -3,9 +3,11 @@
 
 namespace Microsoft.Build.Prediction.Tests
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
     using Xunit;
@@ -16,12 +18,7 @@ namespace Microsoft.Build.Prediction.Tests
     /// </summary>
     public abstract class TestBase
     {
-        private static string assemblyLocation = TestHelpers.GetAssemblyLocation();
-
-        static TestBase()
-        {
-            MsBuildEnvironment.Setup(assemblyLocation);
-        }
+        private static string assemblyLocation = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 
         /// <summary>
         /// Gets the relative path for resource files used by the test suite.
@@ -34,10 +31,7 @@ namespace Microsoft.Build.Prediction.Tests
         /// <summary>
         /// Creates an absolute path using the assembly location as the root, followed by <see cref="TestsDirectoryPath"/>.
         /// </summary>
-        protected string CreateAbsolutePath(string relativePath)
-        {
-            return Path.Combine(assemblyLocation, TestsDirectoryPath, relativePath);
-        }
+        protected string CreateAbsolutePath(string relativePath) => Path.Combine(assemblyLocation, TestsDirectoryPath, relativePath);
 
         protected void ParseAndVerifyProject(
             string projFileName,

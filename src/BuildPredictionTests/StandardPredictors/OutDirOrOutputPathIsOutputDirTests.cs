@@ -3,7 +3,6 @@
 
 namespace Microsoft.Build.Prediction.Tests.StandardPredictors
 {
-    using System.Collections.Generic;
     using Microsoft.Build.Construction;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
@@ -12,11 +11,6 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
 
     public class OutDirOrOutputPathIsOutputDirTests
     {
-        static OutDirOrOutputPathIsOutputDirTests()
-        {
-            MsBuildEnvironment.Setup(TestHelpers.GetAssemblyLocation());
-        }
-
         [Fact]
         public void OutDirFoundAsOutputDir()
         {
