@@ -16,6 +16,16 @@ jobs:
     inputs:
       solution: '**/*.sln'
       msbuildVersion: '16.0'
+  - task: VSTest@2
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '**\.Tests.dll
+        !**\*TestAdapter.dll
+        !**\obj\**'
+      searchFolder: '$(System.DefaultWorkingDirectory)'
+      runOnlyImpactedTests: false
+      runInParallel: true
+      codeCoverageEnabled: true
 - job: BuildOnLinux
   displayName: "Build and test on Linux"
   pool:
@@ -24,4 +34,8 @@ jobs:
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
+      projects: 'MSBuildPrediction.sln'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
       projects: 'MSBuildPrediction.sln'
