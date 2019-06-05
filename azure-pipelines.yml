@@ -16,6 +16,10 @@ jobs:
     inputs:
       solution: '**/*.sln'
       msbuildVersion: '16.0'
+  - task: CmdLine@2
+    inputs:
+      script: 'cmd.exe /c "dir /s /b"'
+      workingDirectory: '$(System.DefaultWorkingDirectory)'
   - task: VSTest@2
     inputs:
       testSelector: 'testAssemblies'
