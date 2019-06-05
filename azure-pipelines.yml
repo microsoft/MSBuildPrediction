@@ -23,7 +23,9 @@ jobs:
   - task: VSTest@2
     inputs:
       testSelector: 'testAssemblies'
-      testAssemblyVer2: '**\*.Tests.dll'
+      testAssemblyVer2: '**\*test*.dll
+        !**\*TestAdapter.dll
+        !**\obj\**'
       searchFolder: '$(System.DefaultWorkingDirectory)'
       runOnlyImpactedTests: false
       runInParallel: true
