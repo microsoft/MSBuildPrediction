@@ -1,5 +1,6 @@
-trigger:
-- master
+pool:
+  name: VSEng-MicroBuildVS2017
+  demands: msbuild
 
 variables:
   solution: 'MSBuildPrediction.sln'
