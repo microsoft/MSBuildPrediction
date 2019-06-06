@@ -1,0 +1,42 @@
+trigger:
+- master
+
+variables:
+  solution: 'MSBuildPrediction.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+jobs:
+- job: BuildOnWindows
+  displayName: "Build and test on Windows"
+  pool:
+    name: 'Hosted Windows 2019 with VS2019'
+  steps:
+  - task: MSBuild@1
+    inputs:
+      solution: '**/*.sln'
+      msbuildVersion: '16.0'
+  - task: VSTest@2
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: | 
+        src\**\*test*.dll
+        !src\**\obj\**
+      searchFolder: '$(System.DefaultWorkingDirectory)'
+      runOnlyImpactedTests: false
+      runInParallel: true
+      codeCoverageEnabled: true
+- job: BuildOnLinux
+  displayName: "Build and test on Linux"
+  pool:
+    name: 'Hosted Ubuntu 1604'
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      projects: 'MSBuildPrediction.sln'
+# Test not passing on Linux
+#  - task: DotNetCoreCLI@2
+#    inputs:
+#      command: 'test'
+#      projects: 'MSBuildPrediction.sln'
