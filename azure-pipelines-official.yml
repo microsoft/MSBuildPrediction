@@ -13,19 +13,21 @@ steps:
   displayName: 'Install Signing Plugin'
   inputs:
     signType: '$(SignType)'
-
+- task: CmdLine@2
+  inputs:
+    script: 'mkdir $(Build.ArtifactStagingDirectory)\\logs'
 - task: MSBuild@1
   inputs:
     solution: '$(solution)'
     msbuildVersion: '16.0'
     configuration: $(buildConfiguration)
-    msbuildArguments: '/bl'
+    msbuildArguments: '/binaryLogger:LogFile=$(Build.ArtifactStagingDirectory)\\logs\\msbuild.binlog /p:SignType=$(signType)'
 
 - task: CopyFiles@2
   displayName: Collect Symbols
   inputs:
     SourceFolder: 'src/'
-    Contents: '**\*.pdb'
+    Contents: '**\\*.pdb'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/symbols'
     CleanTargetFolder: true
 
