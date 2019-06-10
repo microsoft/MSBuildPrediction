@@ -11,11 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <FilesToSign Include="$(OutDir)\Microsoft.Build.Prediction.dll">
+    <FilesToSign Include="$(TargetPath)">
       <Authenticode>Microsoft</Authenticode>
     </FilesToSign>
-    <FilesToSign Include="$(OutDir)\ref\Microsoft.Build.Prediction.dll">
+    <FilesToSign Include="$(TargetRefPath)">
       <Authenticode>Microsoft</Authenticode>
     </FilesToSign>
+    <SignNuGetPackFiles Include="$(PackageOutputPath)\$(PackageName).$(PackageVersion).snupkg" />
   </ItemGroup>
 </Project>
