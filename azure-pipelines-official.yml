@@ -1,10 +1,9 @@
 pool:
-  name: VSEng-MicroBuildVS2017
+  name: VSEng-MicroBuildVS2019
   demands: msbuild
 
 variables:
   solution: 'MSBuildPrediction.sln'
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   signType: 'Test'
   teamName: 'MSBuild'
@@ -19,6 +18,7 @@ steps:
   inputs:
     solution: '$(solution)'
     msbuildVersion: '16.0'
+    configuration: $(buildConfiguration)
     msbuildArguments: '/bl'
 
 - task: CopyFiles@2
