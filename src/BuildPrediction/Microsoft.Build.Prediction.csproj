@@ -17,6 +17,6 @@
     <FilesToSign Include="$(TargetRefPath)">
       <Authenticode>Microsoft</Authenticode>
     </FilesToSign>
-    <SignNuGetPackFiles Include="$(PackageOutputPath)\$(PackageName).$(PackageVersion).snupkg" />
+    <SignNuGetPackFiles Include="$(PackageOutputPath)\$(AssemblyName).$(PackageVersion).snupkg" />
   </ItemGroup>
 </Project>
