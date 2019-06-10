@@ -59,7 +59,7 @@ steps:
   displayName: Collect Packages
   inputs:
     SourceFolder: 'src/BuildPrediction/bin/$(BuildConfiguration)'
-    Contents: '*.nupkg'
+    Contents: '*.*nupkg'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/pkg'
     CleanTargetFolder: true
 
