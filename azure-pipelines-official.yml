@@ -15,13 +15,13 @@ steps:
     signType: '$(SignType)'
 - task: CmdLine@2
   inputs:
-    script: 'mkdir $(Build.ArtifactStagingDirectory)\\logs'
+    script: 'mkdir $(Build.ArtifactStagingDirectory)\logs'
 - task: MSBuild@1
   inputs:
     solution: '$(solution)'
     msbuildVersion: '16.0'
     configuration: $(buildConfiguration)
-    msbuildArguments: '/binaryLogger:LogFile=$(Build.ArtifactStagingDirectory)\\logs\\msbuild.binlog /p:SignType=$(signType)'
+    msbuildArguments: '/binaryLogger:LogFile=$(Build.ArtifactStagingDirectory)\logs\msbuild.binlog /p:SignType=$(signType)'
 
 - task: CopyFiles@2
   displayName: Collect Symbols
