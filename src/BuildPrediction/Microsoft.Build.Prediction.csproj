@@ -14,5 +14,8 @@
     <FilesToSign Include="$(OutDir)\Microsoft.Build.Prediction.dll">
       <Authenticode>Microsoft</Authenticode>
     </FilesToSign>
+    <FilesToSign Include="$(OutDir)\ref\Microsoft.Build.Prediction.dll">
+      <Authenticode>Microsoft</Authenticode>
+    </FilesToSign>
   </ItemGroup>
 </Project>
