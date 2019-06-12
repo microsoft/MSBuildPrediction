@@ -27,10 +27,10 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         private const string CopyTaskDestinationFolder = "DestinationFolder";
 
         /// <inheritdoc />
-        public bool TryPredictInputsAndOutputs(
+        public void PredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out ProjectPredictions predictions)
+            ProjectPredictionReporter predictionReporter)
         {
             // Determine the active Targets in this Project.
             var activeTargets = new Dictionary<string, ProjectTargetInstance>(StringComparer.OrdinalIgnoreCase);
@@ -50,23 +50,12 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
             project.AddBeforeAndAfterTargets(activeTargets);
 
             // Then parse copy tasks for these targets.
-            var buildInputs = new HashSet<BuildInput>(BuildInput.ComparerInstance);
+            var buildInputs = new HashSet<PredictedItem>(PredictedItemComparer.Instance);
             var buildOutputDirectories = new HashSet<string>(PathComparer.Instance);
             foreach (KeyValuePair<string, ProjectTargetInstance> target in activeTargets)
             {
-                ParseCopyTask(target.Value, projectInstance, buildInputs, buildOutputDirectories);
+                ParseCopyTask(target.Value, projectInstance, predictionReporter);
             }
-
-            if (buildInputs.Count > 0)
-            {
-                predictions = new ProjectPredictions(
-                    buildInputs,
-                    buildOutputDirectories.Select(o => new BuildOutputDirectory(o)).ToList());
-                return true;
-            }
-
-            predictions = null;
-            return false;
         }
 
         /// <summary>
@@ -75,8 +64,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         private static void ParseCopyTask(
             ProjectTargetInstance target,
             ProjectInstance projectInstance,
-            HashSet<BuildInput> buildInputs,
-            HashSet<string> buildOutputDirectories)
+            ProjectPredictionReporter predictionReporter)
         {
             // Get all Copy tasks from targets.
             List<ProjectTaskInstance> tasks = target.Tasks
@@ -98,8 +86,10 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                             continue;
                         }
 
-                        buildInputs.UnionWith(inputs.DedupedFiles.
-                            Select(file => new BuildInput(Path.Combine(projectInstance.Directory, file), false)));
+                        foreach (var file in inputs.DedupedFiles)
+                        {
+                            predictionReporter.ReportInputFile(file);
+                        }
 
                         bool hasDestinationFolder = task.Parameters.TryGetValue(
                             CopyTaskDestinationFolder,
@@ -126,7 +116,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                                  inputs.NumBatchExpressions == 1 && inputs.Expressions.Count == 1) ||
                                 (outputs.NumBatchExpressions == 0 && inputs.NumBatchExpressions == 0))
                             {
-                                ProcessOutputs(projectInstance.FullPath, inputs, outputs, hasDestinationFolder, buildOutputDirectories);
+                                ProcessOutputs(inputs, outputs, hasDestinationFolder, predictionReporter);
                             }
                             else
                             {
@@ -145,20 +135,17 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         /// <summary>
         /// Validates that a task's outputs are sane. If so, predicts output directories.
         /// </summary>
-        /// <param name="projectFullPath">The absolute path to the project instance. Can be null if the project was not loaded
-        /// from this.</param>
         /// <param name="inputs">The inputs specified in SourceFiles on a copy task.</param>
         /// <param name="outputs">
         /// The outputs specified in the DestinationFolder or DestinationFiles attribute on a copy task.
         /// </param>
         /// <param name="copyTaskSpecifiesDestinationFolder">True if the user has specified DestinationFolder.</param>
-        /// <param name="buildOutputDirectories">Collection to fill with output folder predictions.</param>
+        /// <param name="predictionReporter">A reporter to report predictions to.</param>
         private static void ProcessOutputs(
-            string projectFullPath,
             FileExpressionList inputs,
             FileExpressionList outputs,
             bool copyTaskSpecifiesDestinationFolder,
-            HashSet<string> buildOutputDirectories)
+            ProjectPredictionReporter predictionReporter)
         {
             for (int i = 0; i < inputs.DedupedFiles.Count; i++)
             {
@@ -193,33 +180,8 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                     predictedOutputDirectory = Path.GetDirectoryName(outputs.DedupedFiles[i]);
                 }
 
-                // If the predicted directory is not absolute, let's try to make it absolute using the project full path
-                if (!TryMakePathAbsoluteIfNeeded(predictedOutputDirectory, projectFullPath, out string absolutePathPrediction))
-                {
-                    // The project full path is not available, so just ignore this prediction
-                    continue;
-                }
-
-                buildOutputDirectories.Add(absolutePathPrediction);
+                predictionReporter.ReportOutputDirectory(predictedOutputDirectory);
             }
-        }
-
-        private static bool TryMakePathAbsoluteIfNeeded(string path, string projectFullPath, out string absolutePath)
-        {
-            if (!Path.IsPathRooted(path))
-            {
-                if (string.IsNullOrEmpty(projectFullPath))
-                {
-                    absolutePath = string.Empty;
-                    return false;
-                }
-
-                absolutePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(projectFullPath), path));
-                return true;
-            }
-
-            absolutePath = path;
-            return true;
         }
     }
 }

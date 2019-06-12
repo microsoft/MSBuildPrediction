@@ -4,8 +4,6 @@
 namespace Microsoft.Build.Prediction.Predictors
 {
     using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
@@ -17,25 +15,15 @@ namespace Microsoft.Build.Prediction.Predictors
         internal const string CompileItemName = "Compile";
 
         /// <inheritdoc/>
-        public bool TryPredictInputsAndOutputs(
+        public void PredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out ProjectPredictions predictions)
+            ProjectPredictionReporter predictionReporter)
         {
-            // TODO: Need to determine how to normalize evaluated include selected below and determine if it is relative to project.
-            List<BuildInput> itemInputs = project.GetItems(CompileItemName)
-                .Select(item => new BuildInput(
-                    Path.Combine(project.DirectoryPath, item.EvaluatedInclude),
-                    isDirectory: false))
-                .ToList();
-            if (itemInputs.Count > 0)
+            foreach (ProjectItem item in project.GetItems(CompileItemName))
             {
-                predictions = new ProjectPredictions(itemInputs, buildOutputDirectories: null);
-                return true;
+                predictionReporter.ReportInputFile(item.EvaluatedInclude);
             }
-
-            predictions = null;
-            return false;
         }
     }
 }

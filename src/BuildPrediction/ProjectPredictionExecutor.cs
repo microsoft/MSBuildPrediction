@@ -43,17 +43,32 @@ namespace Microsoft.Build.Prediction
         }
 
         /// <summary>
-        /// Executes all predictors in parallel against the provided Project and aggregates
-        /// the results into one set of predictions. All paths in the final predictions are
-        /// fully qualified paths, not relative to the directory containing the Project or
-        /// to the repository root directory, since inputs and outputs could lie outside of
-        /// that directory.
+        /// Executes all predictors against the provided Project and aggregates the results
+        /// into one set of predictions. All paths in the final predictions are fully qualified
+        /// paths, not relative to the directory containing the Project, since inputs and
+        /// outputs could lie outside of that directory.
         /// </summary>
         /// <param name="project">The project to execute predictors against.</param>
         /// <returns>An object describing all predicted inputs and outputs.</returns>
         public ProjectPredictions PredictInputsAndOutputs(Project project)
         {
+            var eventSink = new DefaultProjectPredictionCollector();
+            PredictInputsAndOutputs(project, eventSink);
+            return eventSink.Predictions;
+        }
+
+        /// <summary>
+        /// Executes all predictors against the provided Project and reports all results
+        /// to the provided event sink. Custom event sinks can be used to avoid translating
+        /// predictions from <see cref="ProjectPredictions"/> to the caller's own object model,
+        /// or for custom path normalization logic.
+        /// </summary>
+        /// <param name="project">The project to execute predictors against.</param>
+        /// <param name="projectPredictionCollector">The prediction collector to use.</param>
+        public void PredictInputsAndOutputs(Project project, IProjectPredictionCollector projectPredictionCollector)
+        {
             project.ThrowIfNull(nameof(project));
+            projectPredictionCollector.ThrowIfNull(nameof(projectPredictionCollector));
 
             // Squash the Project with its full XML contents and tracking down to
             // a more memory-efficient format that can be used to evaluate conditions.
@@ -73,7 +88,7 @@ namespace Microsoft.Build.Prediction
             {
                 for (var i = 0; i < _predictors.Length; i++)
                 {
-                    ExecuteSinglePredictor(project, projectInstance, _predictors[i], results);
+                    ExecuteSinglePredictor(project, projectInstance, _predictors[i], projectPredictionCollector);
                 }
             }
             else
@@ -82,70 +97,25 @@ namespace Microsoft.Build.Prediction
                     0,
                     _predictors.Length,
                     new ParallelOptions { MaxDegreeOfParallelism = _options.MaxDegreeOfParallelism },
-                    i => ExecuteSinglePredictor(project, projectInstance, _predictors[i], results));
+                    i => ExecuteSinglePredictor(project, projectInstance, _predictors[i], projectPredictionCollector));
             }
-
-            var inputsByPath = new Dictionary<string, BuildInput>(PathComparer.Instance);
-            var outputDirectoriesByPath = new Dictionary<string, BuildOutputDirectory>(PathComparer.Instance);
-
-            foreach (ProjectPredictions predictions in results)
-            {
-                // TODO: Determine policy when dup inputs vary by IsDirectory.
-                foreach (BuildInput input in predictions.BuildInputs)
-                {
-                    if (inputsByPath.TryGetValue(input.Path, out BuildInput existingInput))
-                    {
-                        existingInput.AddPredictedBy(input.PredictedBy);
-                    }
-                    else
-                    {
-                        inputsByPath[input.Path] = input;
-                    }
-                }
-
-                foreach (BuildOutputDirectory outputDir in predictions.BuildOutputDirectories)
-                {
-                    if (outputDirectoriesByPath.TryGetValue(outputDir.Path, out BuildOutputDirectory existingOutputDir))
-                    {
-                        existingOutputDir.AddPredictedBy(outputDir.PredictedBy);
-                    }
-                    else
-                    {
-                        outputDirectoriesByPath[outputDir.Path] = outputDir;
-                    }
-                }
-            }
-
-            return new ProjectPredictions(inputsByPath.Values, outputDirectoriesByPath.Values);
         }
 
         private static void ExecuteSinglePredictor(
             Project project,
             ProjectInstance projectInstance,
             PredictorAndName predictorAndName,
-            ConcurrentQueue<ProjectPredictions> results)
+            IProjectPredictionCollector projectPredictionCollector)
         {
-            bool success = predictorAndName.Predictor.TryPredictInputsAndOutputs(
+            var predictionReporter = new ProjectPredictionReporter(
+                projectPredictionCollector,
+                projectInstance.Directory,
+                predictorAndName.TypeName);
+
+            predictorAndName.Predictor.PredictInputsAndOutputs(
                 project,
                 projectInstance,
-                out ProjectPredictions result);
-
-            // Tag each prediction with its source.
-            // Check for null even on success as a bad predictor could do that.
-            if (success && result != null)
-            {
-                foreach (BuildInput item in result.BuildInputs)
-                {
-                    item.AddPredictedBy(predictorAndName.TypeName);
-                }
-
-                foreach (BuildOutputDirectory item in result.BuildOutputDirectories)
-                {
-                    item.AddPredictedBy(predictorAndName.TypeName);
-                }
-
-                results.Enqueue(result);
-            }
+                predictionReporter);
         }
 
         private readonly struct PredictorAndName

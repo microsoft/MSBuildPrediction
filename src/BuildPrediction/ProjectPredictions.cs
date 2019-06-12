@@ -13,20 +13,32 @@ namespace Microsoft.Build.Prediction
     public sealed class ProjectPredictions
     {
         /// <summary>Initializes a new instance of the <see cref="ProjectPredictions"/> class.</summary>
-        /// <param name="buildInputs">A collection of predicted file or directory inputs.</param>
-        /// <param name="buildOutputDirectories">A collection of predicted directory outputs.</param>
+        /// <param name="inputFiles">A collection of predicted input files.</param>
+        /// <param name="inputDirectories">A collection of predicted input directories.</param>
+        /// <param name="outputFiles">A collection of predicted output files.</param>
+        /// <param name="outputDirectories">A collection of predicted output directories.</param>
         public ProjectPredictions(
-            IReadOnlyCollection<BuildInput> buildInputs,
-            IReadOnlyCollection<BuildOutputDirectory> buildOutputDirectories)
+            IReadOnlyCollection<PredictedItem> inputFiles,
+            IReadOnlyCollection<PredictedItem> inputDirectories,
+            IReadOnlyCollection<PredictedItem> outputFiles,
+            IReadOnlyCollection<PredictedItem> outputDirectories)
         {
-            BuildInputs = buildInputs ?? Array.Empty<BuildInput>();
-            BuildOutputDirectories = buildOutputDirectories ?? Array.Empty<BuildOutputDirectory>();
+            InputFiles = inputFiles ?? Array.Empty<PredictedItem>();
+            InputDirectories = inputDirectories ?? Array.Empty<PredictedItem>();
+            OutputFiles = outputFiles ?? Array.Empty<PredictedItem>();
+            OutputDirectories = outputDirectories ?? Array.Empty<PredictedItem>();
         }
 
-        /// <summary>Gets a collection of predicted file or directory inputs.</summary>
-        public IReadOnlyCollection<BuildInput> BuildInputs { get; }
+        /// <summary>Gets a collection of predicted input files.</summary>
+        public IReadOnlyCollection<PredictedItem> InputFiles { get; }
 
-        /// <summary>Gets a collection of predicted directory outputs.</summary>
-        public IReadOnlyCollection<BuildOutputDirectory> BuildOutputDirectories { get; }
+        /// <summary>Gets a collection of predicted input directories.</summary>
+        public IReadOnlyCollection<PredictedItem> InputDirectories { get; }
+
+        /// <summary>Gets a collection of predicted output files.</summary>
+        public IReadOnlyCollection<PredictedItem> OutputFiles { get; }
+
+        /// <summary>Gets a collection of predicted output directories.</summary>
+        public IReadOnlyCollection<PredictedItem> OutputDirectories { get; }
     }
 }

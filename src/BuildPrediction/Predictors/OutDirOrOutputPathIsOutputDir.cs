@@ -3,7 +3,6 @@
 
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System.IO;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
@@ -15,50 +14,29 @@ namespace Microsoft.Build.Prediction.Predictors
         internal const string OutDirMacro = "OutDir";
         internal const string OutputPathMacro = "OutputPath";
 
-        public bool TryPredictInputsAndOutputs(
+        public void PredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out ProjectPredictions predictions)
+            ProjectPredictionReporter predictionReporter)
         {
-            string outDir = project.GetPropertyValue(OutDirMacro);
-            string outputPath = project.GetPropertyValue(OutputPathMacro);
-
             // For an MSBuild project, the output goes to $(OutDir) by default. Usually $(OutDir)
             // equals $(OutputPath). Many targets expect OutputPath/OutDir to be defined and
             // MsBuild.exe reports an error if these macros are undefined.
-            string finalOutputPath;
+            string outDir = project.GetPropertyValue(OutDirMacro);
             if (!string.IsNullOrWhiteSpace(outDir))
             {
-                finalOutputPath = outDir;
+                predictionReporter.ReportOutputDirectory(outDir);
             }
-            else if (!string.IsNullOrWhiteSpace(outputPath))
+            else
             {
                 // Some projects use custom code with $(OutputPath) set instead of following the common .targets pattern.
                 // Fall back to $(OutputPath) first when $(OutDir) is not set.
-                finalOutputPath = outputPath;
+                string outputPath = project.GetPropertyValue(OutputPathMacro);
+                if (!string.IsNullOrWhiteSpace(outputPath))
+                {
+                    predictionReporter.ReportOutputDirectory(outputPath);
+                }
             }
-            else
-            {
-                // Neither is defined, we don't return a result.
-                predictions = null;
-                return false;
-            }
-
-            // If the path is relative, it is interpreted as relative to the project directory path
-            string predictedOutputDirectory;
-            if (!Path.IsPathRooted(finalOutputPath))
-            {
-                predictedOutputDirectory = Path.Combine(project.DirectoryPath, finalOutputPath);
-            }
-            else
-            {
-                predictedOutputDirectory = finalOutputPath;
-            }
-
-            predictions = new ProjectPredictions(
-                buildInputs: null,
-                buildOutputDirectories: new[] { new BuildOutputDirectory(Path.GetFullPath(predictedOutputDirectory)) });
-            return true;
         }
     }
 }

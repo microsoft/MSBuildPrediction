@@ -11,35 +11,26 @@ namespace Microsoft.Build.Prediction.Tests
     using Microsoft.Build.Construction;
     using Microsoft.Build.Definition;
     using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Xunit;
 
     internal static class TestHelpers
     {
+        public static void AssertNoPredictions(this ProjectPredictions predictions) => predictions.AssertPredictions(null, null, null, null);
+
         public static void AssertPredictions(
             this ProjectPredictions predictions,
-            IReadOnlyCollection<BuildInput> expectedBuildInputs,
-            IReadOnlyCollection<BuildOutputDirectory> expectedBuildOutputDirectories)
-        {
-            Assert.NotNull(predictions);
-
-            if (expectedBuildInputs == null)
-            {
-                Assert.Equal(0, predictions.BuildInputs.Count);
-            }
-            else
-            {
-                CheckCollection(expectedBuildInputs, predictions.BuildInputs, BuildInput.ComparerInstance, "inputs");
-            }
-
-            if (expectedBuildOutputDirectories == null)
-            {
-                Assert.Equal(0, predictions.BuildOutputDirectories.Count);
-            }
-            else
-            {
-                CheckCollection(expectedBuildOutputDirectories, predictions.BuildOutputDirectories, BuildOutputDirectory.ComparerInstance, "outputs");
-            }
-        }
+            Project project,
+            IReadOnlyCollection<PredictedItem> expectedInputFiles,
+            IReadOnlyCollection<PredictedItem> expectedInputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedOutputFiles,
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
+            => AssertPredictions(
+                predictions,
+                expectedInputFiles.MakeAbsolute(project),
+                expectedInputDirectories.MakeAbsolute(project),
+                expectedOutputFiles.MakeAbsolute(project),
+                expectedOutputDirectories.MakeAbsolute(project));
 
         public static Project ProjectFromXml(string xml)
         {
@@ -65,6 +56,67 @@ namespace Microsoft.Build.Prediction.Tests
                                    };
 
             return new Project(projectRootElement, globalProperties, toolsVersion: ProjectCollection.GlobalProjectCollection.DefaultToolsVersion);
+        }
+
+        public static ProjectPredictions GetProjectPredictions(this IProjectPredictor predictor, Project project)
+        {
+            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
+            var projectPredictionCollector = new DefaultProjectPredictionCollector();
+            var predictionReporter = new ProjectPredictionReporter(
+                projectPredictionCollector,
+                projectInstance.Directory,
+                predictor.GetType().Name);
+            predictor.PredictInputsAndOutputs(project, projectInstance, predictionReporter);
+            return projectPredictionCollector.Predictions;
+        }
+
+        public static IReadOnlyCollection<PredictedItem> MakeAbsolute(this IReadOnlyCollection<PredictedItem> items, Project project)
+            => items?.Select(item => new PredictedItem(Path.Combine(project.DirectoryPath, item.Path), item.PredictedBy.ToArray())).ToList();
+
+        private static void AssertPredictions(
+            this ProjectPredictions predictions,
+            IReadOnlyCollection<PredictedItem> expectedInputFiles,
+            IReadOnlyCollection<PredictedItem> expectedInputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedOutputFiles,
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
+        {
+            Assert.NotNull(predictions);
+
+            if (expectedInputFiles == null)
+            {
+                Assert.Equal(0, predictions.InputFiles.Count);
+            }
+            else
+            {
+                CheckCollection(expectedInputFiles, predictions.InputFiles, PredictedItemComparer.Instance, "input files");
+            }
+
+            if (expectedInputDirectories == null)
+            {
+                Assert.Equal(0, predictions.InputDirectories.Count);
+            }
+            else
+            {
+                CheckCollection(expectedInputDirectories, predictions.InputDirectories, PredictedItemComparer.Instance, "input directories");
+            }
+
+            if (expectedOutputFiles == null)
+            {
+                Assert.Equal(0, predictions.OutputFiles.Count);
+            }
+            else
+            {
+                CheckCollection(expectedOutputFiles, predictions.OutputFiles, PredictedItemComparer.Instance, "output files");
+            }
+
+            if (expectedOutputDirectories == null)
+            {
+                Assert.Equal(0, predictions.OutputDirectories.Count);
+            }
+            else
+            {
+                CheckCollection(expectedOutputDirectories, predictions.OutputDirectories, PredictedItemComparer.Instance, "output directories");
+            }
         }
 
         private static void CheckCollection<T>(IReadOnlyCollection<T> expected, IReadOnlyCollection<T> actual, IEqualityComparer<T> comparer, string type)

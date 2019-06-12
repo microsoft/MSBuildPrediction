@@ -3,8 +3,6 @@
 
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
-    using System;
-    using System.IO;
     using Microsoft.Build.Prediction.Predictors.CopyTask;
     using Xunit;
 
@@ -12,48 +10,48 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     {
         private const string CopyTestsDirectoryPath = @"TestsData\Copy\";
 
-        private readonly BuildInput _copy1Dll = new BuildInput("copy1.dll", false);
-        private readonly BuildInput _copy2Dll = new BuildInput("copy2.dll", false);
-        private readonly BuildInput _copy3Dll = new BuildInput(@"Copy\copy3.dll", false);
+        private readonly PredictedItem _copy1Dll = new PredictedItem("copy1.dll", nameof(CopyTaskPredictor));
+        private readonly PredictedItem _copy2Dll = new PredictedItem("copy2.dll", nameof(CopyTaskPredictor));
+        private readonly PredictedItem _copy3Dll = new PredictedItem(@"Copy\copy3.dll", nameof(CopyTaskPredictor));
 
         protected override string TestsDirectoryPath => CopyTestsDirectoryPath;
 
         [Fact]
         public void TestDefaultTargetDestinationFilesCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder2")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("destinationFilesCopy.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("destinationFilesCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestCustomTargetFilesCopy()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder2")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("customTargetWithCopy.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("customTargetWithCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         /// <summary>
@@ -64,18 +62,18 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void TestCopyParseNonStandardDefaultTargets()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("CopyDefaultCustomTargets.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("CopyDefaultCustomTargets.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         /// <summary>
@@ -88,21 +86,21 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void TestCopyInputsBeforeAfterTargets()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder3")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder4")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder3", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder4", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("CopyCustomImportedTargets.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("CopyCustomImportedTargets.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         /// <summary>
@@ -116,24 +114,24 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void TestCopyBatchedItemsWithThisFileMacros()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
 
                 // TODO: Note double backslash in test - add path normalization and canonicalization to input and output paths.
-                new BuildInput(Path.Combine(Environment.CurrentDirectory, CopyTestsDirectoryPath) + @"Copy\\copy3.dll", false),
+                new PredictedItem(@"Copy\\copy3.dll", nameof(CopyTaskPredictor)),
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder2")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder3")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder3", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("CopyTestBatchingInputs.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("CopyTestBatchingInputs.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         /// <summary>
@@ -142,167 +140,167 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void TestCopyBatchingDestinationFolder()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
-                new BuildInput("SomeFile.cs", false),
+                new PredictedItem("SomeFile.cs", nameof(CopyTaskPredictor)),
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
                 // TODO: Note trailing backslash in test - add path normalization and canonicalization to input and output paths.
-                new BuildOutputDirectory(CreateAbsolutePath(@"debug\amd64\")),
+                new PredictedItem(@"debug\amd64\", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("CopyTestBatchingDestinationFolder.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("CopyTestBatchingDestinationFolder.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestCopyParseTimeNotExistFilesCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
-                new BuildInput("NotExist1.dll", false),
-                new BuildInput("NotExist2.dll", false),
+                new PredictedItem("NotExist1.dll", nameof(CopyTaskPredictor)),
+                new PredictedItem("NotExist2.dll", nameof(CopyTaskPredictor)),
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder2")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("copyparsetimenotexistfile.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("copyparsetimenotexistfile.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestWildcardsInIncludeCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
                 _copy3Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("wildcardsInIncludeCopy.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("wildcardsInIncludeCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestIncludeViaItemGroupCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("IncludeViaItemGroupCopy.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("IncludeViaItemGroupCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestDestinationFilesItemTransformationCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("DestinationFilesItemTransformation.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("DestinationFilesItemTransformation.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestMultipleTargetsDestinationFolderCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder2")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("destinationFolderMultipleTargetsCopy.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("destinationFolderMultipleTargetsCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestTargetDependsOnCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
                 _copy2Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder2")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("TargetDependsOnCopy.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("TargetDependsOnCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestTargetConditionInCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("TargetConditionInCopy.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("TargetConditionInCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
         [Fact]
         public void TestTaskConditionInCopyProject()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
             };
 
-            BuildOutputDirectory[] expectedOutputs =
+            PredictedItem[] expectedOutputDirectories =
             {
-                new BuildOutputDirectory(CreateAbsolutePath(@"target\debug\amd64\folder1")),
+                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
-            ParseAndVerifyProject("TaskConditionInCopy.csproj", predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject("TaskConditionInCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
     }
 }

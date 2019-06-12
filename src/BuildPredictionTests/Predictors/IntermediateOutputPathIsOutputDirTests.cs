@@ -3,11 +3,8 @@
 
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
-    using System.Collections.Generic;
-    using System.IO;
     using Microsoft.Build.Construction;
     using Microsoft.Build.Evaluation;
-    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -18,11 +15,14 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             const string IntermediateOutputPath = @"C:\repo\bin\x64";
             Project project = CreateTestProject(IntermediateOutputPath);
-            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
-            var predictor = new IntermediateOutputPathIsOutputDir();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out ProjectPredictions predictions);
-            Assert.True(hasPredictions);
-            predictions.AssertPredictions(null, new[] { new BuildOutputDirectory(IntermediateOutputPath) });
+            new IntermediateOutputPathIsOutputDir()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    null,
+                    null,
+                    null,
+                    new[] { new PredictedItem(IntermediateOutputPath, nameof(IntermediateOutputPathIsOutputDir)) });
         }
 
         [Fact]
@@ -30,21 +30,24 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             const string IntermediateOutputPath = @"bin\x64";
             Project project = CreateTestProject(IntermediateOutputPath);
-            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
             var predictor = new IntermediateOutputPathIsOutputDir();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out ProjectPredictions predictions);
-            Assert.True(hasPredictions);
-            predictions.AssertPredictions(null, new[] { new BuildOutputDirectory(Path.Combine(Directory.GetCurrentDirectory(), IntermediateOutputPath)) });
+            new IntermediateOutputPathIsOutputDir()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    null,
+                    null,
+                    null,
+                    new[] { new PredictedItem(IntermediateOutputPath, nameof(IntermediateOutputPathIsOutputDir)) });
         }
 
         [Fact]
         public void NoOutputsReportedIfNoIntermediateOutputPath()
         {
             Project project = CreateTestProject(null);
-            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
-            var predictor = new IntermediateOutputPathIsOutputDir();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out _);
-            Assert.False(hasPredictions, "Predictor should have fallen back to returning no predictions if IntermediateOutputDir is not defined in project");
+            new IntermediateOutputPathIsOutputDir()
+                .GetProjectPredictions(project)
+                .AssertNoPredictions();
         }
 
         private static Project CreateTestProject(string intermediateOutDir)

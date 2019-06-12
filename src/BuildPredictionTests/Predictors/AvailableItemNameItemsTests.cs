@@ -5,10 +5,8 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using Microsoft.Build.Construction;
     using Microsoft.Build.Evaluation;
-    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -24,17 +22,14 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 Tuple.Create("Available1", "available1Value2"),
                 Tuple.Create("Available2", "available2Value"),
                 Tuple.Create("NotAvailable", "shouldNotGetThisAsAnInput"));
-            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
-            var predictor = new AvailableItemNameItems();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out ProjectPredictions predictions);
-            Assert.True(hasPredictions);
-            predictions.AssertPredictions(
-                new[]
-                {
-                    new BuildInput(Path.Combine(project.DirectoryPath, "available1Value"), isDirectory: false),
-                    new BuildInput(Path.Combine(project.DirectoryPath, "available1Value2"), isDirectory: false),
-                    new BuildInput(Path.Combine(project.DirectoryPath, "available2Value"), isDirectory: false),
-                }, null);
+            new AvailableItemNameItems()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    new[] { new PredictedItem("available1Value", nameof(AvailableItemNameItems)), new PredictedItem("available1Value2", nameof(AvailableItemNameItems)), new PredictedItem("available2Value", nameof(AvailableItemNameItems)) },
+                    null,
+                    null,
+                    null);
         }
 
         private static Project CreateTestProject(IEnumerable<string> availableItemNames, params Tuple<string, string>[] itemNamesAndValues)
