@@ -20,7 +20,6 @@ namespace Microsoft.Build.Prediction
         /// This includes the following predictors:
         /// <list type="bullet">
         /// <item><see cref="AvailableItemNameItems"/></item>
-        /// <item><see cref="CopyTaskPredictor"/></item>
         /// <item><see cref="CSharpCompileItems"/></item>
         /// <item><see cref="IntermediateOutputPathIsOutputDir"/></item>
         /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
@@ -31,11 +30,37 @@ namespace Microsoft.Build.Prediction
         public static IReadOnlyCollection<IProjectStaticPredictor> BasicPredictors => new IProjectStaticPredictor[]
         {
             new AvailableItemNameItems(),
+            new CSharpCompileItems(),
+            new IntermediateOutputPathIsOutputDir(),
+            new OutDirOrOutputPathIsOutputDir(),
+            new ProjectFileAndImportedFiles(),
+            //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
+        };
+
+        /// <summary>
+        /// Gets a collection of all <see cref="IProjectStaticPredictor"/>s. This is for convencience to avoid needing to specify all predictors explicitly.
+        /// </summary>
+        /// <remarks>
+        /// This includes the following predictors:
+        /// <list type="bullet">
+        /// <item><see cref="AvailableItemNameItems"/></item>
+        /// <item><see cref="CopyTaskPredictor"/></item>
+        /// <item><see cref="CSharpCompileItems"/></item>
+        /// <item><see cref="IntermediateOutputPathIsOutputDir"/></item>
+        /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
+        /// <item><see cref="ProjectFileAndImportedFiles"/></item>
+        /// </list>
+        /// </remarks>
+        /// <returns>A collection of <see cref="IProjectStaticPredictor"/>.</returns>
+        public static IReadOnlyCollection<IProjectStaticPredictor> AllPredictors => new IProjectStaticPredictor[]
+        {
+            new AvailableItemNameItems(),
             new CopyTaskPredictor(),
             new CSharpCompileItems(),
             new IntermediateOutputPathIsOutputDir(),
             new OutDirOrOutputPathIsOutputDir(),
             new ProjectFileAndImportedFiles(),
+            //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
 }
