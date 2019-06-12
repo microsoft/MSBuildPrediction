@@ -4,17 +4,17 @@
 namespace Microsoft.Build.Prediction
 {
     using System.Collections.Generic;
-    using Microsoft.Build.Prediction.StandardPredictors;
-    using Microsoft.Build.Prediction.StandardPredictors.CopyTask;
+    using Microsoft.Build.Prediction.Predictors;
+    using Microsoft.Build.Prediction.Predictors.CopyTask;
 
     /// <summary>
-    /// Creates instances of <see cref="IProjectStaticPredictor"/> for use with
-    /// <see cref="ProjectStaticPredictionExecutor"/>.
+    /// Creates instances of <see cref="IProjectPredictor"/> for use with
+    /// <see cref="ProjectPredictionExecutor"/>.
     /// </summary>
-    public static class ProjectStaticPredictors
+    public static class ProjectPredictors
     {
         /// <summary>
-        /// Gets a collection of all basic <see cref="IProjectStaticPredictor"/>s. This is for convencience to avoid needing to specify all basic predictors explicitly.
+        /// Gets a collection of all basic <see cref="IProjectPredictor"/>s. This is for convencience to avoid needing to specify all basic predictors explicitly.
         /// </summary>
         /// <remarks>
         /// This includes the following predictors:
@@ -26,8 +26,8 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
         /// </list>
         /// </remarks>
-        /// <returns>A collection of <see cref="IProjectStaticPredictor"/>.</returns>
-        public static IReadOnlyCollection<IProjectStaticPredictor> BasicPredictors => new IProjectStaticPredictor[]
+        /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
+        public static IReadOnlyCollection<IProjectPredictor> BasicPredictors => new IProjectPredictor[]
         {
             new AvailableItemNameItems(),
             new CSharpCompileItems(),
@@ -38,7 +38,7 @@ namespace Microsoft.Build.Prediction
         };
 
         /// <summary>
-        /// Gets a collection of all <see cref="IProjectStaticPredictor"/>s. This is for convencience to avoid needing to specify all predictors explicitly.
+        /// Gets a collection of all <see cref="IProjectPredictor"/>s. This is for convencience to avoid needing to specify all predictors explicitly.
         /// </summary>
         /// <remarks>
         /// This includes the following predictors:
@@ -51,8 +51,8 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
         /// </list>
         /// </remarks>
-        /// <returns>A collection of <see cref="IProjectStaticPredictor"/>.</returns>
-        public static IReadOnlyCollection<IProjectStaticPredictor> AllPredictors => new IProjectStaticPredictor[]
+        /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
+        public static IReadOnlyCollection<IProjectPredictor> AllPredictors => new IProjectPredictor[]
         {
             new AvailableItemNameItems(),
             new CopyTaskPredictor(),

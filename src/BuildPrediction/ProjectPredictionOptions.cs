@@ -6,15 +6,15 @@ namespace Microsoft.Build.Prediction
     using System;
 
     /// <summary>
-    /// Represents various options used during prediction to change behavior.
+    /// Represents various options used during project prediction to change behavior.
     /// </summary>
-    public sealed class PredictionOptions
+    public sealed class ProjectPredictionOptions
     {
         /// <summary>
         /// Gets or sets the max degree of parallelism to use for prediction execution. Defaults to <see cref="Environment.ProcessorCount"/>.
         /// </summary>
         /// <remarks>
-        /// If the caller of <see cref="ProjectStaticPredictionExecutor"/> is parallelizing across projects, it's recommended to set this to 1 to avoid over-scheduling.
+        /// If the caller of <see cref="ProjectPredictionExecutor"/> is parallelizing across projects, it's recommended to set this to 1 to avoid over-scheduling.
         /// </remarks>
         public int MaxDegreeOfParallelism { get; set; } = Environment.ProcessorCount;
     }

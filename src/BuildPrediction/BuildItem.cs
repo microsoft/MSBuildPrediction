@@ -36,7 +36,7 @@ namespace Microsoft.Build.Prediction
 
         /// <summary>
         /// Gets the class name of each contributor to this prediction, for debugging purposes.
-        /// These values are set in internally by <see cref="ProjectStaticPredictionExecutor"/>.
+        /// These values are set in internally by <see cref="ProjectPredictionExecutor"/>.
         /// </summary>
         public IReadOnlyCollection<string> PredictedBy => _predictedBy;
 

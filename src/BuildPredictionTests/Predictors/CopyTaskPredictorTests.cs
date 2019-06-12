@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Build.Prediction.Tests.StandardPredictors
+namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using System;
     using System.IO;
-    using Microsoft.Build.Prediction.StandardPredictors.CopyTask;
+    using Microsoft.Build.Prediction.Predictors.CopyTask;
     using Xunit;
 
     public class CopyTaskPredictorTests : TestBase

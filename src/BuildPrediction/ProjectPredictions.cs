@@ -8,14 +8,14 @@ namespace Microsoft.Build.Prediction
 
     /// <summary>
     /// Predictions of build inputs and outputs provided by implementations of
-    /// <see cref="IProjectStaticPredictor"/>.
+    /// <see cref="IProjectPredictor"/>.
     /// </summary>
-    public sealed class StaticPredictions
+    public sealed class ProjectPredictions
     {
-        /// <summary>Initializes a new instance of the <see cref="StaticPredictions"/> class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="ProjectPredictions"/> class.</summary>
         /// <param name="buildInputs">A collection of predicted file or directory inputs.</param>
         /// <param name="buildOutputDirectories">A collection of predicted directory outputs.</param>
-        public StaticPredictions(
+        public ProjectPredictions(
             IReadOnlyCollection<BuildInput> buildInputs,
             IReadOnlyCollection<BuildOutputDirectory> buildOutputDirectories)
         {

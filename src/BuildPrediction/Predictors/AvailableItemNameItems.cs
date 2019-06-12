@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Build.Prediction.StandardPredictors
+namespace Microsoft.Build.Prediction.Predictors
 {
     using System;
     using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
     ///
     /// Interestingly, C# Compile items have no AvailableItemName in their associated .targets file.
     /// </remarks>
-    public class AvailableItemNameItems : IProjectStaticPredictor
+    public class AvailableItemNameItems : IProjectPredictor
     {
         internal const string AvailableItemName = "AvailableItemName";
 
@@ -32,7 +32,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out StaticPredictions predictions)
+            out ProjectPredictions predictions)
         {
             // TODO: Need to determine how to normalize evaluated include selected below and determine if it is relative to project.
             var availableItemNames = new HashSet<string>(
@@ -47,7 +47,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
                 .ToList();
             if (itemInputs.Count > 0)
             {
-                predictions = new StaticPredictions(itemInputs, null);
+                predictions = new ProjectPredictions(itemInputs, null);
                 return true;
             }
 

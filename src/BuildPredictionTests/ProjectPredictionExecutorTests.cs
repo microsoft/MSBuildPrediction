@@ -10,21 +10,21 @@ namespace Microsoft.Build.Prediction.Tests
     using Microsoft.Build.Execution;
     using Xunit;
 
-    public class ProjectStaticPredictionExecutorTests
+    public class ProjectPredictionExecutorTests
     {
         [Fact]
         public void EmptyPredictionsResultInEmptyAggregateResult()
         {
-            var predictors = new IProjectStaticPredictor[]
+            var predictors = new IProjectPredictor[]
             {
-                new MockPredictor(new StaticPredictions(null, null)),
-                new MockPredictor(new StaticPredictions(null, null)),
+                new MockPredictor(new ProjectPredictions(null, null)),
+                new MockPredictor(new ProjectPredictions(null, null)),
             };
 
-            var executor = new ProjectStaticPredictionExecutor(predictors);
+            var executor = new ProjectPredictionExecutor(predictors);
 
             var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
-            StaticPredictions predictions = executor.PredictInputsAndOutputs(project);
+            ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
             Assert.NotNull(predictions);
             Assert.Equal(0, predictions.BuildInputs.Count);
             Assert.Equal(0, predictions.BuildOutputDirectories.Count);
@@ -33,21 +33,21 @@ namespace Microsoft.Build.Prediction.Tests
         [Fact]
         public void DistinctInputsAndOutputsAreAggregated()
         {
-            var predictors = new IProjectStaticPredictor[]
+            var predictors = new IProjectPredictor[]
             {
-                new MockPredictor(new StaticPredictions(
+                new MockPredictor(new ProjectPredictions(
                     new[] { new BuildInput(@"foo\bar1", false) },
                     new[] { new BuildOutputDirectory(@"blah\boo1") })),
-                new MockPredictor2(new StaticPredictions(
+                new MockPredictor2(new ProjectPredictions(
                     new[] { new BuildInput(@"foo\bar2", false) },
                     new[] { new BuildOutputDirectory(@"blah\boo2") })),
             };
 
-            var executor = new ProjectStaticPredictionExecutor(predictors);
+            var executor = new ProjectPredictionExecutor(predictors);
 
             var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
 
-            StaticPredictions predictions = executor.PredictInputsAndOutputs(project);
+            ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
 
             BuildInput[] expectedInputs =
             {
@@ -67,21 +67,21 @@ namespace Microsoft.Build.Prediction.Tests
         [Fact]
         public void DuplicateInputsAndOutputsMergePredictedBys()
         {
-            var predictors = new IProjectStaticPredictor[]
+            var predictors = new IProjectPredictor[]
             {
-                new MockPredictor(new StaticPredictions(
+                new MockPredictor(new ProjectPredictions(
                     new[] { new BuildInput(@"foo\bar", false) },
                     new[] { new BuildOutputDirectory(@"blah\boo") })),
-                new MockPredictor2(new StaticPredictions(
+                new MockPredictor2(new ProjectPredictions(
                     new[] { new BuildInput(@"foo\bar", false) },
                     new[] { new BuildOutputDirectory(@"blah\boo") })),
             };
 
-            var executor = new ProjectStaticPredictionExecutor(predictors);
+            var executor = new ProjectPredictionExecutor(predictors);
 
             var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
 
-            StaticPredictions predictions = executor.PredictInputsAndOutputs(project);
+            ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
 
             predictions.AssertPredictions(
                 new[] { new BuildInput(@"foo\bar", false, "MockPredictor", "MockPredictor2") },
@@ -104,7 +104,7 @@ namespace Microsoft.Build.Prediction.Tests
                 {
                     int numPredictors = numPredictorCases[p];
                     tickResults[p] = new long[sparsenessPercentages.Length];
-                    var predictors = new IProjectStaticPredictor[numPredictors];
+                    var predictors = new IProjectPredictor[numPredictors];
                     int sparseIndex = 0;
 
                     for (int s = 0; s < sparsenessPercentages.Length; s++)
@@ -118,7 +118,7 @@ namespace Microsoft.Build.Prediction.Tests
                             }
                             else
                             {
-                                predictors[i] = new MockPredictor(new StaticPredictions(null, null));
+                                predictors[i] = new MockPredictor(new ProjectPredictions(null, null));
                             }
 
                             sparseIndex++;
@@ -128,7 +128,7 @@ namespace Microsoft.Build.Prediction.Tests
                             }
                         }
 
-                        var executor = new ProjectStaticPredictionExecutor(predictors);
+                        var executor = new ProjectPredictionExecutor(predictors);
                         Stopwatch sw = Stopwatch.StartNew();
                         executor.PredictInputsAndOutputs(proj);
                         sw.Stop();
@@ -139,11 +139,11 @@ namespace Microsoft.Build.Prediction.Tests
             }
         }
 
-        private class MockPredictor : IProjectStaticPredictor
+        private class MockPredictor : IProjectPredictor
         {
-            private readonly StaticPredictions _predictionsToReturn;
+            private readonly ProjectPredictions _predictionsToReturn;
 
-            public MockPredictor(StaticPredictions predictionsToReturn)
+            public MockPredictor(ProjectPredictions predictionsToReturn)
             {
                 _predictionsToReturn = predictionsToReturn;
             }
@@ -151,7 +151,7 @@ namespace Microsoft.Build.Prediction.Tests
             public bool TryPredictInputsAndOutputs(
                 Project project,
                 ProjectInstance projectInstance,
-                out StaticPredictions predictions)
+                out ProjectPredictions predictions)
             {
                 if (_predictionsToReturn == null)
                 {
@@ -167,7 +167,7 @@ namespace Microsoft.Build.Prediction.Tests
         // Second class name to get different results from PredictedBy values.
         private class MockPredictor2 : MockPredictor
         {
-            public MockPredictor2(StaticPredictions predictionsToReturn)
+            public MockPredictor2(ProjectPredictions predictionsToReturn)
                 : base(predictionsToReturn)
             {
             }

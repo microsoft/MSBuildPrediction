@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Build.Prediction.Tests.StandardPredictors
+namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using System.IO;
     using Microsoft.Build.Construction;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
-    using Microsoft.Build.Prediction.StandardPredictors;
+    using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
     // TODO: Need to add .NET Core and .NET Framework based examples including use of SDK includes.
@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
             Project project = CreateTestProject("Test.cs");
             ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
             var predictor = new CSharpCompileItems();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out StaticPredictions predictions);
+            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out ProjectPredictions predictions);
             Assert.True(hasPredictions);
             predictions.AssertPredictions(new[] { new BuildInput(Path.Combine(project.DirectoryPath, "Test.cs"), isDirectory: false) }, null);
         }

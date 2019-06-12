@@ -35,7 +35,7 @@ namespace Microsoft.Build.Prediction.Tests
 
         protected void ParseAndVerifyProject(
             string projFileName,
-            IProjectStaticPredictor predictor,
+            IProjectPredictor predictor,
             IReadOnlyCollection<BuildInput> expectedInputs,
             IReadOnlyCollection<BuildOutputDirectory> expectedOutputs)
         {
@@ -54,7 +54,7 @@ namespace Microsoft.Build.Prediction.Tests
             bool success = predictor.TryPredictInputsAndOutputs(
                 project,
                 projectInstance,
-                out StaticPredictions predictions);
+                out ProjectPredictions predictions);
 
             IReadOnlyCollection<BuildInput> absolutePathInputs = expectedInputs.Select(i =>
                 new BuildInput(Path.Combine(project.DirectoryPath, i.Path), i.IsDirectory))
