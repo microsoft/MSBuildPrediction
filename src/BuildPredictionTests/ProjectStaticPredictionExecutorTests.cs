@@ -21,7 +21,7 @@ namespace Microsoft.Build.Prediction.Tests
                 new MockPredictor(new StaticPredictions(null, null)),
             };
 
-            var executor = new ProjectStaticPredictionExecutor(@"c:\repo", predictors);
+            var executor = new ProjectStaticPredictionExecutor(predictors);
 
             var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
             StaticPredictions predictions = executor.PredictInputsAndOutputs(project);
@@ -43,7 +43,7 @@ namespace Microsoft.Build.Prediction.Tests
                     new[] { new BuildOutputDirectory(@"blah\boo2") })),
             };
 
-            var executor = new ProjectStaticPredictionExecutor(@"c:\repo", predictors);
+            var executor = new ProjectStaticPredictionExecutor(predictors);
 
             var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
 
@@ -77,7 +77,7 @@ namespace Microsoft.Build.Prediction.Tests
                     new[] { new BuildOutputDirectory(@"blah\boo") })),
             };
 
-            var executor = new ProjectStaticPredictionExecutor(@"c:\repo", predictors);
+            var executor = new ProjectStaticPredictionExecutor(predictors);
 
             var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
 
@@ -128,7 +128,7 @@ namespace Microsoft.Build.Prediction.Tests
                             }
                         }
 
-                        var executor = new ProjectStaticPredictionExecutor(@"c:\repo", predictors);
+                        var executor = new ProjectStaticPredictionExecutor(predictors);
                         Stopwatch sw = Stopwatch.StartNew();
                         executor.PredictInputsAndOutputs(proj);
                         sw.Stop();
@@ -151,7 +151,6 @@ namespace Microsoft.Build.Prediction.Tests
             public bool TryPredictInputsAndOutputs(
                 Project project,
                 ProjectInstance projectInstance,
-                string repositoryRootDirectory,
                 out StaticPredictions predictions)
             {
                 if (_predictionsToReturn == null)

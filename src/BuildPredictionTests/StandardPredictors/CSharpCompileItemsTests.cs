@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
             Project project = CreateTestProject("Test.cs");
             ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
             var predictor = new CSharpCompileItems();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, @"C:\repo", out StaticPredictions predictions);
+            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out StaticPredictions predictions);
             Assert.True(hasPredictions);
             predictions.AssertPredictions(new[] { new BuildInput(Path.Combine(project.DirectoryPath, "Test.cs"), isDirectory: false) }, null);
         }

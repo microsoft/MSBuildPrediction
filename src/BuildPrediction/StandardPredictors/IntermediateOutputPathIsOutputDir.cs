@@ -17,7 +17,6 @@ namespace Microsoft.Build.Prediction.StandardPredictors
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            string repositoryRootDirectory,
             out StaticPredictions predictions)
         {
             string intermediateOutputPath = project.GetPropertyValue(IntermediateOutputPathMacro);

@@ -13,7 +13,10 @@ namespace Microsoft.Build.Prediction.StandardPredictors
     public class ProjectFileAndImportedFiles : IProjectStaticPredictor
     {
         /// <inheritdoc/>
-        public bool TryPredictInputsAndOutputs(Project project, ProjectInstance projectInstance, string repositoryRootDirectory, out StaticPredictions predictions)
+        public bool TryPredictInputsAndOutputs(
+            Project project,
+            ProjectInstance projectInstance,
+            out StaticPredictions predictions)
         {
             var inputs = new List<BuildInput>()
             {

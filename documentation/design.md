@@ -1,3 +1,5 @@
+**Note that this document was ported from the original implementation an may not completely match the current implementation**
+
 # Microsoft.Build.Prediction Design Notes
 MSBuildPrediction is loosely based on portions of a Microsoft-internal build engine that wraps MSBuild and provides build output caching and multi-machine distribution on top of [CloudBuild](https://www.microsoft.com/en-us/research/publication/cloudbuild-microsofts-distributed-and-caching-build-service/) to speed up builds especially for mid-to-large codebases. A particular component, EnlistmentLibrary or ENL for short, reads MSBuild files and outputs a dependency graph based on both ProjectReferences and predicting file and directory inputs and outputs and cross-comparing them to find dependencies. The file and directory inputs and outputs are then fed into caching algorithms to try to find cached build outputs.
 

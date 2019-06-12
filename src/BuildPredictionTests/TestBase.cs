@@ -54,7 +54,6 @@ namespace Microsoft.Build.Prediction.Tests
             bool success = predictor.TryPredictInputsAndOutputs(
                 project,
                 projectInstance,
-                TestsDirectoryPath,
                 out StaticPredictions predictions);
 
             IReadOnlyCollection<BuildInput> absolutePathInputs = expectedInputs.Select(i =>
