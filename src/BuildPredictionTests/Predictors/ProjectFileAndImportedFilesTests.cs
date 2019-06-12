@@ -3,7 +3,6 @@
 
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
-    using System;
     using System.IO;
     using Microsoft.Build.Prediction;
     using Microsoft.Build.Prediction.Predictors;
@@ -20,17 +19,21 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void ProjectFileAndNestedImportedFilesInCsProj()
         {
-            BuildInput[] expectedInputs =
+            PredictedItem[] expectedFileInputs =
             {
-                new BuildInput(Path.Combine(Environment.CurrentDirectory, ImportTestsDirectoryPath, NestedImportsProjectFileName), false),
-                new BuildInput(Path.Combine(Environment.CurrentDirectory, ImportTestsDirectoryPath, @"Import\NestedTargets.targets"), false),
-                new BuildInput(Path.Combine(Environment.CurrentDirectory, ImportTestsDirectoryPath, @"Import\NestedTargets2.targets"), false),
+                new PredictedItem(Path.Combine(NestedImportsProjectFileName), nameof(ProjectFileAndImportedFiles)),
+                new PredictedItem(Path.Combine(@"Import\NestedTargets.targets"), nameof(ProjectFileAndImportedFiles)),
+                new PredictedItem(Path.Combine(@"Import\NestedTargets2.targets"), nameof(ProjectFileAndImportedFiles)),
             };
 
-            BuildOutputDirectory[] expectedOutputs = null;
-
             var predictor = new ProjectFileAndImportedFiles();
-            ParseAndVerifyProject(NestedImportsProjectFileName, predictor, expectedInputs, expectedOutputs);
+            ParseAndVerifyProject(
+                NestedImportsProjectFileName,
+                predictor,
+                expectedFileInputs,
+                null,
+                null,
+                null);
         }
     }
 }

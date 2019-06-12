@@ -5,7 +5,6 @@ namespace Microsoft.Build.Prediction.Predictors
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
@@ -29,30 +28,22 @@ namespace Microsoft.Build.Prediction.Predictors
         internal const string AvailableItemName = "AvailableItemName";
 
         /// <inheritdoc/>
-        public bool TryPredictInputsAndOutputs(
+        public void PredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out ProjectPredictions predictions)
+            ProjectPredictionReporter predictionReporter)
         {
-            // TODO: Need to determine how to normalize evaluated include selected below and determine if it is relative to project.
             var availableItemNames = new HashSet<string>(
                 project.GetItems(AvailableItemName).Select(item => item.EvaluatedInclude),
                 StringComparer.OrdinalIgnoreCase);
 
-            List<BuildInput> itemInputs = availableItemNames.SelectMany(
-                availableItemName => project.GetItems(availableItemName).Select(
-                    item => new BuildInput(
-                        Path.Combine(project.DirectoryPath, item.EvaluatedInclude),
-                        isDirectory: false)))
-                .ToList();
-            if (itemInputs.Count > 0)
+            foreach (string availableItemName in availableItemNames)
             {
-                predictions = new ProjectPredictions(itemInputs, null);
-                return true;
+                foreach (ProjectItem item in project.GetItems(availableItemName))
+                {
+                    predictionReporter.ReportInputFile(item.EvaluatedInclude);
+                }
             }
-
-            predictions = null;
-            return false;
         }
     }
 }

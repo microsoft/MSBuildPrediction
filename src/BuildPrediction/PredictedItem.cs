@@ -7,30 +7,33 @@ namespace Microsoft.Build.Prediction
     using System.Collections.Generic;
 
     /// <summary>
-    /// Base class for <see cref="BuildInput"/> and <see cref="BuildOutputDirectory"/>.
+    /// Represents a prediction.
     /// </summary>
-    public abstract class BuildItem
+    public sealed class PredictedItem
     {
         private readonly HashSet<string> _predictedBy = new HashSet<string>(StringComparer.Ordinal);
 
-        // For unit testing
-        internal BuildItem(string path, params string[] predictedBys)
-            : this(path)
-        {
-            AddPredictedBy(predictedBys);
-        }
-
-        /// <summary>Initializes a new instance of the <see cref="BuildItem"/> class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="PredictedItem"/> class.</summary>
         /// <param name="path">
         /// Provides a rooted path to a predicted build input.
         /// </param>
-        protected BuildItem(string path)
+        public PredictedItem(string path)
         {
             Path = path.ThrowIfNullOrEmpty(nameof(path));
         }
 
+        // For unit testing
+        internal PredictedItem(string path, params string[] predictedBys)
+            : this(path)
+        {
+            foreach (string p in predictedBys)
+            {
+                AddPredictedBy(p);
+            }
+        }
+
         /// <summary>
-        /// Gets a relative or (on Windows) rooted path to a predicted build item.
+        /// Gets a relative or rooted path to a predicted build item.
         /// </summary>
         public string Path { get; }
 
@@ -40,20 +43,9 @@ namespace Microsoft.Build.Prediction
         /// </summary>
         public IReadOnlyCollection<string> PredictedBy => _predictedBy;
 
-        /// <summary>
-        /// Used for combining BuildInputs.
-        /// </summary>
-        internal void AddPredictedBy(IEnumerable<string> predictedBys)
-        {
-            foreach (string p in predictedBys)
-            {
-                _predictedBy.Add(p);
-            }
-        }
+        /// <inheritdoc/>
+        public override string ToString() => $"PredictedItem: {Path}; PredictedBy={string.Join(",", PredictedBy)}";
 
-        internal void AddPredictedBy(string predictedBy)
-        {
-            _predictedBy.Add(predictedBy);
-        }
+        internal void AddPredictedBy(string predictedBy) => _predictedBy.Add(predictedBy);
     }
 }

@@ -3,14 +3,9 @@
 
 namespace Microsoft.Build.Prediction.Tests
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using Microsoft.Build.Evaluation;
-    using Microsoft.Build.Execution;
-    using Xunit;
 
     /// <summary>
     /// Base class that provides helper methods for test code, including
@@ -18,8 +13,6 @@ namespace Microsoft.Build.Prediction.Tests
     /// </summary>
     public abstract class TestBase
     {
-        private static string assemblyLocation = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-
         /// <summary>
         /// Gets the relative path for resource files used by the test suite.
         /// The path is relative to the BuildPredictionTests output folder.
@@ -28,16 +21,13 @@ namespace Microsoft.Build.Prediction.Tests
         /// </summary>
         protected abstract string TestsDirectoryPath { get; }
 
-        /// <summary>
-        /// Creates an absolute path using the assembly location as the root, followed by <see cref="TestsDirectoryPath"/>.
-        /// </summary>
-        protected string CreateAbsolutePath(string relativePath) => Path.Combine(assemblyLocation, TestsDirectoryPath, relativePath);
-
         protected void ParseAndVerifyProject(
             string projFileName,
             IProjectPredictor predictor,
-            IReadOnlyCollection<BuildInput> expectedInputs,
-            IReadOnlyCollection<BuildOutputDirectory> expectedOutputs)
+            IReadOnlyCollection<PredictedItem> expectedInputFiles,
+            IReadOnlyCollection<PredictedItem> expectedInputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedOutputFiles,
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
         {
             var projectCollection = new ProjectCollection();
             var project = new Project(
@@ -49,18 +39,15 @@ namespace Microsoft.Build.Prediction.Tests
                 },
                 null,
                 projectCollection);
-            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
 
-            bool success = predictor.TryPredictInputsAndOutputs(
-                project,
-                projectInstance,
-                out ProjectPredictions predictions);
-
-            IReadOnlyCollection<BuildInput> absolutePathInputs = expectedInputs.Select(i =>
-                new BuildInput(Path.Combine(project.DirectoryPath, i.Path), i.IsDirectory))
-                    .ToList();
-            Assert.True(success, "Prediction returned false (no predictions)");
-            predictions.AssertPredictions(absolutePathInputs, expectedOutputs);
+            predictor
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    expectedInputFiles,
+                    expectedInputDirectories,
+                    expectedOutputFiles,
+                    expectedOutputDirectories);
         }
     }
 }

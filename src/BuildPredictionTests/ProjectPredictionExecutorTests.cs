@@ -4,6 +4,8 @@
 namespace Microsoft.Build.Prediction.Tests
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using Microsoft.Build.Construction;
     using Microsoft.Build.Evaluation;
@@ -17,8 +19,8 @@ namespace Microsoft.Build.Prediction.Tests
         {
             var predictors = new IProjectPredictor[]
             {
-                new MockPredictor(new ProjectPredictions(null, null)),
-                new MockPredictor(new ProjectPredictions(null, null)),
+                new MockPredictor(null, null, null, null),
+                new MockPredictor(null, null, null, null),
             };
 
             var executor = new ProjectPredictionExecutor(predictors);
@@ -26,55 +28,33 @@ namespace Microsoft.Build.Prediction.Tests
             var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
             ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
             Assert.NotNull(predictions);
-            Assert.Equal(0, predictions.BuildInputs.Count);
-            Assert.Equal(0, predictions.BuildOutputDirectories.Count);
+            Assert.Equal(0, predictions.InputFiles.Count);
+            Assert.Equal(0, predictions.InputDirectories.Count);
+            Assert.Equal(0, predictions.OutputFiles.Count);
+            Assert.Equal(0, predictions.OutputDirectories.Count);
         }
 
         [Fact]
         public void DistinctInputsAndOutputsAreAggregated()
         {
+            /*
+            Missed value in the input files:
+            PredictedItem: 1\inputFile; PredictedBy=MockPredictor
+            from among actual list
+            PredictedItem: E:\MSBuildPrediction\src\BuildPredictionTests\bin\Debug\net472\2\inputFile; PredictedBy=MockPredictor2:: PredictedItem: E:\MSBuildPrediction\src\BuildPredictionTests\bin\Debug\net472\1\inputFile; PredictedBy=MockPredictor
+            */
             var predictors = new IProjectPredictor[]
             {
-                new MockPredictor(new ProjectPredictions(
-                    new[] { new BuildInput(@"foo\bar1", false) },
-                    new[] { new BuildOutputDirectory(@"blah\boo1") })),
-                new MockPredictor2(new ProjectPredictions(
-                    new[] { new BuildInput(@"foo\bar2", false) },
-                    new[] { new BuildOutputDirectory(@"blah\boo2") })),
-            };
-
-            var executor = new ProjectPredictionExecutor(predictors);
-
-            var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
-
-            ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
-
-            BuildInput[] expectedInputs =
-            {
-                new BuildInput(@"foo\bar1", false, "MockPredictor"),
-                new BuildInput(@"foo\bar2", false, "MockPredictor2"),
-            };
-
-            BuildOutputDirectory[] expectedBuildOutputDirectories =
-            {
-                new BuildOutputDirectory(@"blah\boo1", "MockPredictor"),
-                new BuildOutputDirectory(@"blah\boo2", "MockPredictor2"),
-            };
-
-            predictions.AssertPredictions(expectedInputs, expectedBuildOutputDirectories);
-        }
-
-        [Fact]
-        public void DuplicateInputsAndOutputsMergePredictedBys()
-        {
-            var predictors = new IProjectPredictor[]
-            {
-                new MockPredictor(new ProjectPredictions(
-                    new[] { new BuildInput(@"foo\bar", false) },
-                    new[] { new BuildOutputDirectory(@"blah\boo") })),
-                new MockPredictor2(new ProjectPredictions(
-                    new[] { new BuildInput(@"foo\bar", false) },
-                    new[] { new BuildOutputDirectory(@"blah\boo") })),
+                new MockPredictor(
+                    new[] { @"1\inputFile" },
+                    new[] { @"1\inputDirectory" },
+                    new[] { @"1\outputFile" },
+                    new[] { @"1\outputDirectory" }),
+                new MockPredictor2(
+                    new[] { @"2\inputFile" },
+                    new[] { @"2\inputDirectory" },
+                    new[] { @"2\outputFile" },
+                    new[] { @"2\outputDirectory" }),
             };
 
             var executor = new ProjectPredictionExecutor(predictors);
@@ -84,8 +64,42 @@ namespace Microsoft.Build.Prediction.Tests
             ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
 
             predictions.AssertPredictions(
-                new[] { new BuildInput(@"foo\bar", false, "MockPredictor", "MockPredictor2") },
-                new[] { new BuildOutputDirectory(@"blah\boo", "MockPredictor", "MockPredictor2") });
+                project,
+                new[] { new PredictedItem(@"1\inputFile", "MockPredictor"), new PredictedItem(@"2\inputFile", "MockPredictor2"), },
+                new[] { new PredictedItem(@"1\inputDirectory", "MockPredictor"), new PredictedItem(@"2\inputDirectory", "MockPredictor2"), },
+                new[] { new PredictedItem(@"1\outputFile", "MockPredictor"), new PredictedItem(@"2\outputFile", "MockPredictor2"), },
+                new[] { new PredictedItem(@"1\outputDirectory", "MockPredictor"), new PredictedItem(@"2\outputDirectory", "MockPredictor2"), });
+        }
+
+        [Fact]
+        public void DuplicateInputsAndOutputsMergePredictedBys()
+        {
+            var predictors = new IProjectPredictor[]
+            {
+                new MockPredictor(
+                    new[] { @"common\inputFile" },
+                    new[] { @"common\inputDirectory" },
+                    new[] { @"common\outputFile" },
+                    new[] { @"common\outputDirectory" }),
+                new MockPredictor2(
+                    new[] { @"common\inputFile" },
+                    new[] { @"common\inputDirectory" },
+                    new[] { @"common\outputFile" },
+                    new[] { @"common\outputDirectory" }),
+            };
+
+            var executor = new ProjectPredictionExecutor(predictors);
+
+            var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
+
+            ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
+
+            predictions.AssertPredictions(
+                project,
+                new[] { new PredictedItem(@"common\inputFile", "MockPredictor", "MockPredictor2"), },
+                new[] { new PredictedItem(@"common\inputDirectory", "MockPredictor", "MockPredictor2"), },
+                new[] { new PredictedItem(@"common\outputFile", "MockPredictor", "MockPredictor2"), },
+                new[] { new PredictedItem(@"common\outputDirectory", "MockPredictor", "MockPredictor2"), });
         }
 
         [Fact]
@@ -114,11 +128,15 @@ namespace Microsoft.Build.Prediction.Tests
                         {
                             if (sparseIndex < sparsenessPercentage)
                             {
-                                predictors[i] = new MockPredictor(null);
+                                predictors[i] = new MockPredictor(null, null, null, null);
                             }
                             else
                             {
-                                predictors[i] = new MockPredictor(new ProjectPredictions(null, null));
+                                predictors[i] = new MockPredictor(
+                                    new[] { $@"{i}\inputFile" },
+                                    new[] { $@"{i}\inputDirectory" },
+                                    new[] { $@"{i}\outputFile" },
+                                    new[] { $@"{i}\outputDirectory" });
                             }
 
                             sparseIndex++;
@@ -141,34 +159,59 @@ namespace Microsoft.Build.Prediction.Tests
 
         private class MockPredictor : IProjectPredictor
         {
-            private readonly ProjectPredictions _predictionsToReturn;
+            private readonly IEnumerable<string> _inputFiles;
+            private readonly IEnumerable<string> _inputDirectories;
+            private readonly IEnumerable<string> _outputFiles;
+            private readonly IEnumerable<string> _outputDirectories;
 
-            public MockPredictor(ProjectPredictions predictionsToReturn)
+            public MockPredictor(
+                IEnumerable<string> inputFiles,
+                IEnumerable<string> inputDirectories,
+                IEnumerable<string> outputFiles,
+                IEnumerable<string> outputDirectories)
             {
-                _predictionsToReturn = predictionsToReturn;
+                _inputFiles = inputFiles ?? Array.Empty<string>();
+                _inputDirectories = inputDirectories ?? Array.Empty<string>();
+                _outputFiles = outputFiles ?? Array.Empty<string>();
+                _outputDirectories = outputDirectories ?? Array.Empty<string>();
             }
 
-            public bool TryPredictInputsAndOutputs(
+            public void PredictInputsAndOutputs(
                 Project project,
                 ProjectInstance projectInstance,
-                out ProjectPredictions predictions)
+                ProjectPredictionReporter predictionReporter)
             {
-                if (_predictionsToReturn == null)
+                foreach (var item in _inputFiles)
                 {
-                    predictions = null;
-                    return false;
+                    predictionReporter.ReportInputFile(item);
                 }
 
-                predictions = _predictionsToReturn;
-                return true;
+                foreach (var item in _inputDirectories)
+                {
+                    predictionReporter.ReportInputDirectory(item);
+                }
+
+                foreach (var item in _outputFiles)
+                {
+                    predictionReporter.ReportOutputFile(item);
+                }
+
+                foreach (var item in _outputDirectories)
+                {
+                    predictionReporter.ReportOutputDirectory(item);
+                }
             }
         }
 
         // Second class name to get different results from PredictedBy values.
         private class MockPredictor2 : MockPredictor
         {
-            public MockPredictor2(ProjectPredictions predictionsToReturn)
-                : base(predictionsToReturn)
+            public MockPredictor2(
+                IEnumerable<string> inputFiles,
+                IEnumerable<string> inputDirectories,
+                IEnumerable<string> outputFiles,
+                IEnumerable<string> outputDirectories)
+                : base(inputFiles, inputDirectories, outputFiles, outputDirectories)
             {
             }
         }

@@ -29,21 +29,13 @@ namespace Microsoft.Build.Prediction
         /// <param name="projectInstance">
         /// A <see cref="Microsoft.Build.Execution.ProjectInstance"/> derived from the the Project.
         /// </param>
-        /// <param name="predictions">
-        /// A <see cref="ProjectPredictions"/> instance, whose collections can be empty. This value is allowed
-        /// to be null which indicates an empty set result. This value should be null when returning false
-        /// from this method.
-        /// </param>
-        /// <returns>
-        /// True if the predictor found inputs or outputs to predict. When false,
-        /// <paramref name="predictions"/> should be null.
-        /// </returns>
+        /// <param name="predictionReporter">A reporter to report predictions to.</param>
         /// <remarks>
         /// Non-async since this should not require I/O, just CPU when examining the Project.
         /// </remarks>
-        bool TryPredictInputsAndOutputs(
+        void PredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out ProjectPredictions predictions);
+            ProjectPredictionReporter predictionReporter);
     }
 }

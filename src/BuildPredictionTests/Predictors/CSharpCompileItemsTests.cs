@@ -3,10 +3,8 @@
 
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
-    using System.IO;
     using Microsoft.Build.Construction;
     using Microsoft.Build.Evaluation;
-    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -17,11 +15,14 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         public void CSharpFilesFoundFromDirectListingInCsproj()
         {
             Project project = CreateTestProject("Test.cs");
-            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
-            var predictor = new CSharpCompileItems();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out ProjectPredictions predictions);
-            Assert.True(hasPredictions);
-            predictions.AssertPredictions(new[] { new BuildInput(Path.Combine(project.DirectoryPath, "Test.cs"), isDirectory: false) }, null);
+            new CSharpCompileItems()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    new[] { new PredictedItem("Test.cs", nameof(CSharpCompileItems)) },
+                    null,
+                    null,
+                    null);
         }
 
         private static Project CreateTestProject(params string[] compileItemIncludes)

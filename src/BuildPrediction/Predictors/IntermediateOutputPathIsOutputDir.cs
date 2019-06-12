@@ -3,7 +3,6 @@
 
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System.IO;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
@@ -14,35 +13,16 @@ namespace Microsoft.Build.Prediction.Predictors
     {
         internal const string IntermediateOutputPathMacro = "IntermediateOutputPath";
 
-        public bool TryPredictInputsAndOutputs(
+        public void PredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out ProjectPredictions predictions)
+            ProjectPredictionReporter predictionReporter)
         {
             string intermediateOutputPath = project.GetPropertyValue(IntermediateOutputPathMacro);
-
-            if (string.IsNullOrWhiteSpace(intermediateOutputPath))
+            if (!string.IsNullOrWhiteSpace(intermediateOutputPath))
             {
-                // It is not defined, so we don't return a result.
-                predictions = null;
-                return false;
+                predictionReporter.ReportOutputDirectory(intermediateOutputPath);
             }
-
-            // If the path is relative, it is interpreted as relative to the project directory path
-            string predictedOutputDirectory;
-            if (!Path.IsPathRooted(intermediateOutputPath))
-            {
-                predictedOutputDirectory = Path.Combine(project.DirectoryPath, intermediateOutputPath);
-            }
-            else
-            {
-                predictedOutputDirectory = intermediateOutputPath;
-            }
-
-            predictions = new ProjectPredictions(
-                buildInputs: null,
-                buildOutputDirectories: new[] { new BuildOutputDirectory(Path.GetFullPath(predictedOutputDirectory)) });
-            return true;
         }
     }
 }
