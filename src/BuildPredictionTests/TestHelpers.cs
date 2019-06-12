@@ -16,7 +16,7 @@ namespace Microsoft.Build.Prediction.Tests
     internal static class TestHelpers
     {
         public static void AssertPredictions(
-            this StaticPredictions predictions,
+            this ProjectPredictions predictions,
             IReadOnlyCollection<BuildInput> expectedBuildInputs,
             IReadOnlyCollection<BuildOutputDirectory> expectedBuildOutputDirectories)
         {

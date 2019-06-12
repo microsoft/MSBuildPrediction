@@ -7,7 +7,7 @@ namespace Microsoft.Build.Prediction
     using Microsoft.Build.Execution;
 
     /// <summary>
-    /// Implementations of this interface are run in parallel against a single evaluated MSBuild Project
+    /// Implementations of this interface may be run in parallel against a single evaluated MSBuild Project
     /// file to predict, prior to execution of a build, file, directory/folder, and glob patterns for
     /// build inputs, and output directories written by the project.
     ///
@@ -17,7 +17,7 @@ namespace Microsoft.Build.Prediction
     /// guidance to build execution sandboxing to allow better static analysis of the effects of
     /// executing the Project.
     /// </summary>
-    public interface IProjectStaticPredictor
+    public interface IProjectPredictor
     {
         /// <summary>
         /// Performs static prediction of build inputs and outputs for use by caching and sandboxing.
@@ -30,7 +30,7 @@ namespace Microsoft.Build.Prediction
         /// A <see cref="Microsoft.Build.Execution.ProjectInstance"/> derived from the the Project.
         /// </param>
         /// <param name="predictions">
-        /// A <see cref="StaticPredictions"/> instance, whose collections can be empty. This value is allowed
+        /// A <see cref="ProjectPredictions"/> instance, whose collections can be empty. This value is allowed
         /// to be null which indicates an empty set result. This value should be null when returning false
         /// from this method.
         /// </param>
@@ -44,6 +44,6 @@ namespace Microsoft.Build.Prediction
         bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out StaticPredictions predictions);
+            out ProjectPredictions predictions);
     }
 }

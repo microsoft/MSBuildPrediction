@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Build.Prediction.StandardPredictors
+namespace Microsoft.Build.Prediction.Predictors
 {
     using System.IO;
     using Microsoft.Build.Evaluation;
@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
     /// <summary>
     /// Scrapes the $(OutDir) or, if not found, $(OutputPath) as an output directory.
     /// </summary>
-    internal class OutDirOrOutputPathIsOutputDir : IProjectStaticPredictor
+    internal class OutDirOrOutputPathIsOutputDir : IProjectPredictor
     {
         internal const string OutDirMacro = "OutDir";
         internal const string OutputPathMacro = "OutputPath";
@@ -18,7 +18,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out StaticPredictions predictions)
+            out ProjectPredictions predictions)
         {
             string outDir = project.GetPropertyValue(OutDirMacro);
             string outputPath = project.GetPropertyValue(OutputPathMacro);
@@ -55,7 +55,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
                 predictedOutputDirectory = finalOutputPath;
             }
 
-            predictions = new StaticPredictions(
+            predictions = new ProjectPredictions(
                 buildInputs: null,
                 buildOutputDirectories: new[] { new BuildOutputDirectory(Path.GetFullPath(predictedOutputDirectory)) });
             return true;

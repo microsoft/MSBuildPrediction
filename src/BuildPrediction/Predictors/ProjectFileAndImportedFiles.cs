@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Build.Prediction.StandardPredictors
+namespace Microsoft.Build.Prediction.Predictors
 {
     using System.Collections.Generic;
     using Microsoft.Build.Evaluation;
@@ -10,13 +10,13 @@ namespace Microsoft.Build.Prediction.StandardPredictors
     /// <summary>
     /// Finds project filename and imports, as inputs.
     /// </summary>
-    public class ProjectFileAndImportedFiles : IProjectStaticPredictor
+    public class ProjectFileAndImportedFiles : IProjectPredictor
     {
         /// <inheritdoc/>
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out StaticPredictions predictions)
+            out ProjectPredictions predictions)
         {
             var inputs = new List<BuildInput>()
             {
@@ -28,7 +28,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
                 inputs.Add(new BuildInput(import.ImportedProject.FullPath, isDirectory: false));
             }
 
-            predictions = new StaticPredictions(inputs, null);
+            predictions = new ProjectPredictions(inputs, null);
 
             return true;
         }

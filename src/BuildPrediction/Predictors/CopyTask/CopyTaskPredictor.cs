@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
+namespace Microsoft.Build.Prediction.Predictors.CopyTask
 {
     using System;
     using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
     /// and follows the Targets activated by that target, along with all custom Targets
     /// present in the current project file.
     /// </remarks>
-    public class CopyTaskPredictor : IProjectStaticPredictor
+    public class CopyTaskPredictor : IProjectPredictor
     {
         private const string CopyTaskName = "Copy";
         private const string CopyTaskSourceFiles = "SourceFiles";
@@ -30,7 +30,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out StaticPredictions predictions)
+            out ProjectPredictions predictions)
         {
             // Determine the active Targets in this Project.
             var activeTargets = new Dictionary<string, ProjectTargetInstance>(StringComparer.OrdinalIgnoreCase);
@@ -59,7 +59,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
 
             if (buildInputs.Count > 0)
             {
-                predictions = new StaticPredictions(
+                predictions = new ProjectPredictions(
                     buildInputs,
                     buildOutputDirectories.Select(o => new BuildOutputDirectory(o)).ToList());
                 return true;

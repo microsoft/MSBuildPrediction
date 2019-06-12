@@ -5,16 +5,16 @@ namespace Microsoft.Build.Prediction.Tests
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.Build.Prediction.StandardPredictors;
-    using Microsoft.Build.Prediction.StandardPredictors.CopyTask;
+    using Microsoft.Build.Prediction.Predictors;
+    using Microsoft.Build.Prediction.Predictors.CopyTask;
     using Xunit;
 
-    public class ProjectStaticPredictorsTests
+    public class ProjectPredictorsTests
     {
         [Fact]
         public void BasicPredictors()
         {
-            IReadOnlyCollection<IProjectStaticPredictor> predictors = ProjectStaticPredictors.BasicPredictors;
+            IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.BasicPredictors;
 
             Assert.Equal(5, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
@@ -27,7 +27,7 @@ namespace Microsoft.Build.Prediction.Tests
         [Fact]
         public void AllPredictors()
         {
-            IReadOnlyCollection<IProjectStaticPredictor> predictors = ProjectStaticPredictors.AllPredictors;
+            IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.AllPredictors;
 
             Assert.Equal(6, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));

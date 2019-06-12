@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Build.Prediction.StandardPredictors
+namespace Microsoft.Build.Prediction.Predictors
 {
     using System.IO;
     using Microsoft.Build.Evaluation;
@@ -10,14 +10,14 @@ namespace Microsoft.Build.Prediction.StandardPredictors
     /// <summary>
     /// Scrapes the $(IntermediateOutputPath) if found.
     /// </summary>
-    internal class IntermediateOutputPathIsOutputDir : IProjectStaticPredictor
+    internal class IntermediateOutputPathIsOutputDir : IProjectPredictor
     {
         internal const string IntermediateOutputPathMacro = "IntermediateOutputPath";
 
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            out StaticPredictions predictions)
+            out ProjectPredictions predictions)
         {
             string intermediateOutputPath = project.GetPropertyValue(IntermediateOutputPathMacro);
 
@@ -39,7 +39,7 @@ namespace Microsoft.Build.Prediction.StandardPredictors
                 predictedOutputDirectory = intermediateOutputPath;
             }
 
-            predictions = new StaticPredictions(
+            predictions = new ProjectPredictions(
                 buildInputs: null,
                 buildOutputDirectories: new[] { new BuildOutputDirectory(Path.GetFullPath(predictedOutputDirectory)) });
             return true;

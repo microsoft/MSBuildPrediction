@@ -11,35 +11,35 @@ namespace Microsoft.Build.Prediction
     using Microsoft.Build.Execution;
 
     /// <summary>
-    /// Executes a set of <see cref="IProjectStaticPredictor"/> instances against
+    /// Executes a set of <see cref="IProjectPredictor"/> instances against
     /// a <see cref="Microsoft.Build.Evaluation.Project"/> instance, aggregating
-    /// the result.
+    /// the results.
     /// </summary>
-    public sealed class ProjectStaticPredictionExecutor
+    public sealed class ProjectPredictionExecutor
     {
         private readonly PredictorAndName[] _predictors;
-        private readonly PredictionOptions _options;
+        private readonly ProjectPredictionOptions _options;
 
-        /// <summary>Initializes a new instance of the <see cref="ProjectStaticPredictionExecutor"/> class.</summary>
-        /// <param name="predictors">The set of <see cref="IProjectStaticPredictor"/> instances to use for prediction.</param>
-        public ProjectStaticPredictionExecutor(
-            IEnumerable<IProjectStaticPredictor> predictors)
+        /// <summary>Initializes a new instance of the <see cref="ProjectPredictionExecutor"/> class.</summary>
+        /// <param name="predictors">The set of <see cref="IProjectPredictor"/> instances to use for prediction.</param>
+        public ProjectPredictionExecutor(
+            IEnumerable<IProjectPredictor> predictors)
             : this(predictors, null)
         {
         }
 
-        /// <summary>Initializes a new instance of the <see cref="ProjectStaticPredictionExecutor"/> class.</summary>
-        /// <param name="predictors">The set of <see cref="IProjectStaticPredictor"/> instances to use for prediction.</param>
+        /// <summary>Initializes a new instance of the <see cref="ProjectPredictionExecutor"/> class.</summary>
+        /// <param name="predictors">The set of <see cref="IProjectPredictor"/> instances to use for prediction.</param>
         /// <param name="options">The options to use for prediction.</param>
-        public ProjectStaticPredictionExecutor(
-            IEnumerable<IProjectStaticPredictor> predictors,
-            PredictionOptions options)
+        public ProjectPredictionExecutor(
+            IEnumerable<IProjectPredictor> predictors,
+            ProjectPredictionOptions options)
         {
             _predictors = predictors
                 .ThrowIfNull(nameof(predictors))
                 .Select(p => new PredictorAndName(p))
                 .ToArray();  // Array = faster parallel performance.
-            _options = options ?? new PredictionOptions();
+            _options = options ?? new ProjectPredictionOptions();
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Microsoft.Build.Prediction
         /// </summary>
         /// <param name="project">The project to execute predictors against.</param>
         /// <returns>An object describing all predicted inputs and outputs.</returns>
-        public StaticPredictions PredictInputsAndOutputs(Project project)
+        public ProjectPredictions PredictInputsAndOutputs(Project project)
         {
             project.ThrowIfNull(nameof(project));
 
@@ -66,7 +66,7 @@ namespace Microsoft.Build.Prediction
             // with the breakeven point in the 10-15% null range.
             // ConcurrentBag 10X worse than either of the above, ConcurrentStack about the same.
             // Keeping queue implementation since many predictors return false.
-            var results = new ConcurrentQueue<StaticPredictions>();
+            var results = new ConcurrentQueue<ProjectPredictions>();
 
             // Special-case single-threaded prediction to avoid the overhead of Parallel.For in favor of a simple loop.
             if (_options.MaxDegreeOfParallelism == 1)
@@ -88,7 +88,7 @@ namespace Microsoft.Build.Prediction
             var inputsByPath = new Dictionary<string, BuildInput>(PathComparer.Instance);
             var outputDirectoriesByPath = new Dictionary<string, BuildOutputDirectory>(PathComparer.Instance);
 
-            foreach (StaticPredictions predictions in results)
+            foreach (ProjectPredictions predictions in results)
             {
                 // TODO: Determine policy when dup inputs vary by IsDirectory.
                 foreach (BuildInput input in predictions.BuildInputs)
@@ -116,19 +116,19 @@ namespace Microsoft.Build.Prediction
                 }
             }
 
-            return new StaticPredictions(inputsByPath.Values, outputDirectoriesByPath.Values);
+            return new ProjectPredictions(inputsByPath.Values, outputDirectoriesByPath.Values);
         }
 
         private static void ExecuteSinglePredictor(
             Project project,
             ProjectInstance projectInstance,
             PredictorAndName predictorAndName,
-            ConcurrentQueue<StaticPredictions> results)
+            ConcurrentQueue<ProjectPredictions> results)
         {
             bool success = predictorAndName.Predictor.TryPredictInputsAndOutputs(
                 project,
                 projectInstance,
-                out StaticPredictions result);
+                out ProjectPredictions result);
 
             // Tag each prediction with its source.
             // Check for null even on success as a bad predictor could do that.
@@ -150,7 +150,7 @@ namespace Microsoft.Build.Prediction
 
         private readonly struct PredictorAndName
         {
-            public readonly IProjectStaticPredictor Predictor;
+            public readonly IProjectPredictor Predictor;
 
             /// <summary>
             /// Cached type name - we expect predictor instances to be reused many times in
@@ -159,7 +159,7 @@ namespace Microsoft.Build.Prediction
             /// </summary>
             public readonly string TypeName;
 
-            public PredictorAndName(IProjectStaticPredictor predictor)
+            public PredictorAndName(IProjectPredictor predictor)
             {
                 Predictor = predictor;
                 TypeName = predictor.GetType().Name;
