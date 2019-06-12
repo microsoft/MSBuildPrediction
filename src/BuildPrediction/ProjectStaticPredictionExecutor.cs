@@ -19,6 +19,7 @@ namespace Microsoft.Build.Prediction
     {
         private readonly string _repositoryRootDirectory;
         private readonly PredictorAndName[] _predictors;
+        private readonly PredictionOptions _options;
 
         /// <summary>Initializes a new instance of the <see cref="ProjectStaticPredictionExecutor"/> class.</summary>
         /// <param name="repositoryRootDirectory">
@@ -30,12 +31,29 @@ namespace Microsoft.Build.Prediction
         public ProjectStaticPredictionExecutor(
             string repositoryRootDirectory,
             IEnumerable<IProjectStaticPredictor> predictors)
+            : this(repositoryRootDirectory, predictors, null)
+        {
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="ProjectStaticPredictionExecutor"/> class.</summary>
+        /// <param name="repositoryRootDirectory">
+        /// The filesystem directory containing the source code of the repository. For Git submodules
+        /// this is typically the directory of the outermost containing repository.
+        /// This is used for normalization of predicted paths.
+        /// </param>
+        /// <param name="predictors">The set of <see cref="IProjectStaticPredictor"/> instances to use for prediction.</param>
+        /// <param name="options">The options to use for prediction.</param>
+        public ProjectStaticPredictionExecutor(
+            string repositoryRootDirectory,
+            IEnumerable<IProjectStaticPredictor> predictors,
+            PredictionOptions options)
         {
             _repositoryRootDirectory = repositoryRootDirectory.ThrowIfNullOrEmpty(nameof(repositoryRootDirectory));
             _predictors = predictors
                 .ThrowIfNull(nameof(predictors))
                 .Select(p => new PredictorAndName(p))
                 .ToArray();  // Array = faster parallel performance.
+            _options = options ?? new PredictionOptions();
         }
 
         /// <summary>
@@ -63,34 +81,23 @@ namespace Microsoft.Build.Prediction
             // ConcurrentBag 10X worse than either of the above, ConcurrentStack about the same.
             // Keeping queue implementation since many predictors return false.
             var results = new ConcurrentQueue<StaticPredictions>();
-            Parallel.For(
-                0,
-                _predictors.Length,
-                i =>
+
+            // Special-case single-threaded prediction to avoid the overhead of Parallel.For in favor of a simple loop.
+            if (_options.MaxDegreeOfParallelism == 1)
+            {
+                for (var i = 0; i < _predictors.Length; i++)
                 {
-                    bool success = _predictors[i].Predictor.TryPredictInputsAndOutputs(
-                        project,
-                        projectInstance,
-                        _repositoryRootDirectory,
-                        out StaticPredictions result);
-
-                    // Tag each prediction with its source.
-                    // Check for null even on success as a bad predictor could do that.
-                    if (success && result != null)
-                    {
-                        foreach (BuildInput item in result.BuildInputs)
-                        {
-                            item.AddPredictedBy(_predictors[i].TypeName);
-                        }
-
-                        foreach (BuildOutputDirectory item in result.BuildOutputDirectories)
-                        {
-                            item.AddPredictedBy(_predictors[i].TypeName);
-                        }
-
-                        results.Enqueue(result);
-                    }
-                });
+                    ExecuteSinglePredictor(project, projectInstance, _predictors[i], results);
+                }
+            }
+            else
+            {
+                Parallel.For(
+                    0,
+                    _predictors.Length,
+                    new ParallelOptions { MaxDegreeOfParallelism = _options.MaxDegreeOfParallelism },
+                    i => ExecuteSinglePredictor(project, projectInstance, _predictors[i], results));
+            }
 
             var inputsByPath = new Dictionary<string, BuildInput>(PathComparer.Instance);
             var outputDirectoriesByPath = new Dictionary<string, BuildOutputDirectory>(PathComparer.Instance);
@@ -124,6 +131,36 @@ namespace Microsoft.Build.Prediction
             }
 
             return new StaticPredictions(inputsByPath.Values, outputDirectoriesByPath.Values);
+        }
+
+        private void ExecuteSinglePredictor(
+            Project project,
+            ProjectInstance projectInstance,
+            PredictorAndName predictorAndName,
+            ConcurrentQueue<StaticPredictions> results)
+        {
+            bool success = predictorAndName.Predictor.TryPredictInputsAndOutputs(
+                project,
+                projectInstance,
+                _repositoryRootDirectory,
+                out StaticPredictions result);
+
+            // Tag each prediction with its source.
+            // Check for null even on success as a bad predictor could do that.
+            if (success && result != null)
+            {
+                foreach (BuildInput item in result.BuildInputs)
+                {
+                    item.AddPredictedBy(predictorAndName.TypeName);
+                }
+
+                foreach (BuildOutputDirectory item in result.BuildOutputDirectories)
+                {
+                    item.AddPredictedBy(predictorAndName.TypeName);
+                }
+
+                results.Enqueue(result);
+            }
         }
 
         private readonly struct PredictorAndName
