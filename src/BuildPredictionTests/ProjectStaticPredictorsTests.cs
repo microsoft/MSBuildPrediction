@@ -16,6 +16,19 @@ namespace Microsoft.Build.Prediction.Tests
         {
             IReadOnlyCollection<IProjectStaticPredictor> predictors = ProjectStaticPredictors.BasicPredictors;
 
+            Assert.Equal(5, predictors.Count);
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CSharpCompileItems));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is IntermediateOutputPathIsOutputDir));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is OutDirOrOutputPathIsOutputDir));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ProjectFileAndImportedFiles));
+        }
+
+        [Fact]
+        public void AllPredictors()
+        {
+            IReadOnlyCollection<IProjectStaticPredictor> predictors = ProjectStaticPredictors.AllPredictors;
+
             Assert.Equal(6, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CopyTaskPredictor));
