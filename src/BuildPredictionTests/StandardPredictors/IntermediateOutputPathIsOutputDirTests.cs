@@ -20,7 +20,7 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
             Project project = CreateTestProject(IntermediateOutputPath);
             ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
             var predictor = new IntermediateOutputPathIsOutputDir();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, @"C:\repo", out StaticPredictions predictions);
+            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out StaticPredictions predictions);
             Assert.True(hasPredictions);
             predictions.AssertPredictions(null, new[] { new BuildOutputDirectory(IntermediateOutputPath) });
         }
@@ -32,7 +32,7 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
             Project project = CreateTestProject(IntermediateOutputPath);
             ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
             var predictor = new IntermediateOutputPathIsOutputDir();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, @"C:\repo", out StaticPredictions predictions);
+            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out StaticPredictions predictions);
             Assert.True(hasPredictions);
             predictions.AssertPredictions(null, new[] { new BuildOutputDirectory(Path.Combine(Directory.GetCurrentDirectory(), IntermediateOutputPath)) });
         }
@@ -43,7 +43,7 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
             Project project = CreateTestProject(null);
             ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
             var predictor = new IntermediateOutputPathIsOutputDir();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, @"C:\repo", out _);
+            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out _);
             Assert.False(hasPredictions, "Predictor should have fallen back to returning no predictions if IntermediateOutputDir is not defined in project");
         }
 

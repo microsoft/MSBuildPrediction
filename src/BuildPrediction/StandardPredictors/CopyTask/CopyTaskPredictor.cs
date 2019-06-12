@@ -30,7 +30,6 @@ namespace Microsoft.Build.Prediction.StandardPredictors.CopyTask
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            string repositoryRootDirectory,
             out StaticPredictions predictions)
         {
             // Determine the active Targets in this Project.

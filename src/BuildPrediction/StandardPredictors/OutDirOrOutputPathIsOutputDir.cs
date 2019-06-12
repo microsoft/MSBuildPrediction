@@ -18,7 +18,6 @@ namespace Microsoft.Build.Prediction.StandardPredictors
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            string repositoryRootDirectory,
             out StaticPredictions predictions)
         {
             string outDir = project.GetPropertyValue(OutDirMacro);

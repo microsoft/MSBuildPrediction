@@ -20,7 +20,6 @@ namespace Microsoft.Build.Prediction.StandardPredictors
         public bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            string repositoryRootDirectory,
             out StaticPredictions predictions)
         {
             // TODO: Need to determine how to normalize evaluated include selected below and determine if it is relative to project.

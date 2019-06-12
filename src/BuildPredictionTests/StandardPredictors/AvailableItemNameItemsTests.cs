@@ -26,7 +26,7 @@ namespace Microsoft.Build.Prediction.Tests.StandardPredictors
                 Tuple.Create("NotAvailable", "shouldNotGetThisAsAnInput"));
             ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
             var predictor = new AvailableItemNameItems();
-            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, @"C:\repo", out StaticPredictions predictions);
+            bool hasPredictions = predictor.TryPredictInputsAndOutputs(project, projectInstance, out StaticPredictions predictions);
             Assert.True(hasPredictions);
             predictions.AssertPredictions(
                 new[]

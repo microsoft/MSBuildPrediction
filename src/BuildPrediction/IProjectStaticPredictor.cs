@@ -29,10 +29,6 @@ namespace Microsoft.Build.Prediction
         /// <param name="projectInstance">
         /// A <see cref="Microsoft.Build.Execution.ProjectInstance"/> derived from the the Project.
         /// </param>
-        /// <param name="repositoryRootDirectory">
-        /// The filesystem directory containing the source code of the repository. For Git submodules
-        /// this is typically the directory of the outermost containing repository.
-        /// </param>
         /// <param name="predictions">
         /// A <see cref="StaticPredictions"/> instance, whose collections can be empty. This value is allowed
         /// to be null which indicates an empty set result. This value should be null when returning false
@@ -48,7 +44,6 @@ namespace Microsoft.Build.Prediction
         bool TryPredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
-            string repositoryRootDirectory,
             out StaticPredictions predictions);
     }
 }
