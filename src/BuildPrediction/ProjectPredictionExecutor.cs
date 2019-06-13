@@ -3,7 +3,6 @@
 
 namespace Microsoft.Build.Prediction
 {
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -74,14 +73,6 @@ namespace Microsoft.Build.Prediction
             // a more memory-efficient format that can be used to evaluate conditions.
             // TODO: Static Graph needs to provide both, not just ProjectInstance, when we integrate.
             ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
-
-            // Perf: Compared ConcurrentQueue vs. static array of results,
-            // queue is 25% slower when all predictors return empty results,
-            // ~25% faster as predictors return more and more false/null results,
-            // with the breakeven point in the 10-15% null range.
-            // ConcurrentBag 10X worse than either of the above, ConcurrentStack about the same.
-            // Keeping queue implementation since many predictors return false.
-            var results = new ConcurrentQueue<ProjectPredictions>();
 
             // Special-case single-threaded prediction to avoid the overhead of Parallel.For in favor of a simple loop.
             if (_options.MaxDegreeOfParallelism == 1)
