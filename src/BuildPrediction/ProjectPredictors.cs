@@ -20,6 +20,8 @@ namespace Microsoft.Build.Prediction
         /// This includes the following predictors:
         /// <list type="bullet">
         /// <item><see cref="AvailableItemNameItems"/></item>
+        /// <item><see cref="ContentItems"/></item>
+        /// <item><see cref="NoneItems"/></item>
         /// <item><see cref="CSharpCompileItems"/></item>
         /// <item><see cref="IntermediateOutputPathIsOutputDir"/></item>
         /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
@@ -30,6 +32,8 @@ namespace Microsoft.Build.Prediction
         public static IReadOnlyCollection<IProjectPredictor> BasicPredictors => new IProjectPredictor[]
         {
             new AvailableItemNameItems(),
+            new ContentItems(),
+            new NoneItems(),
             new CSharpCompileItems(),
             new IntermediateOutputPathIsOutputDir(),
             new OutDirOrOutputPathIsOutputDir(),
@@ -44,6 +48,8 @@ namespace Microsoft.Build.Prediction
         /// This includes the following predictors:
         /// <list type="bullet">
         /// <item><see cref="AvailableItemNameItems"/></item>
+        /// <item><see cref="ContentItems"/></item>
+        /// <item><see cref="NoneItems"/></item>
         /// <item><see cref="CopyTaskPredictor"/></item>
         /// <item><see cref="CSharpCompileItems"/></item>
         /// <item><see cref="IntermediateOutputPathIsOutputDir"/></item>
@@ -55,6 +61,8 @@ namespace Microsoft.Build.Prediction
         public static IReadOnlyCollection<IProjectPredictor> AllPredictors => new IProjectPredictor[]
         {
             new AvailableItemNameItems(),
+            new ContentItems(),
+            new NoneItems(),
             new CopyTaskPredictor(),
             new CSharpCompileItems(),
             new IntermediateOutputPathIsOutputDir(),
