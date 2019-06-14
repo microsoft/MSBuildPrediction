@@ -7,11 +7,11 @@ namespace Microsoft.Build.Prediction.Predictors
     using Microsoft.Build.Execution;
 
     /// <summary>
-    /// Finds Compile items, typically but not necessarily always from csproj files, as inputs.
+    /// Finds None items as inputs.
     /// </summary>
-    public class CSharpCompileItems : IProjectPredictor
+    public class NoneItems : IProjectPredictor
     {
-        internal const string CompileItemName = "Compile";
+        internal const string NoneItemName = "None";
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Predictors
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
-            foreach (ProjectItem item in project.GetItems(CompileItemName))
+            foreach (ProjectItem item in project.GetItems(NoneItemName))
             {
                 predictionReporter.ReportInputFile(item.EvaluatedInclude);
             }

@@ -7,11 +7,11 @@ namespace Microsoft.Build.Prediction.Predictors
     using Microsoft.Build.Execution;
 
     /// <summary>
-    /// Finds Compile items, typically but not necessarily always from csproj files, as inputs.
+    /// Finds Content items as inputs.
     /// </summary>
-    public class CSharpCompileItems : IProjectPredictor
+    public class ContentItems : IProjectPredictor
     {
-        internal const string CompileItemName = "Compile";
+        internal const string ContentItemName = "Content";
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Predictors
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
-            foreach (ProjectItem item in project.GetItems(CompileItemName))
+            foreach (ProjectItem item in project.GetItems(ContentItemName))
             {
                 predictionReporter.ReportInputFile(item.EvaluatedInclude);
             }
