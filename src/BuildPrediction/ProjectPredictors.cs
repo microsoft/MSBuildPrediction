@@ -26,6 +26,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="IntermediateOutputPathIsOutputDir"/></item>
         /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
+        /// <item><see cref="AzureCloudServicePredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -38,6 +39,7 @@ namespace Microsoft.Build.Prediction
             new IntermediateOutputPathIsOutputDir(),
             new OutDirOrOutputPathIsOutputDir(),
             new ProjectFileAndImportedFiles(),
+            new AzureCloudServicePredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -55,6 +57,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="IntermediateOutputPathIsOutputDir"/></item>
         /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
+        /// <item><see cref="AzureCloudServicePredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -68,6 +71,7 @@ namespace Microsoft.Build.Prediction
             new IntermediateOutputPathIsOutputDir(),
             new OutDirOrOutputPathIsOutputDir(),
             new ProjectFileAndImportedFiles(),
+            new AzureCloudServicePredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
