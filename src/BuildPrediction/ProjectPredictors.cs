@@ -27,6 +27,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
         /// <item><see cref="AzureCloudServicePredictor"/></item>
+        /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -40,6 +41,7 @@ namespace Microsoft.Build.Prediction
             new OutDirOrOutputPathIsOutputDir(),
             new ProjectFileAndImportedFiles(),
             new AzureCloudServicePredictor(),
+            new ServiceFabricServiceManifestPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -58,6 +60,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
         /// <item><see cref="AzureCloudServicePredictor"/></item>
+        /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -72,6 +75,7 @@ namespace Microsoft.Build.Prediction
             new OutDirOrOutputPathIsOutputDir(),
             new ProjectFileAndImportedFiles(),
             new AzureCloudServicePredictor(),
+            new ServiceFabricServiceManifestPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
