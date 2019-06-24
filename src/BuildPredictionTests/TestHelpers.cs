@@ -7,6 +7,7 @@ namespace Microsoft.Build.Prediction.Tests
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Xml;
     using Microsoft.Build.Construction;
     using Microsoft.Build.Definition;
@@ -27,10 +28,10 @@ namespace Microsoft.Build.Prediction.Tests
             IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
             => AssertPredictions(
                 predictions,
-                expectedInputFiles.MakeAbsolute(project),
-                expectedInputDirectories.MakeAbsolute(project),
-                expectedOutputFiles.MakeAbsolute(project),
-                expectedOutputDirectories.MakeAbsolute(project));
+                expectedInputFiles.MakeAbsolute(project.DirectoryPath),
+                expectedInputDirectories.MakeAbsolute(project.DirectoryPath),
+                expectedOutputFiles.MakeAbsolute(project.DirectoryPath),
+                expectedOutputDirectories.MakeAbsolute(project.DirectoryPath));
 
         public static Project ProjectFromXml(string xml)
         {
@@ -50,10 +51,10 @@ namespace Microsoft.Build.Prediction.Tests
         public static Project CreateProjectFromRootElement(ProjectRootElement projectRootElement)
         {
             var globalProperties = new Dictionary<string, string>
-                                   {
-                                       { "Platform", "amd64" },
-                                       { "Configuration", "debug" },
-                                   };
+            {
+                { "Platform", "amd64" },
+                { "Configuration", "debug" },
+            };
 
             return new Project(projectRootElement, globalProperties, toolsVersion: ProjectCollection.GlobalProjectCollection.DefaultToolsVersion);
         }
@@ -70,8 +71,8 @@ namespace Microsoft.Build.Prediction.Tests
             return projectPredictionCollector.Predictions;
         }
 
-        public static IReadOnlyCollection<PredictedItem> MakeAbsolute(this IReadOnlyCollection<PredictedItem> items, Project project)
-            => items?.Select(item => new PredictedItem(Path.Combine(project.DirectoryPath, item.Path), item.PredictedBy.ToArray())).ToList();
+        public static IReadOnlyCollection<PredictedItem> MakeAbsolute(this IReadOnlyCollection<PredictedItem> items, string baseDir)
+            => items?.Select(item => new PredictedItem(Path.Combine(baseDir, item.Path), item.PredictedBy.ToArray())).ToList();
 
         private static void AssertPredictions(
             this ProjectPredictions predictions,
@@ -129,19 +130,43 @@ namespace Microsoft.Build.Prediction.Tests
             if (expectedSet.Count != actualSet.Count)
             {
                 throw new ArgumentException(
-                    $"Mismatched count - expected {expectedSet.Count} but got {actualSet.Count}. \r\n" +
-                    $"Expected {type} [[{string.Join(Environment.NewLine, expected)}]] \r\n" +
-                    $"Actual [[{string.Join(Environment.NewLine, actual)}]] \r\n" +
-                    $"Extra expected [[{string.Join(Environment.NewLine, expectedNotInActual)}]] \r\n" +
-                    $"Extra actual [[{string.Join(Environment.NewLine, actualNotExpected)}]]");
+                    $"Mismatched count - expected {expectedSet.Count} but got {actualSet.Count}.{Environment.NewLine}" +
+                    $"Expected {type}{PrettifyCollection(expected)}{Environment.NewLine}" +
+                    $"Actual {PrettifyCollection(actual)}{Environment.NewLine}" +
+                    $"Extra expected {PrettifyCollection(expectedSet.Except(actualSet).ToList())}{Environment.NewLine}" +
+                    $"Extra actual {PrettifyCollection(actualSet.Except(expectedSet).ToList())}");
             }
 
             foreach (T expectedItem in expectedSet)
             {
                 Assert.True(
                     actualSet.Contains(expectedItem),
-                    $"Missed value in the {type}: {expectedItem} from among actual list {string.Join(":: ", actual)}");
+                    $"Missed value in the {type}: {expectedItem} from among actual list {PrettifyCollection(actual)}");
             }
+        }
+
+        private static string PrettifyCollection<T>(IReadOnlyCollection<T> items)
+        {
+            if (items.Count == 0)
+            {
+                return "[]";
+            }
+
+            var builder = new StringBuilder();
+            builder.Append("[");
+            builder.Append(Environment.NewLine);
+            foreach (var item in items)
+            {
+                builder.Append("\t");
+                builder.Append(item);
+                builder.Append(",");
+                builder.Append(Environment.NewLine);
+            }
+
+            builder.Append("]");
+            builder.Append(Environment.NewLine);
+
+            return builder.ToString();
         }
     }
 }
