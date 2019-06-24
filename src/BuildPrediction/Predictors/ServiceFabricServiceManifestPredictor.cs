@@ -21,6 +21,8 @@ namespace Microsoft.Build.Prediction.Predictors
 
         internal const string ServiceManifestFileName = "ServiceManifest.xml";
 
+        internal const string UpdateServiceFabricApplicationManifestEnabledPropertyName = "UpdateServiceFabricApplicationManifestEnabled";
+
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
             Project project,
@@ -45,8 +47,18 @@ namespace Microsoft.Build.Prediction.Predictors
 
                 Then it runs a cleanup util on @(_ServiceManifestFullPath), making them all inputs.
             */
+
+            // The FixUpServiceFabricApplicationManifest has a condition: '@(ProjectReference)' != '' AND '$(UpdateServiceFabricApplicationManifestEnabled)' == 'true'
+            // Weirdly the target is skipped if there are no project references even if there are extra service manifets in the ApplicationPackageRootFolder
+            var updateServiceFabricApplicationManifestEnabled = projectInstance.GetPropertyValue(UpdateServiceFabricApplicationManifestEnabledPropertyName);
+            var projectReferenceItems = projectInstance.GetItems(ProjectReferenceItemName);
+            if (projectReferenceItems.Count == 0 || !updateServiceFabricApplicationManifestEnabled.Equals("true", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             var servicePackageRootFolder = projectInstance.GetPropertyValue(ServicePackageRootFolderPropertyName);
-            foreach (var projectReferenceItem in projectInstance.GetItems(ProjectReferenceItemName))
+            foreach (var projectReferenceItem in projectReferenceItems)
             {
                 // Equivalent of '%(RootDir)%(Directory)$(ServicePackageRootFolder)\ServiceManifest.xml'
                 var projectReferenceRootDir = projectReferenceItem.GetMetadataValue("RootDir");

@@ -33,6 +33,24 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
+        public void UpdateServiceFabricApplicationManifestDisabled()
+        {
+            Project project = CreateTestProject("project.sfproj", isEnabled: false);
+            new ServiceFabricServiceManifestPredictor()
+                .GetProjectPredictions(project)
+                .AssertNoPredictions();
+        }
+
+        [Fact]
+        public void NoProjectReferences()
+        {
+            Project project = CreateTestProject("project.sfproj", hasProjectReferences: false);
+            new ServiceFabricServiceManifestPredictor()
+                .GetProjectPredictions(project)
+                .AssertNoPredictions();
+        }
+
+        [Fact]
         public void SkipOtherProjectTypes()
         {
             Project project = CreateTestProject("project.csproj");
@@ -41,7 +59,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 .AssertNoPredictions();
         }
 
-        private static Project CreateTestProject(string fileName)
+        private static Project CreateTestProject(string fileName, bool hasProjectReferences = true, bool isEnabled = true)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create($@"ServiceFabricApp\{fileName}");
 
@@ -49,10 +67,17 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectPropertyGroupElement propertyGroup = projectRootElement.AddPropertyGroup();
             propertyGroup.AddProperty(ServiceFabricServiceManifestPredictor.ApplicationPackageRootFolderPropertyName, "ApplicationPackageRoot");
             propertyGroup.AddProperty(ServiceFabricServiceManifestPredictor.ServicePackageRootFolderPropertyName, "PackageRoot");
+            if (isEnabled)
+            {
+                propertyGroup.AddProperty(ServiceFabricServiceManifestPredictor.UpdateServiceFabricApplicationManifestEnabledPropertyName, "true");
+            }
 
-            ProjectItemGroupElement itemGroup = projectRootElement.AddItemGroup();
-            itemGroup.AddItem(ServiceFabricServiceManifestPredictor.ProjectReferenceItemName, @"..\Service1\Service1.csproj");
-            itemGroup.AddItem(ServiceFabricServiceManifestPredictor.ProjectReferenceItemName, @"..\Service2\Service2.csproj");
+            if (hasProjectReferences)
+            {
+                ProjectItemGroupElement itemGroup = projectRootElement.AddItemGroup();
+                itemGroup.AddItem(ServiceFabricServiceManifestPredictor.ProjectReferenceItemName, @"..\Service1\Service1.csproj");
+                itemGroup.AddItem(ServiceFabricServiceManifestPredictor.ProjectReferenceItemName, @"..\Service2\Service2.csproj");
+            }
 
             // Extra service manifests, and some extraneous files too
             Directory.CreateDirectory(@"ServiceFabricApp\ApplicationPackageRoot");
