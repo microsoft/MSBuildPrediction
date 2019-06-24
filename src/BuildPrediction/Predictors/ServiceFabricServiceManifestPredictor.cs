@@ -48,8 +48,8 @@ namespace Microsoft.Build.Prediction.Predictors
                 Then it runs a cleanup util on @(_ServiceManifestFullPath), making them all inputs.
             */
 
-            // The FixUpServiceFabricApplicationManifest has a condition: '@(ProjectReference)' != '' AND '$(UpdateServiceFabricApplicationManifestEnabled)' == 'true'
-            // Weirdly the target is skipped if there are no project references even if there are extra service manifets in the ApplicationPackageRootFolder
+            // FixUpServiceFabricApplicationManifest has a condition: '@(ProjectReference)' != '' AND '$(UpdateServiceFabricApplicationManifestEnabled)' == 'true'
+            // Weirdly the target is skipped if there are no project references even if there are extra service manifests in the ApplicationPackageRootFolder
             var updateServiceFabricApplicationManifestEnabled = projectInstance.GetPropertyValue(UpdateServiceFabricApplicationManifestEnabledPropertyName);
             var projectReferenceItems = projectInstance.GetItems(ProjectReferenceItemName);
             if (projectReferenceItems.Count == 0 || !updateServiceFabricApplicationManifestEnabled.Equals("true", StringComparison.OrdinalIgnoreCase))
