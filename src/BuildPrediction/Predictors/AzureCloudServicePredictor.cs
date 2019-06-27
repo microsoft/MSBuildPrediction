@@ -28,12 +28,12 @@ namespace Microsoft.Build.Prediction.Predictors
                 return;
             }
 
-            foreach (ProjectItem item in project.GetItems(ServiceConfigurationItemName))
+            foreach (ProjectItemInstance item in projectInstance.GetItems(ServiceConfigurationItemName))
             {
                 predictionReporter.ReportInputFile(item.EvaluatedInclude);
             }
 
-            foreach (ProjectItem item in project.GetItems(ServiceDefinitionItemName))
+            foreach (ProjectItemInstance item in projectInstance.GetItems(ServiceDefinitionItemName))
             {
                 predictionReporter.ReportInputFile(item.EvaluatedInclude);
             }

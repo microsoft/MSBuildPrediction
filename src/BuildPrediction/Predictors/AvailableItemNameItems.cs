@@ -34,7 +34,7 @@ namespace Microsoft.Build.Prediction.Predictors
             ProjectPredictionReporter predictionReporter)
         {
             var availableItemNames = new HashSet<string>(
-                project.GetItems(AvailableItemName).Select(item => item.EvaluatedInclude),
+                projectInstance.GetItems(AvailableItemName).Select(item => item.EvaluatedInclude),
                 StringComparer.OrdinalIgnoreCase);
 
             foreach (string availableItemName in availableItemNames)

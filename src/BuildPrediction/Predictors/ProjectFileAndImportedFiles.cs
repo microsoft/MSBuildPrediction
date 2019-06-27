@@ -17,7 +17,7 @@ namespace Microsoft.Build.Prediction.Predictors
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
-            predictionReporter.ReportInputFile(project.FullPath);
+            predictionReporter.ReportInputFile(projectInstance.FullPath);
             foreach (ResolvedImport import in project.Imports)
             {
                 predictionReporter.ReportInputFile(import.ImportedProject.FullPath);
