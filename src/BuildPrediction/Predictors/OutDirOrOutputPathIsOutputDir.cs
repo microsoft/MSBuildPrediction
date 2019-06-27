@@ -22,7 +22,7 @@ namespace Microsoft.Build.Prediction.Predictors
             // For an MSBuild project, the output goes to $(OutDir) by default. Usually $(OutDir)
             // equals $(OutputPath). Many targets expect OutputPath/OutDir to be defined and
             // MsBuild.exe reports an error if these macros are undefined.
-            string outDir = project.GetPropertyValue(OutDirMacro);
+            string outDir = projectInstance.GetPropertyValue(OutDirMacro);
             if (!string.IsNullOrWhiteSpace(outDir))
             {
                 predictionReporter.ReportOutputDirectory(outDir);
@@ -31,7 +31,7 @@ namespace Microsoft.Build.Prediction.Predictors
             {
                 // Some projects use custom code with $(OutputPath) set instead of following the common .targets pattern.
                 // Fall back to $(OutputPath) first when $(OutDir) is not set.
-                string outputPath = project.GetPropertyValue(OutputPathMacro);
+                string outputPath = projectInstance.GetPropertyValue(OutputPathMacro);
                 if (!string.IsNullOrWhiteSpace(outputPath))
                 {
                     predictionReporter.ReportOutputDirectory(outputPath);

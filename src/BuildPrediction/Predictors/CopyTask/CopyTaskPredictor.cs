@@ -42,7 +42,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
             // include custom targets defined directly in this Project.
             // Note that this misses targets defined in any custom targets files.
             foreach (ProjectTargetInstance target in projectInstance.Targets.Values
-                .Where(t => string.Equals(t.Location.File, project.ProjectFileLocation.File, PathComparer.Comparison)))
+                .Where(t => string.Equals(t.Location.File, projectInstance.ProjectFileLocation.File, PathComparer.Comparison)))
             {
                 project.AddToActiveTargets(new[] { target.Name }, activeTargets);
             }

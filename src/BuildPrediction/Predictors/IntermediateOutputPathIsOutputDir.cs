@@ -18,7 +18,7 @@ namespace Microsoft.Build.Prediction.Predictors
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
-            string intermediateOutputPath = project.GetPropertyValue(IntermediateOutputPathMacro);
+            string intermediateOutputPath = projectInstance.GetPropertyValue(IntermediateOutputPathMacro);
             if (!string.IsNullOrWhiteSpace(intermediateOutputPath))
             {
                 predictionReporter.ReportOutputDirectory(intermediateOutputPath);

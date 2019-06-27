@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Predictors
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
-            foreach (ProjectItem item in project.GetItems(ContentItemName))
+            foreach (ProjectItemInstance item in projectInstance.GetItems(ContentItemName))
             {
                 predictionReporter.ReportInputFile(item.EvaluatedInclude);
             }
