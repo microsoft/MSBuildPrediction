@@ -38,7 +38,7 @@ namespace Microsoft.Build.Prediction
         /// An MSBuild string-list, where whitespace is ignored and the semicolon ';' is used as a separator.
         /// </param>
         /// <returns>A size-optimized list of strings resulting from parsing the string-list.</returns>
-        public static IList<string> SplitStringList(this string stringList)
+        public static List<string> SplitStringList(this string stringList)
         {
             string[] split = stringList.Trim().Split(IncludeDelimiters, StringSplitOptions.RemoveEmptyEntries);
             var splitList = new List<string>(split.Length);

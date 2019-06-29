@@ -28,6 +28,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
         /// <item><see cref="AzureCloudServicePredictor"/></item>
         /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
+        /// <item><see cref="CodeAnalysisRuleSetPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -42,6 +43,7 @@ namespace Microsoft.Build.Prediction
             new ProjectFileAndImportedFiles(),
             new AzureCloudServicePredictor(),
             new ServiceFabricServiceManifestPredictor(),
+            new CodeAnalysisRuleSetPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -61,6 +63,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
         /// <item><see cref="AzureCloudServicePredictor"/></item>
         /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
+        /// <item><see cref="CodeAnalysisRuleSetPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -76,6 +79,7 @@ namespace Microsoft.Build.Prediction
             new ProjectFileAndImportedFiles(),
             new AzureCloudServicePredictor(),
             new ServiceFabricServiceManifestPredictor(),
+            new CodeAnalysisRuleSetPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
