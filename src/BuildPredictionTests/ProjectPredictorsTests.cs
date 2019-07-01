@@ -16,7 +16,7 @@ namespace Microsoft.Build.Prediction.Tests
         {
             IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.BasicPredictors;
 
-            Assert.Equal(10, predictors.Count);
+            Assert.Equal(11, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItems));
@@ -27,6 +27,7 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AzureCloudServicePredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ServiceFabricServiceManifestPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CodeAnalysisRuleSetPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AssemblyOriginatorKeyFilePredictor));
         }
 
         [Fact]
@@ -34,7 +35,7 @@ namespace Microsoft.Build.Prediction.Tests
         {
             IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.AllPredictors;
 
-            Assert.Equal(11, predictors.Count);
+            Assert.Equal(12, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItems));
@@ -46,6 +47,7 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AzureCloudServicePredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ServiceFabricServiceManifestPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CodeAnalysisRuleSetPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AssemblyOriginatorKeyFilePredictor));
         }
     }
 }
