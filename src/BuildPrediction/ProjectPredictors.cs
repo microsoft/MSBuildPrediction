@@ -28,9 +28,11 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
         /// <item><see cref="AzureCloudServicePredictor"/></item>
         /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
+        /// <item><see cref="AzureCloudServiceWorkerFilesPredictor"/></item>
         /// <item><see cref="CodeAnalysisRuleSetPredictor"/></item>
         /// <item><see cref="AssemblyOriginatorKeyFilePredictor"/></item>
         /// <item><see cref="EmbeddedResourceItemsPredictor"/></item>
+        /// <item><see cref="ReferenceItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -45,9 +47,11 @@ namespace Microsoft.Build.Prediction
             new ProjectFileAndImportedFiles(),
             new AzureCloudServicePredictor(),
             new ServiceFabricServiceManifestPredictor(),
+            new AzureCloudServiceWorkerFilesPredictor(),
             new CodeAnalysisRuleSetPredictor(),
             new AssemblyOriginatorKeyFilePredictor(),
             new EmbeddedResourceItemsPredictor(),
+            new ReferenceItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -67,9 +71,11 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ProjectFileAndImportedFiles"/></item>
         /// <item><see cref="AzureCloudServicePredictor"/></item>
         /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
+        /// <item><see cref="AzureCloudServiceWorkerFilesPredictor"/></item>
         /// <item><see cref="CodeAnalysisRuleSetPredictor"/></item>
         /// <item><see cref="AssemblyOriginatorKeyFilePredictor"/></item>
         /// <item><see cref="EmbeddedResourceItemsPredictor"/></item>
+        /// <item><see cref="ReferenceItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -85,9 +91,11 @@ namespace Microsoft.Build.Prediction
             new ProjectFileAndImportedFiles(),
             new AzureCloudServicePredictor(),
             new ServiceFabricServiceManifestPredictor(),
+            new AzureCloudServiceWorkerFilesPredictor(),
             new CodeAnalysisRuleSetPredictor(),
             new AssemblyOriginatorKeyFilePredictor(),
             new EmbeddedResourceItemsPredictor(),
+            new ReferenceItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }

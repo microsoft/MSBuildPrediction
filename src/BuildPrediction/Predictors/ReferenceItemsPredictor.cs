@@ -17,6 +17,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
         internal const string HintPathMetadata = "HintPath";
 
+        // Note that this isn't static to avoid holding onto memory after prediction is over.
         private readonly char[] _invalidPathCharacters = Path.GetInvalidPathChars();
 
         /// <inheritdoc/>
@@ -40,7 +41,7 @@ namespace Microsoft.Build.Prediction.Predictors
                 else
                 {
                     // If there is no hint path then if the reference is valid then the EvaluatedInclude is either a path to a file
-                    // of the name of a dll from the GAC or platform.
+                    // or the name of a dll from the GAC or platform.
                     string identity = item.EvaluatedInclude;
 
                     // Since we don't know whether it's even a file path, check that it's at least a valid path before trying to use it like one.
