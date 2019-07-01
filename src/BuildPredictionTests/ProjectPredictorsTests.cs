@@ -16,7 +16,7 @@ namespace Microsoft.Build.Prediction.Tests
         {
             IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.BasicPredictors;
 
-            Assert.Equal(11, predictors.Count);
+            Assert.Equal(12, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItems));
@@ -28,6 +28,7 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ServiceFabricServiceManifestPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CodeAnalysisRuleSetPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AssemblyOriginatorKeyFilePredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is EmbeddedResourceItemsPredictor));
         }
 
         [Fact]
@@ -35,7 +36,7 @@ namespace Microsoft.Build.Prediction.Tests
         {
             IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.AllPredictors;
 
-            Assert.Equal(12, predictors.Count);
+            Assert.Equal(13, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItems));
@@ -48,6 +49,7 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ServiceFabricServiceManifestPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CodeAnalysisRuleSetPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AssemblyOriginatorKeyFilePredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is EmbeddedResourceItemsPredictor));
         }
     }
 }

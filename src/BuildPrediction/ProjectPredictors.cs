@@ -30,6 +30,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
         /// <item><see cref="CodeAnalysisRuleSetPredictor"/></item>
         /// <item><see cref="AssemblyOriginatorKeyFilePredictor"/></item>
+        /// <item><see cref="EmbeddedResourceItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -46,6 +47,7 @@ namespace Microsoft.Build.Prediction
             new ServiceFabricServiceManifestPredictor(),
             new CodeAnalysisRuleSetPredictor(),
             new AssemblyOriginatorKeyFilePredictor(),
+            new EmbeddedResourceItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -67,6 +69,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
         /// <item><see cref="CodeAnalysisRuleSetPredictor"/></item>
         /// <item><see cref="AssemblyOriginatorKeyFilePredictor"/></item>
+        /// <item><see cref="EmbeddedResourceItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -84,6 +87,7 @@ namespace Microsoft.Build.Prediction
             new ServiceFabricServiceManifestPredictor(),
             new CodeAnalysisRuleSetPredictor(),
             new AssemblyOriginatorKeyFilePredictor(),
+            new EmbeddedResourceItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
