@@ -27,7 +27,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 .GetProjectPredictions(project)
                 .AssertPredictions(
                     project,
-                    expectedInputFiles.MakeAbsolute(Directory.GetCurrentDirectory()),
+                    expectedInputFiles,
                     null,
                     null,
                     null);
