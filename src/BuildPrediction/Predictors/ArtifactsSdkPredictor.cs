@@ -78,7 +78,7 @@ namespace Microsoft.Build.Prediction.Predictors
                 }
                 else if (Directory.Exists(source))
                 {
-                    // If the source is a known directory, we can use the rest of the metadata to do a precice prediction.
+                    // If the source is a known directory, we can use the rest of the metadata to do a precise prediction.
                     var matcher = new Matcher(item, source);
 
                     // This value defaults to true, so check that it's not explicitly false
@@ -95,7 +95,7 @@ namespace Microsoft.Build.Prediction.Predictors
                 }
                 else
                 {
-                    // The source doesn't exist, so is probably a file or folder generated at build time. Based on presense
+                    // The source doesn't exist, so is probably a file or folder generated at build time. Based on presence
                     // of certain metadata, make a best guess as to whether this is probably a file or folder artifact, and
                     // do vague predictions.
                     bool isProbablyDirectory = !string.IsNullOrEmpty(item.GetMetadataValue(FileMatchMetadata))
@@ -164,12 +164,10 @@ namespace Microsoft.Build.Prediction.Predictors
                 foreach (string childSourceDirectory in Directory.EnumerateDirectories(sourceDirectory))
                 {
                     string childSourceName = Path.GetFileName(childSourceDirectory);
-
-                    // per dir we need to re-items for those items excluding a specific dir
-                    string childSubDirectory = !string.IsNullOrEmpty(destinationSubDirectory)
+                    string childDestinationSubDirectory = !string.IsNullOrEmpty(destinationSubDirectory)
                         ? Path.Combine(destinationSubDirectory, childSourceName)
                         : childSourceName;
-                    if (matcher.IsMatch(childSubDirectory, destinationSubDirectory, isFile: false))
+                    if (matcher.IsMatch(childDestinationSubDirectory, destinationSubDirectory, isFile: false))
                     {
                         ProcessDirectory(
                             matcher,
@@ -177,7 +175,7 @@ namespace Microsoft.Build.Prediction.Predictors
                             searchPattern,
                             childSourceDirectory,
                             destinationFolders,
-                            childSubDirectory,
+                            childDestinationSubDirectory,
                             predictionReporter);
                     }
                 }
