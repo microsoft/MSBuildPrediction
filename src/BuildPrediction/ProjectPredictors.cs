@@ -76,6 +76,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="AssemblyOriginatorKeyFilePredictor"/></item>
         /// <item><see cref="EmbeddedResourceItemsPredictor"/></item>
         /// <item><see cref="ReferenceItemsPredictor"/></item>
+        /// <item><see cref="ArtifactsSdkPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -96,6 +97,7 @@ namespace Microsoft.Build.Prediction
             new AssemblyOriginatorKeyFilePredictor(),
             new EmbeddedResourceItemsPredictor(),
             new ReferenceItemsPredictor(),
+            new ArtifactsSdkPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
