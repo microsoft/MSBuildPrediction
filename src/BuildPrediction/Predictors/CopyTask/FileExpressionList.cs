@@ -4,7 +4,6 @@
 namespace Microsoft.Build.Prediction.Predictors.CopyTask
 {
     using System.Collections.Generic;
-    using System.Linq;
     using Microsoft.Build.Execution;
 
     /// <summary>
@@ -21,14 +20,19 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         /// <param name="task">The task where the expression list exists.</param>
         public FileExpressionList(string rawFileListString, ProjectInstance project, ProjectTaskInstance task)
         {
-            IList<string> expressions = rawFileListString.SplitStringList();
+            List<string> expressions = rawFileListString.SplitStringList();
+            NumExpressions = expressions.Count;
+
             var seenFiles = new HashSet<string>(PathComparer.Instance);
             foreach (string expression in expressions)
             {
-                FileExpressionBase parsedExpression = FileExpressionFactory.ParseExpression(expression, project, task);
-                Expressions.Add(parsedExpression);
+                List<string> evaluatedFiles = FileExpression.EvaluateExpression(expression, project, task, out bool isBatched);
+                if (isBatched)
+                {
+                    NumBatchExpressions++;
+                }
 
-                foreach (string file in parsedExpression.EvaluatedFiles)
+                foreach (string file in evaluatedFiles)
                 {
                     if (string.IsNullOrWhiteSpace(file))
                     {
@@ -46,11 +50,6 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         }
 
         /// <summary>
-        /// Gets the set of all expressions in the file list string.
-        /// </summary>
-        public List<FileExpressionBase> Expressions { get; } = new List<FileExpressionBase>();
-
-        /// <summary>
         /// Gets the set of all files in all of the expanded expressions. May include duplicates.
         /// </summary>
         public List<string> AllFiles { get; } = new List<string>();
@@ -61,18 +60,13 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         public List<string> DedupedFiles { get; } = new List<string>();
 
         /// <summary>
+        /// Gets the total number of expressions in the file list.
+        /// </summary>
+        public int NumExpressions { get; }
+
+        /// <summary>
         /// Gets the number of batch expressions in the file list.
         /// </summary>
-        public int NumBatchExpressions => Expressions.Count((FileExpressionBase expression) => expression.GetType() == typeof(FileExpressionBatched));
-
-        /// <summary>
-        /// Gets the number of literal expressions in the file list.
-        /// </summary>
-        public int NumLiteralExpressions => Expressions.Count((FileExpressionBase expression) => expression.GetType() == typeof(FileExpressionLiteral));
-
-        /// <summary>
-        /// Gets the number of transform expressions in the file list.
-        /// </summary>
-        public int NumTransformExpressions => Expressions.Count((FileExpressionBase expression) => expression.GetType() == typeof(FileExpressionTransform));
+        public int NumBatchExpressions { get; }
     }
 }

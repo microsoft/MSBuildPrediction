@@ -81,7 +81,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                             task.Parameters[CopyTaskSourceFiles],
                             projectInstance,
                             task);
-                        if (inputs.Expressions.Count == 0)
+                        if (inputs.NumExpressions == 0)
                         {
                             continue;
                         }
@@ -112,8 +112,8 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
 
                             // When using batch tokens, the user should specify exactly one total token, and it must appear in both the input and output.
                             // Doing otherwise should be a BuildCop error. If not using batch tokens, then any number of other tokens is fine.
-                            if ((outputs.NumBatchExpressions == 1 && outputs.Expressions.Count == 1 &&
-                                 inputs.NumBatchExpressions == 1 && inputs.Expressions.Count == 1) ||
+                            if ((outputs.NumBatchExpressions == 1 && outputs.NumExpressions == 1 &&
+                                 inputs.NumBatchExpressions == 1 && inputs.NumExpressions == 1) ||
                                 (outputs.NumBatchExpressions == 0 && inputs.NumBatchExpressions == 0))
                             {
                                 ProcessOutputs(inputs, outputs, hasDestinationFolder, predictionReporter);
