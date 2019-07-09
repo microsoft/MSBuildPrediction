@@ -57,11 +57,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
                     // If it's from the GAC or platform, it won't have directory separators.
                     // Example: <Reference Include="System.Data" />
-#if NETCOREAPP // netcoreapp has an overload which takes character and StringComparison while Net472 doesn't, and analyzers enforce that we provide a StringComparison when possible.
                     if (identity.IndexOf(Path.DirectorySeparatorChar, StringComparison.Ordinal) == -1)
-#else
-                    if (identity.IndexOf(Path.DirectorySeparatorChar) == -1)
-#endif
                     {
                         // Edge-case if the reference is adjacent to the project so might not have directory separators. Check file existence in that case.
                         // Example: <Reference Include="CheckedInReference.dll" />

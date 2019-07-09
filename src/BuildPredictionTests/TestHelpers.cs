@@ -137,8 +137,8 @@ namespace Microsoft.Build.Prediction.Tests
                     $"Mismatched count - expected {expectedSet.Count} but got {actualSet.Count}.{Environment.NewLine}" +
                     $"Expected {type}{PrettifyCollection(expected)}{Environment.NewLine}" +
                     $"Actual {PrettifyCollection(actual)}{Environment.NewLine}" +
-                    $"Extra expected {PrettifyCollection(expectedSet.Except(actualSet).ToList())}{Environment.NewLine}" +
-                    $"Extra actual {PrettifyCollection(actualSet.Except(expectedSet).ToList())}");
+                    $"Extra expected {PrettifyCollection(expectedSet.Except(actualSet, comparer).ToList())}{Environment.NewLine}" +
+                    $"Extra actual {PrettifyCollection(actualSet.Except(expectedSet, comparer).ToList())}");
             }
 
             foreach (T expectedItem in expectedSet)
