@@ -43,18 +43,6 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         /// </summary>
         /// <param name="expression">An unprocessed string for a single expression.</param>
         /// <param name="project">The project where the expression exists.</param>
-        /// <returns>The set of all files in the evaluated expression.</returns>
-        public static List<string> EvaluateLiteralExpression(string expression, ProjectInstance project)
-        {
-            expression = expression.Trim(); // This method is public so the string might not be trimmed yet.
-            return EvaluateLiteralExpression(expression, project, null);
-        }
-
-        /// <summary>
-        /// Evaluates a literal expression, e.g. '$(Outdir)\foo.dll'.
-        /// </summary>
-        /// <param name="expression">An unprocessed string for a single expression.</param>
-        /// <param name="project">The project where the expression exists.</param>
         /// <param name="task">The task where the expression exists.</param>
         /// <returns>The set of all files in the evaluated expression.</returns>
         private static List<string> EvaluateLiteralExpression(string expression, ProjectInstance project, ProjectTaskInstance task)
