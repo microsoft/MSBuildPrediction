@@ -16,7 +16,7 @@ namespace Microsoft.Build.Prediction.Tests
         {
             IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.BasicPredictors;
 
-            Assert.Equal(15, predictors.Count);
+            Assert.Equal(16, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItems));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItems));
@@ -32,6 +32,7 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is EmbeddedResourceItemsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ReferenceItemsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is StyleCopPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ManifestsPredictor));
         }
 
         [Fact]

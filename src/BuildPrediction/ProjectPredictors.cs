@@ -3,6 +3,7 @@
 
 namespace Microsoft.Build.Prediction
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.Build.Prediction.Predictors;
     using Microsoft.Build.Prediction.Predictors.CopyTask;
@@ -34,6 +35,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="EmbeddedResourceItemsPredictor"/></item>
         /// <item><see cref="ReferenceItemsPredictor"/></item>
         /// <item><see cref="StyleCopPredictor"/></item>
+        /// <item><see cref="ManifestsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -54,6 +56,7 @@ namespace Microsoft.Build.Prediction
             new EmbeddedResourceItemsPredictor(),
             new ReferenceItemsPredictor(),
             new StyleCopPredictor(),
+            new ManifestsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -80,6 +83,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ReferenceItemsPredictor"/></item>
         /// <item><see cref="ArtifactsSdkPredictor"/></item>
         /// <item><see cref="StyleCopPredictor"/></item>
+        /// <item><see cref="ManifestsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -102,6 +106,7 @@ namespace Microsoft.Build.Prediction
             new ReferenceItemsPredictor(),
             new ArtifactsSdkPredictor(),
             new StyleCopPredictor(),
+            new ManifestsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
