@@ -7,20 +7,21 @@ namespace Microsoft.Build.Prediction.Predictors
     using Microsoft.Build.Execution;
 
     /// <summary>
-    /// Finds project filename and imports, as inputs.
+    /// Finds None items as inputs.
     /// </summary>
-    public class ProjectFileAndImportedFiles : IProjectPredictor
+    public class NoneItemsPredictor : IProjectPredictor
     {
+        internal const string NoneItemName = "None";
+
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
-            predictionReporter.ReportInputFile(projectInstance.FullPath);
-            foreach (ResolvedImport import in project.Imports)
+            foreach (ProjectItemInstance item in projectInstance.GetItems(NoneItemName))
             {
-                predictionReporter.ReportInputFile(import.ImportedProject.FullPath);
+                predictionReporter.ReportInputFile(item.EvaluatedInclude);
             }
         }
     }

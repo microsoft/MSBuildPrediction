@@ -8,21 +8,21 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
-    public class OutDirOrOutputPathIsOutputDirTests
+    public class OutDirOrOutputPathPredictorTests
     {
         [Fact]
         public void OutDirFoundAsOutputDir()
         {
             const string outDir = @"C:\repo\bin\x64";
             Project project = CreateTestProject(outDir, null);
-            new OutDirOrOutputPathIsOutputDir()
+            new OutDirOrOutputPathPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
                     project,
                     null,
                     null,
                     null,
-                    new[] { new PredictedItem(outDir, nameof(OutDirOrOutputPathIsOutputDir)) });
+                    new[] { new PredictedItem(outDir, nameof(OutDirOrOutputPathPredictor)) });
         }
 
         [Fact]
@@ -30,21 +30,21 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             const string outputPath = @"C:\repo\OutputPath";
             Project project = CreateTestProject(null, outputPath);
-            new OutDirOrOutputPathIsOutputDir()
+            new OutDirOrOutputPathPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
                     project,
                     null,
                     null,
                     null,
-                    new[] { new PredictedItem(outputPath, nameof(OutDirOrOutputPathIsOutputDir)) });
+                    new[] { new PredictedItem(outputPath, nameof(OutDirOrOutputPathPredictor)) });
         }
 
         [Fact]
         public void NoOutputsReportedIfNoOutDirOrOutputPath()
         {
             Project project = CreateTestProject(null, null);
-            new OutDirOrOutputPathIsOutputDir()
+            new OutDirOrOutputPathPredictor()
                 .GetProjectPredictions(project)
                 .AssertNoPredictions();
         }
@@ -54,12 +54,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             if (outDir != null)
             {
-                projectRootElement.AddProperty(OutDirOrOutputPathIsOutputDir.OutDirMacro, outDir);
+                projectRootElement.AddProperty(OutDirOrOutputPathPredictor.OutDirMacro, outDir);
             }
 
             if (outputPath != null)
             {
-                projectRootElement.AddProperty(OutDirOrOutputPathIsOutputDir.OutputPathMacro, outputPath);
+                projectRootElement.AddProperty(OutDirOrOutputPathPredictor.OutputPathMacro, outputPath);
             }
 
             return TestHelpers.CreateProjectFromRootElement(projectRootElement);

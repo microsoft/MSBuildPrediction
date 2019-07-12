@@ -8,30 +8,29 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
-    // TODO: Need to add .NET Core and .NET Framework based examples including use of SDK includes.
-    public class NoneItemsTests
+    public class ContentItemsPredictorTests
     {
         [Fact]
-        public void NoneItemsFindItems()
+        public void ContentItemsFindItems()
         {
             Project project = CreateTestProject("Foo.xml");
-            new NoneItems()
+            new ContentItemsPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
                     project,
-                    new[] { new PredictedItem("Foo.xml", nameof(NoneItems)) },
+                    new[] { new PredictedItem("Foo.xml", nameof(ContentItemsPredictor)) },
                     null,
                     null,
                     null);
         }
 
-        private static Project CreateTestProject(params string[] noneItemIncludes)
+        private static Project CreateTestProject(params string[] contentItemIncludes)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             ProjectItemGroupElement itemGroup = projectRootElement.AddItemGroup();
-            foreach (string noneItemInclude in noneItemIncludes)
+            foreach (string contentItemInclude in contentItemIncludes)
             {
-                itemGroup.AddItem(NoneItems.NoneItemName, noneItemInclude);
+                itemGroup.AddItem(ContentItemsPredictor.ContentItemName, contentItemInclude);
             }
 
             return TestHelpers.CreateProjectFromRootElement(projectRootElement);

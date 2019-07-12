@@ -17,13 +17,13 @@ namespace Microsoft.Build.Prediction.Tests
             IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.BasicPredictors;
 
             Assert.Equal(16, predictors.Count);
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItems));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItems));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItems));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CSharpCompileItems));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is IntermediateOutputPathIsOutputDir));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is OutDirOrOutputPathIsOutputDir));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ProjectFileAndImportedFiles));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItemsPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItemsPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItemsPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CompileItemsPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is IntermediateOutputPathPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is OutDirOrOutputPathPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ProjectFileAndImportsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AzureCloudServicePredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ServiceFabricServiceManifestPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AzureCloudServiceWorkerFilesPredictor));

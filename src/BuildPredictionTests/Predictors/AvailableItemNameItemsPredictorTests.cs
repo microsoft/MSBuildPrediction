@@ -10,8 +10,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
-    // TODO: Need to add .NET Core and .NET Framework based examples including use of SDK includes.
-    public class AvailableItemNameItemsTests
+    public class AvailableItemNameItemsPredictorTests
     {
         [Fact]
         public void AvailableItemNamesFindItems()
@@ -22,11 +21,11 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 Tuple.Create("Available1", "available1Value2"),
                 Tuple.Create("Available2", "available2Value"),
                 Tuple.Create("NotAvailable", "shouldNotGetThisAsAnInput"));
-            new AvailableItemNameItems()
+            new AvailableItemNameItemsPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
                     project,
-                    new[] { new PredictedItem("available1Value", nameof(AvailableItemNameItems)), new PredictedItem("available1Value2", nameof(AvailableItemNameItems)), new PredictedItem("available2Value", nameof(AvailableItemNameItems)) },
+                    new[] { new PredictedItem("available1Value", nameof(AvailableItemNameItemsPredictor)), new PredictedItem("available1Value2", nameof(AvailableItemNameItemsPredictor)), new PredictedItem("available2Value", nameof(AvailableItemNameItemsPredictor)) },
                     null,
                     null,
                     null);
@@ -47,7 +46,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectItemGroupElement namesItemGroup = projectRootElement.AddItemGroup();
             foreach (string availableItemName in availableItemNames)
             {
-                namesItemGroup.AddItem(AvailableItemNameItems.AvailableItemName, availableItemName);
+                namesItemGroup.AddItem(AvailableItemNameItemsPredictor.AvailableItemName, availableItemName);
             }
 
             return TestHelpers.CreateProjectFromRootElement(projectRootElement);

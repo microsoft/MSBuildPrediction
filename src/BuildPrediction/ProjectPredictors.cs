@@ -20,13 +20,13 @@ namespace Microsoft.Build.Prediction
         /// <remarks>
         /// This includes the following predictors:
         /// <list type="bullet">
-        /// <item><see cref="AvailableItemNameItems"/></item>
-        /// <item><see cref="ContentItems"/></item>
-        /// <item><see cref="NoneItems"/></item>
-        /// <item><see cref="CSharpCompileItems"/></item>
-        /// <item><see cref="IntermediateOutputPathIsOutputDir"/></item>
-        /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
-        /// <item><see cref="ProjectFileAndImportedFiles"/></item>
+        /// <item><see cref="AvailableItemNameItemsPredictor"/></item>
+        /// <item><see cref="ContentItemsPredictor"/></item>
+        /// <item><see cref="NoneItemsPredictor"/></item>
+        /// <item><see cref="CompileItemsPredictor"/></item>
+        /// <item><see cref="IntermediateOutputPathPredictor"/></item>
+        /// <item><see cref="OutDirOrOutputPathPredictor"/></item>
+        /// <item><see cref="ProjectFileAndImportsPredictor"/></item>
         /// <item><see cref="AzureCloudServicePredictor"/></item>
         /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
         /// <item><see cref="AzureCloudServiceWorkerFilesPredictor"/></item>
@@ -41,13 +41,13 @@ namespace Microsoft.Build.Prediction
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
         public static IReadOnlyCollection<IProjectPredictor> BasicPredictors => new IProjectPredictor[]
         {
-            new AvailableItemNameItems(),
-            new ContentItems(),
-            new NoneItems(),
-            new CSharpCompileItems(),
-            new IntermediateOutputPathIsOutputDir(),
-            new OutDirOrOutputPathIsOutputDir(),
-            new ProjectFileAndImportedFiles(),
+            new AvailableItemNameItemsPredictor(),
+            new ContentItemsPredictor(),
+            new NoneItemsPredictor(),
+            new CompileItemsPredictor(),
+            new IntermediateOutputPathPredictor(),
+            new OutDirOrOutputPathPredictor(),
+            new ProjectFileAndImportsPredictor(),
             new AzureCloudServicePredictor(),
             new ServiceFabricServiceManifestPredictor(),
             new AzureCloudServiceWorkerFilesPredictor(),
@@ -66,14 +66,14 @@ namespace Microsoft.Build.Prediction
         /// <remarks>
         /// This includes the following predictors:
         /// <list type="bullet">
-        /// <item><see cref="AvailableItemNameItems"/></item>
-        /// <item><see cref="ContentItems"/></item>
-        /// <item><see cref="NoneItems"/></item>
+        /// <item><see cref="AvailableItemNameItemsPredictor"/></item>
+        /// <item><see cref="ContentItemsPredictor"/></item>
+        /// <item><see cref="NoneItemsPredictor"/></item>
         /// <item><see cref="CopyTaskPredictor"/></item>
-        /// <item><see cref="CSharpCompileItems"/></item>
-        /// <item><see cref="IntermediateOutputPathIsOutputDir"/></item>
-        /// <item><see cref="OutDirOrOutputPathIsOutputDir"/></item>
-        /// <item><see cref="ProjectFileAndImportedFiles"/></item>
+        /// <item><see cref="CompileItemsPredictor"/></item>
+        /// <item><see cref="IntermediateOutputPathPredictor"/></item>
+        /// <item><see cref="OutDirOrOutputPathPredictor"/></item>
+        /// <item><see cref="ProjectFileAndImportsPredictor"/></item>
         /// <item><see cref="AzureCloudServicePredictor"/></item>
         /// <item><see cref="ServiceFabricServiceManifestPredictor"/></item>
         /// <item><see cref="AzureCloudServiceWorkerFilesPredictor"/></item>
@@ -89,14 +89,14 @@ namespace Microsoft.Build.Prediction
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
         public static IReadOnlyCollection<IProjectPredictor> AllPredictors => new IProjectPredictor[]
         {
-            new AvailableItemNameItems(),
-            new ContentItems(),
-            new NoneItems(),
+            new AvailableItemNameItemsPredictor(),
+            new ContentItemsPredictor(),
+            new NoneItemsPredictor(),
             new CopyTaskPredictor(),
-            new CSharpCompileItems(),
-            new IntermediateOutputPathIsOutputDir(),
-            new OutDirOrOutputPathIsOutputDir(),
-            new ProjectFileAndImportedFiles(),
+            new CompileItemsPredictor(),
+            new IntermediateOutputPathPredictor(),
+            new OutDirOrOutputPathPredictor(),
+            new ProjectFileAndImportsPredictor(),
             new AzureCloudServicePredictor(),
             new ServiceFabricServiceManifestPredictor(),
             new AzureCloudServiceWorkerFilesPredictor(),
