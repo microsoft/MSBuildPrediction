@@ -9,7 +9,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Scrapes the $(IntermediateOutputPath) if found.
     /// </summary>
-    internal class IntermediateOutputPathIsOutputDir : IProjectPredictor
+    internal class IntermediateOutputPathPredictor : IProjectPredictor
     {
         internal const string IntermediateOutputPathMacro = "IntermediateOutputPath";
 

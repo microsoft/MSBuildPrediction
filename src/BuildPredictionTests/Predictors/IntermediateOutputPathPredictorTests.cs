@@ -8,21 +8,21 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
-    public class IntermediateOutputPathIsOutputDirTests
+    public class IntermediateOutputPathPredictorTests
     {
         [Fact]
         public void IntermediateOutputPathFoundAsOutputDir()
         {
             const string IntermediateOutputPath = @"C:\repo\bin\x64";
             Project project = CreateTestProject(IntermediateOutputPath);
-            new IntermediateOutputPathIsOutputDir()
+            new IntermediateOutputPathPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
                     project,
                     null,
                     null,
                     null,
-                    new[] { new PredictedItem(IntermediateOutputPath, nameof(IntermediateOutputPathIsOutputDir)) });
+                    new[] { new PredictedItem(IntermediateOutputPath, nameof(IntermediateOutputPathPredictor)) });
         }
 
         [Fact]
@@ -30,22 +30,22 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             const string IntermediateOutputPath = @"bin\x64";
             Project project = CreateTestProject(IntermediateOutputPath);
-            var predictor = new IntermediateOutputPathIsOutputDir();
-            new IntermediateOutputPathIsOutputDir()
+            var predictor = new IntermediateOutputPathPredictor();
+            new IntermediateOutputPathPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
                     project,
                     null,
                     null,
                     null,
-                    new[] { new PredictedItem(IntermediateOutputPath, nameof(IntermediateOutputPathIsOutputDir)) });
+                    new[] { new PredictedItem(IntermediateOutputPath, nameof(IntermediateOutputPathPredictor)) });
         }
 
         [Fact]
         public void NoOutputsReportedIfNoIntermediateOutputPath()
         {
             Project project = CreateTestProject(null);
-            new IntermediateOutputPathIsOutputDir()
+            new IntermediateOutputPathPredictor()
                 .GetProjectPredictions(project)
                 .AssertNoPredictions();
         }
@@ -55,7 +55,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             if (intermediateOutDir != null)
             {
-                projectRootElement.AddProperty(IntermediateOutputPathIsOutputDir.IntermediateOutputPathMacro, intermediateOutDir);
+                projectRootElement.AddProperty(IntermediateOutputPathPredictor.IntermediateOutputPathMacro, intermediateOutDir);
             }
 
             return TestHelpers.CreateProjectFromRootElement(projectRootElement);

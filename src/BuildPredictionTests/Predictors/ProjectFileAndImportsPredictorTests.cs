@@ -9,7 +9,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using Microsoft.Build.Prediction.Tests;
     using Xunit;
 
-    public class ProjectFileAndImportedFilesTests : TestBase
+    public class ProjectFileAndImportsPredictorTests : TestBase
     {
         private const string ImportTestsDirectoryPath = @"TestsData\Import";
         private const string NestedImportsProjectFileName = "NestedImports.csproj";
@@ -21,12 +21,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             PredictedItem[] expectedFileInputs =
             {
-                new PredictedItem(Path.Combine(NestedImportsProjectFileName), nameof(ProjectFileAndImportedFiles)),
-                new PredictedItem(Path.Combine(@"Import\NestedTargets.targets"), nameof(ProjectFileAndImportedFiles)),
-                new PredictedItem(Path.Combine(@"Import\NestedTargets2.targets"), nameof(ProjectFileAndImportedFiles)),
+                new PredictedItem(Path.Combine(NestedImportsProjectFileName), nameof(ProjectFileAndImportsPredictor)),
+                new PredictedItem(Path.Combine(@"Import\NestedTargets.targets"), nameof(ProjectFileAndImportsPredictor)),
+                new PredictedItem(Path.Combine(@"Import\NestedTargets2.targets"), nameof(ProjectFileAndImportsPredictor)),
             };
 
-            var predictor = new ProjectFileAndImportedFiles();
+            var predictor = new ProjectFileAndImportsPredictor();
             ParseAndVerifyProject(
                 NestedImportsProjectFileName,
                 predictor,

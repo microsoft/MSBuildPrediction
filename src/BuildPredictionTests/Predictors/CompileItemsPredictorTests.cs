@@ -8,18 +8,17 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
-    // TODO: Need to add .NET Core and .NET Framework based examples including use of SDK includes.
-    public class CSharpCompileItemsTests
+    public class CompileItemsPredictorTests
     {
         [Fact]
         public void CSharpFilesFoundFromDirectListingInCsproj()
         {
             Project project = CreateTestProject("Test.cs");
-            new CSharpCompileItems()
+            new CompileItemsPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
                     project,
-                    new[] { new PredictedItem("Test.cs", nameof(CSharpCompileItems)) },
+                    new[] { new PredictedItem("Test.cs", nameof(CompileItemsPredictor)) },
                     null,
                     null,
                     null);
@@ -31,7 +30,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectItemGroupElement itemGroup = projectRootElement.AddItemGroup();
             foreach (string compileItemInclude in compileItemIncludes)
             {
-                itemGroup.AddItem(CSharpCompileItems.CompileItemName, compileItemInclude);
+                itemGroup.AddItem(CompileItemsPredictor.CompileItemName, compileItemInclude);
             }
 
             return TestHelpers.CreateProjectFromRootElement(projectRootElement);
