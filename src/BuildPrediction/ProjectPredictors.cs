@@ -37,6 +37,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="StyleCopPredictor"/></item>
         /// <item><see cref="ManifestsPredictor"/></item>
         /// <item><see cref="VSCTCompileItemsPredictor"/></item>
+        /// <item><see cref="EditorConfigFilesItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -59,6 +60,7 @@ namespace Microsoft.Build.Prediction
             new StyleCopPredictor(),
             new ManifestsPredictor(),
             new VSCTCompileItemsPredictor(),
+            new EditorConfigFilesItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -87,6 +89,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="StyleCopPredictor"/></item>
         /// <item><see cref="ManifestsPredictor"/></item>
         /// <item><see cref="VSCTCompileItemsPredictor"/></item>
+        /// <item><see cref="EditorConfigFilesItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -111,6 +114,7 @@ namespace Microsoft.Build.Prediction
             new StyleCopPredictor(),
             new ManifestsPredictor(),
             new VSCTCompileItemsPredictor(),
+            new EditorConfigFilesItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
