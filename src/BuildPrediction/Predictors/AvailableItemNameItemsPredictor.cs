@@ -39,7 +39,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
             foreach (string availableItemName in availableItemNames)
             {
-                foreach (ProjectItem item in project.GetItems(availableItemName))
+                foreach (ProjectItemInstance item in projectInstance.GetItems(availableItemName))
                 {
                     predictionReporter.ReportInputFile(item.EvaluatedInclude);
                 }
