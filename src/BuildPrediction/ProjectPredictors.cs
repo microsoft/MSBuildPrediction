@@ -3,7 +3,6 @@
 
 namespace Microsoft.Build.Prediction
 {
-    using System;
     using System.Collections.Generic;
     using Microsoft.Build.Prediction.Predictors;
     using Microsoft.Build.Prediction.Predictors.CopyTask;

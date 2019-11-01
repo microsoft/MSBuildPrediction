@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -17,12 +17,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(CompileItemsPredictor.OutDirPropertyName, @"bin\");
             projectRootElement.AddItem(CompileItemsPredictor.CompileItemName, "Test.cs");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             new CompileItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     new[] { new PredictedItem("Test.cs", nameof(CompileItemsPredictor)) },
                     null,
                     null,
@@ -38,12 +38,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectItemElement item = projectRootElement.AddItem(CompileItemsPredictor.CompileItemName, "Test.cs");
             item.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             new CompileItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     new[] { new PredictedItem("Test.cs", nameof(CompileItemsPredictor)) },
                     null,
                     new[] { new PredictedItem(@"bin\Test.cs", nameof(CompileItemsPredictor)) },

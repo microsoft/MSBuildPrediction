@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -16,16 +16,16 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddItem(EditorConfigFilesItemsPredictor.EditorConfigFilesItemName, ".editorconfig");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
                 new PredictedItem(".editorconfig", nameof(EditorConfigFilesItemsPredictor)),
             };
             new EditorConfigFilesItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,

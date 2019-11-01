@@ -5,7 +5,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using System.IO;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -54,7 +54,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddItem(ReferenceItemsPredictor.ReferenceItemName, "System.Data");
             projectRootElement.AddItem(ReferenceItemsPredictor.ReferenceItemName, "System.Management.Automation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -66,9 +66,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"src\CheckedInAssembly.dll", nameof(ReferenceItemsPredictor)),
             };
             new ReferenceItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(Directory.GetCurrentDirectory()),
                     null,
                     null,

@@ -1,7 +1,7 @@
 # Microsoft.Build.Prediction
 [![Build Status](https://dev.azure.com/ms/BuildXL/_apis/build/status/microsoft.MSBuildPrediction-CI?branchName=master)](https://dev.azure.com/ms/BuildXL/_build/latest?definitionId=154&branchName=master)
 
-This library runs predictors against evaluated MSBuild [Project]([https://docs.microsoft.com/en-us/dotnet/api/microsoft.build.evaluation.project]) instances to predict file and directory inputs that will be read, and output directories that will be written, by the project.
+This library runs predictors against evaluated MSBuild [ProjectInstance]([https://docs.microsoft.com/en-us/dotnet/api/microsoft.build.execution.projectinstance]) to predict file and directory inputs that will be read, and output directories that will be written, by the project.
 
 Predictors are implementations of the `IProjectPredictor` interface. Execution logic in this library applies the predictors in parallel to a given Project. The library aggregates results from all predictors into a final set of predicted inputs and outputs for a Project.
 
@@ -16,8 +16,8 @@ predictors.AddRange(ProjectPredictors.AllPredictors);
 
 var predictionExecutor = new ProjectPredictionExecutor(predictors);
 
-Project project = /* Create an MSBuild Project */;
-ProjectPredictions predictions = predictionExecutor.PredictInputsAndOutputs(project);
+ProjectInstance projectInstance = /* Create an MSBuild ProjectInstance */;
+ProjectPredictions predictions = predictionExecutor.PredictInputsAndOutputs(projectInstance);
 ```
 
 Providing a custom `IProjectPredictionCollector`:
@@ -27,8 +27,8 @@ IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.AllPredict
 var predictionExecutor = new ProjectPredictionExecutor(predictors);
 var predictionCollector = new CustomProjectPredictionCollector();
 
-Project project = /* Create an MSBuild Project */;
-predictionExecutor.PredictInputsAndOutputs(project, predictionCollector);
+ProjectInstance projectInstance = /* Create an MSBuild ProjectInstance */;
+predictionExecutor.PredictInputsAndOutputs(projectInstance, predictionCollector);
 ```
 
 Using alongside MSBuild's `ProjectGraph`:
@@ -36,31 +36,36 @@ Using alongside MSBuild's `ProjectGraph`:
 string projectFile = /* Your entry project file */;
 ProjectCollection projectCollection = ProjectCollection.GlobalProjectCollection;
 
-// Need to keep all Projects since ProjectGraph returns a ProjectInstance but ProjectPredictionExecutor requires a Project.
-var projects = new List<Project>();
+// Use a shared evaluation context for all projects.
+EvaluationContext evaluationContext = EvaluationContext.Create(EvaluationContext.SharingPolicy.Shared);
+
 var projectGraph = new ProjectGraph(
     projectFile,
     projectCollection
     (string projectPath, Dictionary<string, string> globalProperties, ProjectCollection projCollection) =>
     {
-        var project = new Project(projectPath, globalProperties, null, projCollection);
-        lock (projects)
+        var projectOptions = new ProjectOptions
         {
-            projects.Add(project);
-        }
+            GlobalProperties = globalProperties,
+            ProjectCollection = projCollection,
+            EvaluationContext = evaluationContext,
+        };
 
-        return project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
+        return ProjectInstance.FromFile(projectPath, projectOptions);
     });
+
+
+ProjectInstance[] projectInstances = projectGraph.ProjectNodes.Select(node => node.ProjectInstance).ToArray();
 
 IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.AllPredictors;
 
-// Using single-threaded prediction since we're parallelizing on projects instead.
+// Using single-threaded prediction since we're parallelizing on project instances instead.
 var predictionExecutor = new ProjectPredictionExecutor(predictors, new ProjectPredictionOptions { MaxDegreeOfParallelism = 1 });
 
 var predictionCollector = new CustomProjectPredictionCollector();
 
 Parallel.ForEach(
-    projects.ToArray(),
+    projectInstances,
     new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
     project => predictionExecutor.PredictInputsAndOutputs(project, predictionCollector));
 ```

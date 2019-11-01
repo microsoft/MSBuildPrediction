@@ -305,16 +305,16 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 projectRootElement.AddProperty(CodeAnalysisRuleSetPredictor.CodeAnalysisRuleSetPropertyName, ruleSetPath);
             }
 
-            var project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            var projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = expectedInputs?
                 .Select(input => new PredictedItem(input, nameof(CodeAnalysisRuleSetPredictor)))
                 .ToArray();
 
             _predictor
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,

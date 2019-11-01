@@ -6,7 +6,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using System;
     using System.IO;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -33,9 +33,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             Directory.CreateDirectory(Path.Combine(_rootDir, "src"));
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifact.txt"), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
             new ArtifactsSdkPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             Directory.CreateDirectory(Path.Combine(_rootDir, "src"));
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifact.txt"), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -63,9 +63,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"out\Project\Artifact.txt", nameof(ArtifactsSdkPredictor)),
             };
             new ArtifactsSdkPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -85,7 +85,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             Directory.CreateDirectory(Path.Combine(_rootDir, "src"));
             File.WriteAllText(Path.Combine(_rootDir, @"src\Robocopy.txt"), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -96,9 +96,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"out\Project\Robocopy.txt", nameof(ArtifactsSdkPredictor)),
             };
             new ArtifactsSdkPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -143,7 +143,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\excludeDir\7.txt"), "SomeContent");
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\excludeDir\8.txt"), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -164,9 +164,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"out\Project\b\6.txt", nameof(ArtifactsSdkPredictor)),
             };
             new ArtifactsSdkPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -199,7 +199,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\b\5.txt"), "SomeContent");
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\b\6.txt"), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -212,9 +212,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"out\Project\2.txt", nameof(ArtifactsSdkPredictor)),
             };
             new ArtifactsSdkPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -233,7 +233,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             var artifactItem = projectRootElement.AddItem(ArtifactsSdkPredictor.ArtifactsItemName, @"$(EnlistmentRoot)\bar\$(OutputPath)\Bar.dll;$(EnlistmentRoot)\bar\$(OutputPath)\Bar.pdb");
             artifactItem.AddMetadata(ArtifactsSdkPredictor.DestinationFolderMetadata, @"$(OutputPath)");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -246,9 +246,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"foo\bin\x64\Bar.pdb", nameof(ArtifactsSdkPredictor)),
             };
             new ArtifactsSdkPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -268,7 +268,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             artifactItem.AddMetadata(ArtifactsSdkPredictor.DestinationFolderMetadata, @"$(OutputPath)");
             artifactItem.AddMetadata(ArtifactsSdkPredictor.FileMatchMetadata, "*.dll *.pdb");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputDirectories = new[]
             {
@@ -279,9 +279,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"foo\bin\x64", nameof(ArtifactsSdkPredictor)),
             };
             new ArtifactsSdkPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     expectedInputDirectories.MakeAbsolute(_rootDir),
                     null,

@@ -21,19 +21,19 @@ namespace Microsoft.Build.Prediction.Tests
 
         public static void AssertPredictions(
             this ProjectPredictions predictions,
-            Project project,
+            ProjectInstance projectInstance,
             IReadOnlyCollection<PredictedItem> expectedInputFiles,
             IReadOnlyCollection<PredictedItem> expectedInputDirectories,
             IReadOnlyCollection<PredictedItem> expectedOutputFiles,
             IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
             => AssertPredictions(
                 predictions,
-                expectedInputFiles.MakeAbsolute(project.DirectoryPath),
-                expectedInputDirectories.MakeAbsolute(project.DirectoryPath),
-                expectedOutputFiles.MakeAbsolute(project.DirectoryPath),
-                expectedOutputDirectories.MakeAbsolute(project.DirectoryPath));
+                expectedInputFiles.MakeAbsolute(projectInstance.Directory),
+                expectedInputDirectories.MakeAbsolute(projectInstance.Directory),
+                expectedOutputFiles.MakeAbsolute(projectInstance.Directory),
+                expectedOutputDirectories.MakeAbsolute(projectInstance.Directory));
 
-        public static Project ProjectFromXml(string xml)
+        public static ProjectInstance ProjectInstanceFromXml(string xml)
         {
             var settings = new XmlReaderSettings
             {
@@ -44,23 +44,8 @@ namespace Microsoft.Build.Prediction.Tests
             using (var xmlReader = XmlReader.Create(stringReader, settings))
             {
                 ProjectRootElement projectRootElement = ProjectRootElement.Create(xmlReader);
-                return Project.FromProjectRootElement(projectRootElement, new ProjectOptions());
+                return ProjectInstance.FromProjectRootElement(projectRootElement, new ProjectOptions());
             }
-        }
-
-        public static Project CreateProjectFromRootElement(ProjectRootElement projectRootElement)
-        {
-            var globalProperties = new Dictionary<string, string>
-            {
-                { "Platform", "amd64" },
-                { "Configuration", "debug" },
-            };
-
-            // Use a new project collection to avoid collisions in the global one.
-            // TODO! Refactor tests to be more isolated, both ProjectCollection-wide and disk-wise
-            var projectCollection = new ProjectCollection();
-
-            return new Project(projectRootElement, globalProperties, toolsVersion: ProjectCollection.GlobalProjectCollection.DefaultToolsVersion, projectCollection);
         }
 
         public static ProjectInstance CreateProjectInstanceFromRootElement(ProjectRootElement projectRootElement)
@@ -75,18 +60,23 @@ namespace Microsoft.Build.Prediction.Tests
             // TODO! Refactor tests to be more isolated, both ProjectCollection-wide and disk-wise
             var projectCollection = new ProjectCollection();
 
-            return new ProjectInstance(projectRootElement, globalProperties, toolsVersion: ProjectCollection.GlobalProjectCollection.DefaultToolsVersion, projectCollection);
+            var projectOptions = new ProjectOptions
+            {
+                GlobalProperties = globalProperties,
+                ProjectCollection = projectCollection,
+            };
+
+            return ProjectInstance.FromProjectRootElement(projectRootElement, projectOptions);
         }
 
-        public static ProjectPredictions GetProjectPredictions(this IProjectPredictor predictor, Project project)
+        public static ProjectPredictions GetProjectPredictions(this IProjectPredictor predictor, ProjectInstance projectInstance)
         {
-            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
             var projectPredictionCollector = new DefaultProjectPredictionCollector();
             var predictionReporter = new ProjectPredictionReporter(
                 projectPredictionCollector,
                 projectInstance.Directory,
                 predictor.GetType().Name);
-            predictor.PredictInputsAndOutputs(project, projectInstance, predictionReporter);
+            predictor.PredictInputsAndOutputs(projectInstance, predictionReporter);
             return projectPredictionCollector.Predictions;
         }
 

@@ -4,11 +4,9 @@
 namespace Microsoft.Build.Prediction.Tests
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
     using Xunit;
 
@@ -25,7 +23,7 @@ namespace Microsoft.Build.Prediction.Tests
 
             var executor = new ProjectPredictionExecutor(predictors);
 
-            var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
+            var project = TestHelpers.CreateProjectInstanceFromRootElement(ProjectRootElement.Create());
             ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
             Assert.NotNull(predictions);
             Assert.Equal(0, predictions.InputFiles.Count);
@@ -59,7 +57,7 @@ namespace Microsoft.Build.Prediction.Tests
 
             var executor = new ProjectPredictionExecutor(predictors);
 
-            var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
+            var project = TestHelpers.CreateProjectInstanceFromRootElement(ProjectRootElement.Create());
 
             ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
 
@@ -90,7 +88,7 @@ namespace Microsoft.Build.Prediction.Tests
 
             var executor = new ProjectPredictionExecutor(predictors);
 
-            var project = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
+            var project = TestHelpers.CreateProjectInstanceFromRootElement(ProjectRootElement.Create());
 
             ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
 
@@ -109,7 +107,7 @@ namespace Microsoft.Build.Prediction.Tests
             int[] sparsenessPercentages = { 0, 25, 50, 75, 100 };
             var tickResults = new long[numPredictorCases.Length][];
 
-            var proj = TestHelpers.CreateProjectFromRootElement(ProjectRootElement.Create());
+            var proj = TestHelpers.CreateProjectInstanceFromRootElement(ProjectRootElement.Create());
 
             // Run through twice and keep the second round only - first round affected by JIT overhead.
             for (int iter = 0; iter < 2; iter++)
@@ -177,7 +175,6 @@ namespace Microsoft.Build.Prediction.Tests
             }
 
             public void PredictInputsAndOutputs(
-                Project project,
                 ProjectInstance projectInstance,
                 ProjectPredictionReporter predictionReporter)
             {

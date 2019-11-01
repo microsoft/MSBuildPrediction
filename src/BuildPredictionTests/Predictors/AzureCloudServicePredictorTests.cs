@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -13,7 +13,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void FindItems()
         {
-            Project project = CreateTestProject("project.ccproj");
+            ProjectInstance projectInstance = CreateTestProjectInstance("project.ccproj");
             var expectedInputFiles = new[]
             {
                 new PredictedItem("ServiceDefinition.csdef", nameof(AzureCloudServicePredictor)),
@@ -21,9 +21,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem("ServiceConfiguration.Prod.cscfg", nameof(AzureCloudServicePredictor)),
             };
             new AzureCloudServicePredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,
@@ -33,13 +33,13 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void SkipOtherProjectTypes()
         {
-            Project project = CreateTestProject("project.csproj");
+            ProjectInstance projectInstance = CreateTestProjectInstance("project.csproj");
             new AzureCloudServicePredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
-        private static Project CreateTestProject(string fileName)
+        private static ProjectInstance CreateTestProjectInstance(string fileName)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create(fileName);
             ProjectItemGroupElement itemGroup = projectRootElement.AddItemGroup();
@@ -47,7 +47,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             itemGroup.AddItem(AzureCloudServicePredictor.ServiceConfigurationItemName, "ServiceConfiguration.Local.cscfg");
             itemGroup.AddItem(AzureCloudServicePredictor.ServiceConfigurationItemName, "ServiceConfiguration.Prod.cscfg");
 
-            return TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            return TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
         }
     }
 }

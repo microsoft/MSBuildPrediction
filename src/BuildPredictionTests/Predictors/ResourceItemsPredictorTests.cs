@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -18,7 +18,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             itemGroup.AddItem(ResourceItemsPredictor.ResourceItemName, "Foo.png");
             itemGroup.AddItem(ResourceItemsPredictor.ResourceItemName, "Bar.png");
             itemGroup.AddItem(ResourceItemsPredictor.ResourceItemName, "Baz.png");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -28,9 +28,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new ResourceItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,

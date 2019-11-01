@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -17,12 +17,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(ContentItemsPredictor.OutDirPropertyName, @"bin\");
             projectRootElement.AddItem(ContentItemsPredictor.ContentItemName, "Foo.xml");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             new ContentItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     new[] { new PredictedItem("Foo.xml", nameof(ContentItemsPredictor)) },
                     null,
                     null,
@@ -38,12 +38,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectItemElement item = projectRootElement.AddItem(ContentItemsPredictor.ContentItemName, "Foo.xml");
             item.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             new ContentItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     new[] { new PredictedItem("Foo.xml", nameof(ContentItemsPredictor)) },
                     null,
                     new[] { new PredictedItem(@"bin\Foo.xml", nameof(ContentItemsPredictor)) },

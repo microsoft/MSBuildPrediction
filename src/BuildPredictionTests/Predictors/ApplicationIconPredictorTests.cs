@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -15,16 +15,16 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create("project.csproj");
             projectRootElement.AddProperty(ApplicationIconPredictor.ApplicationIconPropertyName, "application.ico");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
                 new PredictedItem("application.ico", nameof(ApplicationIconPredictor)),
             };
             new ApplicationIconPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,

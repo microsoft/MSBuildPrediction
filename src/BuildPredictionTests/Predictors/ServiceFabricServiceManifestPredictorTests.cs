@@ -5,7 +5,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using System.IO;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -14,7 +14,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void FindItems()
         {
-            Project project = CreateTestProject("project.sfproj");
+            ProjectInstance projectInstance = CreateTestProjectInstance("project.sfproj");
             var expectedInputFiles = new[]
             {
                 new PredictedItem($@"Service1\PackageRoot\{ServiceFabricServiceManifestPredictor.ServiceManifestFileName}", nameof(ServiceFabricServiceManifestPredictor)),
@@ -23,9 +23,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem($@"ServiceFabricApp\ApplicationPackageRoot\Bar\{ServiceFabricServiceManifestPredictor.ServiceManifestFileName}", nameof(ServiceFabricServiceManifestPredictor)),
             };
             new ServiceFabricServiceManifestPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(Directory.GetCurrentDirectory()),
                     null,
                     null,
@@ -35,31 +35,31 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void UpdateServiceFabricApplicationManifestDisabled()
         {
-            Project project = CreateTestProject("project.sfproj", isEnabled: false);
+            ProjectInstance projectInstance = CreateTestProjectInstance("project.sfproj", isEnabled: false);
             new ServiceFabricServiceManifestPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
         [Fact]
         public void NoProjectReferences()
         {
-            Project project = CreateTestProject("project.sfproj", hasProjectReferences: false);
+            ProjectInstance projectInstance = CreateTestProjectInstance("project.sfproj", hasProjectReferences: false);
             new ServiceFabricServiceManifestPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
         [Fact]
         public void SkipOtherProjectTypes()
         {
-            Project project = CreateTestProject("project.csproj");
+            ProjectInstance projectInstance = CreateTestProjectInstance("project.csproj");
             new ServiceFabricServiceManifestPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
-        private static Project CreateTestProject(string fileName, bool hasProjectReferences = true, bool isEnabled = true)
+        private static ProjectInstance CreateTestProjectInstance(string fileName, bool hasProjectReferences = true, bool isEnabled = true)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create($@"ServiceFabricApp\{fileName}");
 
@@ -90,7 +90,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             File.WriteAllText($@"ServiceFabricApp\ApplicationPackageRoot\Bar\{ServiceFabricServiceManifestPredictor.ServiceManifestFileName}", "SomeContent");
             File.WriteAllText($@"ServiceFabricApp\ApplicationPackageRoot\Bar\extraneous.txt", "SomeContent");
 
-            return TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            return TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
         }
     }
 }

@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddItem(EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, "Resource2.resx");
             projectRootElement.AddItem(EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, "Resource3.resx");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -28,9 +28,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem("Resource3.resx", nameof(EmbeddedResourceItemsPredictor)),
             };
             new EmbeddedResourceItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,
@@ -52,7 +52,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectItemElement item3 = projectRootElement.AddItem(EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, "Resource3.resx");
             item3.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -67,9 +67,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\Resource3.resx", nameof(EmbeddedResourceItemsPredictor)),
             };
             new EmbeddedResourceItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     expectedoutputFiles,

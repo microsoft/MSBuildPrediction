@@ -3,7 +3,6 @@
 
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
     /// <summary>
@@ -13,14 +12,13 @@ namespace Microsoft.Build.Prediction.Predictors
     {
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
-            Project project,
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
             predictionReporter.ReportInputFile(projectInstance.FullPath);
-            foreach (ResolvedImport import in project.Imports)
+            foreach (string importPath in projectInstance.ImportPaths)
             {
-                predictionReporter.ReportInputFile(import.ImportedProject.FullPath);
+                predictionReporter.ReportInputFile(importPath);
             }
         }
     }

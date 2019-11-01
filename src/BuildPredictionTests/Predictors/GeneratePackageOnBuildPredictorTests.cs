@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -19,10 +19,10 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageOutputPathPropertyName, "bin");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             new GeneratePackageOnBuildPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.OutputPathPropertyName, "bin");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedOutputFiles = new[]
             {
@@ -44,9 +44,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\SomePackage.1.2.3.nupkg", nameof(GeneratePackageOnBuildPredictor)),
             };
             new GeneratePackageOnBuildPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     expectedOutputFiles,
@@ -63,7 +63,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageOutputPathPropertyName, "bin");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedOutputFiles = new[]
             {
@@ -71,9 +71,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\SomePackage.1.2.3.nupkg", nameof(GeneratePackageOnBuildPredictor)),
             };
             new GeneratePackageOnBuildPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     expectedOutputFiles,
@@ -91,7 +91,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageOutputPathPropertyName, "bin");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -102,9 +102,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\SomePackage.1.2.3.nupkg", nameof(GeneratePackageOnBuildPredictor)),
             };
             new GeneratePackageOnBuildPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     expectedOutputFiles,
@@ -122,7 +122,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageOutputPathPropertyName, "bin");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedOutputFiles = new[]
             {
@@ -132,9 +132,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\SomePackage.1.2.3.symbols.nupkg", nameof(GeneratePackageOnBuildPredictor)),
             };
             new GeneratePackageOnBuildPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     expectedOutputFiles,
@@ -152,7 +152,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageOutputPathPropertyName, "bin");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedOutputFiles = new[]
             {
@@ -162,9 +162,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\SomePackage.1.2.3.symbols.nupkg", nameof(GeneratePackageOnBuildPredictor)),
             };
             new GeneratePackageOnBuildPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     expectedOutputFiles,
@@ -182,7 +182,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageOutputPathPropertyName, "bin");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "snupkg");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedOutputFiles = new[]
             {
@@ -192,9 +192,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\SomePackage.1.2.3.snupkg", nameof(GeneratePackageOnBuildPredictor)),
             };
             new GeneratePackageOnBuildPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     expectedOutputFiles,

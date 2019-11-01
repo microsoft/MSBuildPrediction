@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -16,12 +16,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             ProjectItemGroupElement itemGroup = projectRootElement.AddItemGroup();
             itemGroup.AddItem(VSCTCompileItemsPredictor.VSCTCompileItemName, "SomeExtensionPackage.vsct");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             new VSCTCompileItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     new[] { new PredictedItem("SomeExtensionPackage.vsct", nameof(VSCTCompileItemsPredictor)) },
                     null,
                     null,

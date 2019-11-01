@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -16,16 +16,16 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement projectRootElement = ProjectRootElement.Create("project.csproj");
             projectRootElement.AddProperty(AssemblyOriginatorKeyFilePredictor.SignAssemblyPropertyName, "true");
             projectRootElement.AddProperty(AssemblyOriginatorKeyFilePredictor.AssemblyOriginatorKeyFilePropertyName, "StrongNaming.snk");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
                 new PredictedItem("StrongNaming.snk", nameof(AssemblyOriginatorKeyFilePredictor)),
             };
             new AssemblyOriginatorKeyFilePredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,
@@ -37,10 +37,10 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create("project.csproj");
             projectRootElement.AddProperty(AssemblyOriginatorKeyFilePredictor.AssemblyOriginatorKeyFilePropertyName, "StrongNaming.snk");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             new AssemblyOriginatorKeyFilePredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
@@ -49,10 +49,10 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create("project.csproj");
             projectRootElement.AddProperty(AssemblyOriginatorKeyFilePredictor.SignAssemblyPropertyName, "true");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             new AssemblyOriginatorKeyFilePredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
     }
