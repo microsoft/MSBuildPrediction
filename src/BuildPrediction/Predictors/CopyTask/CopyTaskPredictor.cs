@@ -36,7 +36,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
             var activeTargets = new Dictionary<string, ProjectTargetInstance>(StringComparer.OrdinalIgnoreCase);
 
             // Start with the default Build target and all of its parent targets, the closure of its dependencies.
-            project.AddToActiveTargets(MsBuildHelpers.BuildTargetAsCollection, activeTargets);
+            projectInstance.AddToActiveTargets("Build", activeTargets);
 
             // Aside from InitialTargets and DefaultTargets, for completeness of inputs/outputs detection,
             // include custom targets defined directly in this Project.
@@ -44,14 +44,12 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
             foreach (ProjectTargetInstance target in projectInstance.Targets.Values
                 .Where(t => string.Equals(t.Location.File, projectInstance.ProjectFileLocation.File, PathComparer.Comparison)))
             {
-                project.AddToActiveTargets(new[] { target.Name }, activeTargets);
+                projectInstance.AddToActiveTargets(target.Name, activeTargets);
             }
 
-            project.AddBeforeAndAfterTargets(activeTargets);
+            projectInstance.AddBeforeAndAfterTargets(activeTargets);
 
             // Then parse copy tasks for these targets.
-            var buildInputs = new HashSet<PredictedItem>(PredictedItemComparer.Instance);
-            var buildOutputDirectories = new HashSet<string>(PathComparer.Instance);
             foreach (KeyValuePair<string, ProjectTargetInstance> target in activeTargets)
             {
                 ParseCopyTask(target.Value, projectInstance, predictionReporter);
