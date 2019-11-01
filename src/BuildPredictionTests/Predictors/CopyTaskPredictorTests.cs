@@ -64,7 +64,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             PredictedItem[] expectedInputFiles =
             {
-                _copy1Dll,
+                _copy2Dll,
             };
 
             PredictedItem[] expectedOutputDirectories =

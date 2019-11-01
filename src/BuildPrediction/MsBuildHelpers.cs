@@ -6,7 +6,6 @@ namespace Microsoft.Build.Prediction
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Exceptions;
     using Microsoft.Build.Execution;
 
@@ -15,12 +14,6 @@ namespace Microsoft.Build.Prediction
     /// </summary>
     internal static class MsBuildHelpers
     {
-        /// <summary>
-        /// A static list containing the top-level Build target within which we evaluate
-        /// the MSBuild build graph.
-        /// </summary>
-        public static readonly string[] BuildTargetAsCollection = { "Build" };
-
         /// <summary>
         /// MSBuild include list-string delimiters.
         /// </summary>
@@ -72,108 +65,85 @@ namespace Microsoft.Build.Prediction
         /// <summary>
         /// Evaluates a given value in a project's context.
         /// </summary>
-        /// <param name="project">The MSBuild Project to use for the evaluation context.</param>
+        /// <param name="projectInstance">The MSBuild Project instance to use for the evaluation context.</param>
         /// <param name="unevaluatedValue">Unevaluated value.</param>
         /// <returns>List of evaluated values.</returns>
-        public static IEnumerable<string> EvaluateValue(this Project project, string unevaluatedValue)
+        public static IEnumerable<string> EvaluateValue(this ProjectInstance projectInstance, string unevaluatedValue)
         {
             if (string.IsNullOrWhiteSpace(unevaluatedValue))
             {
                 return Enumerable.Empty<string>();
             }
 
-            string evaluated = project.ExpandString(unevaluatedValue);
+            string evaluated = projectInstance.ExpandString(unevaluatedValue);
             return SplitStringListEnumerable(evaluated);
         }
 
         /// <summary>
-        /// Given string of semicolon-separated target names, gets the set of targets that are to be executed,
-        /// given targets plus all targets that given targets depends on.
+        /// Given a target name, gets set of targets that are to be executed,
+        /// for the provided target name and all targets that those depend on.
         /// </summary>
-        /// <param name="project">An MSBuild Project instance to use for context.</param>
-        /// <param name="targets">Semicolon separated list of targets that we should analyze.</param>
-        /// <param name="activeTargets">Collection into which targets should be added.</param>
-        public static void AddToActiveTargets(this Project project, string targets, Dictionary<string, ProjectTargetInstance> activeTargets)
-        {
-            AddToActiveTargets(project, targets.SplitStringList(), activeTargets);
-        }
-
-        /// <summary>
-        /// Given list of target names, gets set of targets that are to be executed,
-        /// for the provided target names and all targets that those depend on.
-        /// </summary>
-        /// <param name="project">An MSBuild Project instance to use for context.</param>
-        /// <param name="evaluatedTargetNames">Previously split set of evaluated target names that we should analyze.</param>
+        /// <param name="projectInstance">An MSBuild Project instance to use for context.</param>
+        /// <param name="evaluatedTargetName">Evaluated target name that we should analyze.</param>
         /// <param name="activeTargets">Collection into which targets should be added.</param>
         public static void AddToActiveTargets(
-            this Project project,
-            IEnumerable<string> evaluatedTargetNames,
+            this ProjectInstance projectInstance,
+            string evaluatedTargetName,
             Dictionary<string, ProjectTargetInstance> activeTargets)
         {
-            foreach (string targetName in evaluatedTargetNames)
+            // Avoid circular dependencies
+            if (activeTargets.ContainsKey(evaluatedTargetName))
             {
-                // Avoid circular dependencies
-                if (activeTargets.ContainsKey(targetName))
-                {
-                    continue;
-                }
+                return;
+            }
 
-                // The Project or its includes might not actually include the target name.
-                if (project.Targets.TryGetValue(targetName, out ProjectTargetInstance target))
-                {
-                    activeTargets.Add(targetName, target);
+            // The Project or its includes might not actually include the target name.
+            if (projectInstance.Targets.TryGetValue(evaluatedTargetName, out ProjectTargetInstance target))
+            {
+                activeTargets.Add(evaluatedTargetName, target);
 
-                    // Parse all parent targets that current target depends on.
-                    AddToActiveTargets(project, project.EvaluateValue(target.DependsOnTargets), activeTargets);
+                // Parse all parent targets that current target depends on.
+                var dependsOnTargets = projectInstance.EvaluateValue(target.DependsOnTargets);
+                foreach (string dependsOnTarget in dependsOnTargets)
+                {
+                    AddToActiveTargets(projectInstance, dependsOnTarget, activeTargets);
                 }
             }
-        }
-
-        public static List<ImportedTargetsWithBeforeAfterTargets> GetImportedTargetsWithBeforeAfterTargets(this Project project)
-        {
-            return project.Imports
-                .SelectMany(import => import.ImportedProject.Targets)
-                .Select(
-                    target => new ImportedTargetsWithBeforeAfterTargets(
-                        target.Name,
-                        target.BeforeTargets,
-                        target.AfterTargets))
-                .ToList();
         }
 
         /// <summary>
         /// Expand (recursively) set of active targets to include targets which reference any
         /// of the active targets with BeforeTarget or AfterTarget.
         /// </summary>
-        /// <param name="project">An MSBuild Project instance to use for context.</param>
+        /// <param name="projectInstance">An MSBuild Project instance to use for context.</param>
         /// <param name="activeTargets">
         /// Set of active targets. Will be modified in place to add targets that reference this
         /// graph with BeforeTarget or AfterTarget.
         /// </param>
-        public static void AddBeforeAndAfterTargets(this Project project, Dictionary<string, ProjectTargetInstance> activeTargets)
+        public static void AddBeforeAndAfterTargets(this ProjectInstance projectInstance, Dictionary<string, ProjectTargetInstance> activeTargets)
         {
-            List<ImportedTargetsWithBeforeAfterTargets> allTargets = project.GetImportedTargetsWithBeforeAfterTargets();
-
             var newTargetsToConsider = true;
             while (newTargetsToConsider)
             {
                 newTargetsToConsider = false;
 
-                foreach (ImportedTargetsWithBeforeAfterTargets target in allTargets)
+                foreach (KeyValuePair<string, ProjectTargetInstance> pair in projectInstance.Targets)
                 {
-                    // If the target exists in our project and is not already in our list of active targets ...
-                    if (project.Targets.ContainsKey(target.TargetName)
-                        && !activeTargets.ContainsKey(target.TargetName))
+                    string targetName = pair.Key;
+                    ProjectTargetInstance targetInstance = pair.Value;
+
+                    // If the target is not already in our list of active targets ...
+                    if (!activeTargets.ContainsKey(targetName))
                     {
-                        IEnumerable<string> hookedTargets = project.EvaluateValue(target.AfterTargets)
-                            .Concat(project.EvaluateValue(target.BeforeTargets));
+                        IEnumerable<string> hookedTargets = projectInstance.EvaluateValue(targetInstance.AfterTargets)
+                            .Concat(projectInstance.EvaluateValue(targetInstance.BeforeTargets));
                         foreach (string hookedTarget in hookedTargets)
                         {
                             // ... and it hooks a running target with BeforeTargets/AfterTargets ...
                             if (activeTargets.ContainsKey(hookedTarget))
                             {
                                 // ... then add it to the list of running targets ...
-                                project.AddToActiveTargets(target.TargetName, activeTargets);
+                                projectInstance.AddToActiveTargets(targetName, activeTargets);
 
                                 // ... and make a note to run again, since activeTargets has changed.
                                 newTargetsToConsider = true;
