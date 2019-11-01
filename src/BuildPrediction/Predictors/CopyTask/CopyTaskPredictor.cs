@@ -35,8 +35,16 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
             // Determine the active Targets in this Project.
             var activeTargets = new Dictionary<string, ProjectTargetInstance>(StringComparer.OrdinalIgnoreCase);
 
-            // Start with the default Build target and all of its parent targets, the closure of its dependencies.
-            projectInstance.AddToActiveTargets("Build", activeTargets);
+            // Start with the default targets, initial targets and all of their parent targets, the closure of its dependencies.
+            foreach (string target in projectInstance.DefaultTargets)
+            {
+                projectInstance.AddToActiveTargets(target, activeTargets);
+            }
+
+            foreach (string target in projectInstance.InitialTargets)
+            {
+                projectInstance.AddToActiveTargets(target, activeTargets);
+            }
 
             // Aside from InitialTargets and DefaultTargets, for completeness of inputs/outputs detection,
             // include custom targets defined directly in this Project.
