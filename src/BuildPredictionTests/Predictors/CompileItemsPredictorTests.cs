@@ -11,9 +11,14 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     public class CompileItemsPredictorTests
     {
         [Fact]
-        public void CSharpFilesFoundFromDirectListingInCsproj()
+        public void NoCopy()
         {
-            Project project = CreateTestProject("Test.cs");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.AddProperty(CompileItemsPredictor.OutDirPropertyName, @"bin\");
+            projectRootElement.AddItem(CompileItemsPredictor.CompileItemName, "Test.cs");
+
+            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+
             new CompileItemsPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
@@ -24,16 +29,25 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     null);
         }
 
-        private static Project CreateTestProject(params string[] compileItemIncludes)
+        [Fact]
+        public void WithCopy()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
-            ProjectItemGroupElement itemGroup = projectRootElement.AddItemGroup();
-            foreach (string compileItemInclude in compileItemIncludes)
-            {
-                itemGroup.AddItem(CompileItemsPredictor.CompileItemName, compileItemInclude);
-            }
+            projectRootElement.AddProperty(CompileItemsPredictor.OutDirPropertyName, @"bin\");
 
-            return TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectItemElement item = projectRootElement.AddItem(CompileItemsPredictor.CompileItemName, "Test.cs");
+            item.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+
+            new CompileItemsPredictor()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    new[] { new PredictedItem("Test.cs", nameof(CompileItemsPredictor)) },
+                    null,
+                    new[] { new PredictedItem(@"bin\Test.cs", nameof(CompileItemsPredictor)) },
+                    null);
         }
     }
 }

@@ -34,6 +34,18 @@ namespace Microsoft.Build.Prediction
                 throw new NotImplementedException("This part of the polyfill is not implemented");
             }
         }
+
+        public static bool Contains(this string str, string value, StringComparison comparison)
+        {
+            if (comparison == StringComparison.Ordinal)
+            {
+                return str.Contains(value);
+            }
+            else
+            {
+                throw new NotImplementedException("This part of the polyfill is not implemented");
+            }
+        }
     }
 }
 #endif

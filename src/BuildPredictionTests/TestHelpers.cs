@@ -63,6 +63,21 @@ namespace Microsoft.Build.Prediction.Tests
             return new Project(projectRootElement, globalProperties, toolsVersion: ProjectCollection.GlobalProjectCollection.DefaultToolsVersion, projectCollection);
         }
 
+        public static ProjectInstance CreateProjectInstanceFromRootElement(ProjectRootElement projectRootElement)
+        {
+            var globalProperties = new Dictionary<string, string>
+            {
+                { "Platform", "amd64" },
+                { "Configuration", "debug" },
+            };
+
+            // Use a new project collection to avoid collisions in the global one.
+            // TODO! Refactor tests to be more isolated, both ProjectCollection-wide and disk-wise
+            var projectCollection = new ProjectCollection();
+
+            return new ProjectInstance(projectRootElement, globalProperties, toolsVersion: ProjectCollection.GlobalProjectCollection.DefaultToolsVersion, projectCollection);
+        }
+
         public static ProjectPredictions GetProjectPredictions(this IProjectPredictor predictor, Project project)
         {
             ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
