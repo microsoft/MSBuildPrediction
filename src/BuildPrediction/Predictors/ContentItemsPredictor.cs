@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Finds Content items as inputs.
     /// </summary>
-    public class ContentItemsPredictor : IProjectPredictor
+    public sealed class ContentItemsPredictor : IProjectPredictor
     {
         internal const string OutDirPropertyName = "OutDir";
         internal const string ContentItemName = "Content";

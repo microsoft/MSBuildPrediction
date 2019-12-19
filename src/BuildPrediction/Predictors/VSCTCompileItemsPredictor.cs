@@ -9,7 +9,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Finds VSCTCompile items as inputs, used by the Visual Studio Sdk.
     /// </summary>
-    public class VSCTCompileItemsPredictor : IProjectPredictor
+    public sealed class VSCTCompileItemsPredictor : IProjectPredictor
     {
         internal const string VSCTCompileItemName = "VSCTCompile";
 

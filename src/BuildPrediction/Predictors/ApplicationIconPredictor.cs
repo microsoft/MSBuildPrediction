@@ -9,7 +9,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Predicts inputs for the key file used for strong naming.
     /// </summary>
-    public class ApplicationIconPredictor : IProjectPredictor
+    public sealed class ApplicationIconPredictor : IProjectPredictor
     {
         internal const string ApplicationIconPropertyName = "ApplicationIcon";
 

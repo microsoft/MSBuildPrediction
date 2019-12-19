@@ -9,11 +9,12 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Scrapes the $(OutDir) or, if not found, $(OutputPath) as an output directory.
     /// </summary>
-    internal class OutDirOrOutputPathPredictor : IProjectPredictor
+    public sealed class OutDirOrOutputPathPredictor : IProjectPredictor
     {
         internal const string OutDirMacro = "OutDir";
         internal const string OutputPathMacro = "OutputPath";
 
+        /// <inheritdoc/>
         public void PredictInputsAndOutputs(
             Project project,
             ProjectInstance projectInstance,

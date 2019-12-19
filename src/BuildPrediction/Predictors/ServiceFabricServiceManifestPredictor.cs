@@ -11,7 +11,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Predicts inputs for Service Fabric projects based on the service manifest files (ServiceManifest.xml).
     /// </summary>
-    public class ServiceFabricServiceManifestPredictor : IProjectPredictor
+    public sealed class ServiceFabricServiceManifestPredictor : IProjectPredictor
     {
         internal const string ProjectReferenceItemName = "ProjectReference";
 

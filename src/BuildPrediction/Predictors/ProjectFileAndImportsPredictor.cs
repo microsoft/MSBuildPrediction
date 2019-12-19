@@ -9,7 +9,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Finds project filename and imports, as inputs.
     /// </summary>
-    public class ProjectFileAndImportsPredictor : IProjectPredictor
+    public sealed class ProjectFileAndImportsPredictor : IProjectPredictor
     {
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(

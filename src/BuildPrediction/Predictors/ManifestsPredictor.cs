@@ -14,7 +14,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// This logic is based on the GenerateManifests Target in Microsoft.Common.CurrentVersion.targets.
     /// See: https://github.com/microsoft/msbuild/blob/master/src/Tasks/Microsoft.Common.CurrentVersion.targets.
     /// </remarks>
-    public class ManifestsPredictor : IProjectPredictor
+    public sealed class ManifestsPredictor : IProjectPredictor
     {
         internal const string ApplicationManifestPropertyName = "ApplicationManifest";
 

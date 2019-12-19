@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Finds None items as inputs.
     /// </summary>
-    public class NoneItemsPredictor : IProjectPredictor
+    public sealed class NoneItemsPredictor : IProjectPredictor
     {
         internal const string OutDirPropertyName = "OutDir";
         internal const string NoneItemName = "None";
