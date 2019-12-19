@@ -16,7 +16,7 @@ namespace Microsoft.Build.Prediction.Tests
         {
             IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.BasicPredictors;
 
-            Assert.Equal(18, predictors.Count);
+            Assert.Equal(19, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItemsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItemsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItemsPredictor));
@@ -35,6 +35,7 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ManifestsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is VSCTCompileItemsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is EditorConfigFilesItemsPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ApplicationIconPredictor));
         }
 
         [Fact]
