@@ -5,7 +5,9 @@ namespace Microsoft.Build.Prediction
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using Microsoft.Build.Exceptions;
     using Microsoft.Build.Execution;
 
@@ -22,6 +24,8 @@ namespace Microsoft.Build.Prediction
         /// 'item1;item2;item3', '   item1    ; \n\titem2 ; \r\n       item3', and so forth.
         /// </remarks>
         private static readonly char[] IncludeDelimiters = { ';', '\n', '\r', '\t' };
+
+        private static readonly string RelativeSpecifier = "." + Path.DirectorySeparatorChar;
 
         /// <summary>
         /// Splits a given file list based on delimiters into a size-optimized list.
@@ -197,6 +201,67 @@ namespace Microsoft.Build.Prediction
             }
 
             return projectInstance.EvaluateCondition(condition);
+        }
+
+        /// <summary>
+        /// Determines whether the CopyToOutputDirectory metadata is a value which would typically cause it to be copied.
+        /// </summary>
+        /// <remarks>
+        /// See the GetCopyToOutputDirectoryItems target: https://github.com/microsoft/msbuild/blob/master/src/Tasks/Microsoft.Common.CurrentVersion.targets.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ShouldCopyToOutputDirectory(this ProjectItemInstance item)
+        {
+            var copyToOutputDirectoryValue = item.GetMetadataValue("CopyToOutputDirectory");
+            if (copyToOutputDirectoryValue.Equals("Always", StringComparison.OrdinalIgnoreCase)
+                || copyToOutputDirectoryValue.Equals("PreserveNewest", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determins what the TargetPath metadata would be set to after calling the AssignTargetPath task.
+        /// </summary>
+        /// <remarks>
+        /// See: https://github.com/microsoft/msbuild/blob/master/src/Tasks/AssignTargetPath.cs.
+        /// </remarks>
+        public static string GetTargetPath(this ProjectItemInstance item)
+        {
+            string link = item.GetMetadataValue("Link");
+
+            // If file has a link, use that.
+            if (!string.IsNullOrEmpty(link))
+            {
+                return link;
+            }
+
+            var evaluatedInclude = item.EvaluatedInclude;
+
+            // If the file path is relative and doesn't contain any relative specifiers then just use the file path as-is
+            if (!Path.IsPathRooted(evaluatedInclude) && !evaluatedInclude.Contains(RelativeSpecifier, StringComparison.Ordinal))
+            {
+                return evaluatedInclude;
+            }
+
+            // Normalize the path
+            string evaluatedIncludeFullPath = Path.GetFullPath(evaluatedInclude);
+
+            string projectDir = item.Project.Directory;
+            bool projectDirHasTrailingSlash = projectDir[projectDir.Length - 1] == Path.DirectorySeparatorChar;
+
+            // If the item is under the project dir, return the relative path from the project dir.
+            if (evaluatedIncludeFullPath.StartsWith(projectDir, StringComparison.OrdinalIgnoreCase)
+                && (projectDirHasTrailingSlash
+                    || (evaluatedIncludeFullPath.Length > projectDir.Length && evaluatedIncludeFullPath[projectDir.Length] == Path.DirectorySeparatorChar)))
+            {
+                return evaluatedIncludeFullPath.Substring(projectDir.Length + (projectDirHasTrailingSlash ? 0 : 1));
+            }
+
+            // The item is not under the project dir. Return the filename only.
+            return Path.GetFileName(evaluatedInclude);
         }
     }
 }

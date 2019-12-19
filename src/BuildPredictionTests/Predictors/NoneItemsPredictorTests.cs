@@ -11,9 +11,14 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     public class NoneItemsPredictorTests
     {
         [Fact]
-        public void NoneItemsFindItems()
+        public void NoCopy()
         {
-            Project project = CreateTestProject("Foo.xml");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.AddProperty(NoneItemsPredictor.OutDirPropertyName, @"bin\");
+            projectRootElement.AddItem(NoneItemsPredictor.NoneItemName, "Foo.xml");
+
+            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+
             new NoneItemsPredictor()
                 .GetProjectPredictions(project)
                 .AssertPredictions(
@@ -24,16 +29,25 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     null);
         }
 
-        private static Project CreateTestProject(params string[] noneItemIncludes)
+        [Fact]
+        public void WithCopy()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
-            ProjectItemGroupElement itemGroup = projectRootElement.AddItemGroup();
-            foreach (string noneItemInclude in noneItemIncludes)
-            {
-                itemGroup.AddItem(NoneItemsPredictor.NoneItemName, noneItemInclude);
-            }
+            projectRootElement.AddProperty(NoneItemsPredictor.OutDirPropertyName, @"bin\");
 
-            return TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectItemElement item = projectRootElement.AddItem(NoneItemsPredictor.NoneItemName, "Foo.xml");
+            item.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+
+            new NoneItemsPredictor()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    new[] { new PredictedItem("Foo.xml", nameof(NoneItemsPredictor)) },
+                    null,
+                    new[] { new PredictedItem(@"bin\Foo.xml", nameof(NoneItemsPredictor)) },
+                    null);
         }
     }
 }
