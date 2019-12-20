@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Finds Compile items, typically but not necessarily always from csproj files, as inputs.
     /// </summary>
-    public class CompileItemsPredictor : IProjectPredictor
+    public sealed class CompileItemsPredictor : IProjectPredictor
     {
         internal const string OutDirPropertyName = "OutDir";
         internal const string CompileItemName = "Compile";

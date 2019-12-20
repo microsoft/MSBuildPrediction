@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Predicts inputs for the key file used for strong naming.
     /// </summary>
-    public class AssemblyOriginatorKeyFilePredictor : IProjectPredictor
+    public sealed class AssemblyOriginatorKeyFilePredictor : IProjectPredictor
     {
         internal const string SignAssemblyPropertyName = "SignAssembly";
 

@@ -9,7 +9,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Finds Compile items, typically but not necessarily always from csproj files, as inputs.
     /// </summary>
-    public class EditorConfigFilesItemsPredictor : IProjectPredictor
+    public sealed class EditorConfigFilesItemsPredictor : IProjectPredictor
     {
         internal const string EditorConfigFilesItemName = "EditorConfigFiles";
 

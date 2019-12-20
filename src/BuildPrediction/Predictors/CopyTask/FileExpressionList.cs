@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
     /// Contains a parsed list of file expressions as well as the list of files derived from evaluating said
     /// expressions.
     /// </summary>
-    internal class FileExpressionList
+    internal sealed class FileExpressionList
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FileExpressionList"/> class.

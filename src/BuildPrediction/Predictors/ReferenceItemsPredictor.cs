@@ -12,7 +12,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Finds Reference items and any related files as inputs.
     /// </summary>
-    public class ReferenceItemsPredictor : IProjectPredictor
+    public sealed class ReferenceItemsPredictor : IProjectPredictor
     {
         internal const string ReferenceItemName = "Reference";
 

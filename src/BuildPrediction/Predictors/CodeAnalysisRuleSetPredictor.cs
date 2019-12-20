@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// This predictor parses the ruleset XML. In the event of invalid XML or an unexpected schema, the predictor will simply not report those inputs,
     /// rather than throwing exceptions and failing prediction altogether.
     /// </remarks>
-    public class CodeAnalysisRuleSetPredictor : IProjectPredictor
+    public sealed class CodeAnalysisRuleSetPredictor : IProjectPredictor
     {
         internal const string CodeAnalysisRuleSetPropertyName = "CodeAnalysisRuleSet";
 

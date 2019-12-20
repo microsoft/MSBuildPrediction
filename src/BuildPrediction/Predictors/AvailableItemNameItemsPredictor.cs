@@ -23,7 +23,7 @@ namespace Microsoft.Build.Prediction.Predictors
     ///
     /// Interestingly, C# Compile items have no AvailableItemName in their associated .targets file.
     /// </remarks>
-    public class AvailableItemNameItemsPredictor : IProjectPredictor
+    public sealed class AvailableItemNameItemsPredictor : IProjectPredictor
     {
         internal const string AvailableItemName = "AvailableItemName";
 

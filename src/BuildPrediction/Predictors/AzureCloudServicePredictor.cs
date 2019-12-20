@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Predicts inputs for Azure Cloud Service projects based on the service definition files (*.csdef) and service configuration files (*.cscfg).
     /// </summary>
-    public class AzureCloudServicePredictor : IProjectPredictor
+    public sealed class AzureCloudServicePredictor : IProjectPredictor
     {
         internal const string ServiceConfigurationItemName = "ServiceConfiguration";
 

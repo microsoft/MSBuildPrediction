@@ -11,7 +11,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Predicts inputs and outputs when using the StyleCop.MSBuild nuget package (https://www.nuget.org/packages/StyleCop.MSBuild/).
     /// </summary>
-    public class StyleCopPredictor : IProjectPredictor
+    public sealed class StyleCopPredictor : IProjectPredictor
     {
         internal const string StyleCopTargetName = "StyleCop";
 

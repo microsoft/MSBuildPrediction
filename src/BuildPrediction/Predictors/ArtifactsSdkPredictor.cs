@@ -14,7 +14,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// Predicts inputs and outputs for projects using the Microsoft.Build.Artifacts Sdk.
     /// See: https://github.com/microsoft/MSBuildSdks/tree/master/src/Artifacts.
     /// </summary>
-    public class ArtifactsSdkPredictor : IProjectPredictor
+    public sealed class ArtifactsSdkPredictor : IProjectPredictor
     {
         internal const string UsingMicrosoftArtifactsSdkPropertyName = "UsingMicrosoftArtifactsSdk";
 

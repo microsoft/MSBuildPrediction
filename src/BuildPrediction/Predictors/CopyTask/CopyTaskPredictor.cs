@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
     /// and follows the Targets activated by that target, along with all custom Targets
     /// present in the current project file.
     /// </remarks>
-    public class CopyTaskPredictor : IProjectPredictor
+    public sealed class CopyTaskPredictor : IProjectPredictor
     {
         private const string CopyTaskName = "Copy";
         private const string CopyTaskSourceFiles = "SourceFiles";

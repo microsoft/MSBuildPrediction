@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Finds EmbeddedResource items as inputs.
     /// </summary>
-    public class EmbeddedResourceItemsPredictor : IProjectPredictor
+    public sealed class EmbeddedResourceItemsPredictor : IProjectPredictor
     {
         internal const string OutDirPropertyName = "OutDir";
         internal const string EmbeddedResourceItemName = "EmbeddedResource";

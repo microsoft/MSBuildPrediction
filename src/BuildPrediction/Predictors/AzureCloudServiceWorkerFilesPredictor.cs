@@ -11,7 +11,7 @@ namespace Microsoft.Build.Prediction.Predictors
     /// <summary>
     /// Predicts inputs for Azure Cloud Service projects for the worker project files to be copied to the CS package.
     /// </summary>
-    public class AzureCloudServiceWorkerFilesPredictor : IProjectPredictor
+    public sealed class AzureCloudServiceWorkerFilesPredictor : IProjectPredictor
     {
         internal const string ProjectReferenceItemName = "ProjectReference";
 
