@@ -117,13 +117,84 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(StyleCopPredictor.StyleCopOutputFilePropertyName, @"bin\x64\StyleCopViolations.xml");
             projectRootElement.AddTarget(StyleCopPredictor.StyleCopTargetName);
 
+            File.WriteAllText(Path.Combine(_rootDir, "CustomSettings.StyleCop"), "<StyleCopSettings></StyleCopSettings>");
             projectRootElement.AddProperty(StyleCopPredictor.StyleCopOverrideSettingsFilePropertyName, "CustomSettings.StyleCop");
+
+            // Ensure the default project settings don't get picked up
+            File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsDefaultFileName), "SomeContent");
 
             Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
                 new PredictedItem("CustomSettings.StyleCop", nameof(StyleCopPredictor)),
+            };
+            var expectedOutputFiles = new[]
+            {
+                new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
+            };
+            new StyleCopPredictor()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    expectedInputFiles.MakeAbsolute(_rootDir),
+                    null,
+                    expectedOutputFiles.MakeAbsolute(_rootDir),
+                    null);
+        }
+
+        [Fact]
+        public void FindItemsWithMissingOverrideSettingsFile()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"project.csproj"));
+            projectRootElement.AddProperty(StyleCopPredictor.StyleCopEnabledPropertyName, "true");
+            projectRootElement.AddProperty(StyleCopPredictor.StyleCopOutputFilePropertyName, @"bin\x64\StyleCopViolations.xml");
+            projectRootElement.AddTarget(StyleCopPredictor.StyleCopTargetName);
+
+            projectRootElement.AddProperty(StyleCopPredictor.StyleCopOverrideSettingsFilePropertyName, "CustomSettings.StyleCop");
+
+            // Ensure the default project settings do get picked up
+            File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsDefaultFileName), "SomeContent");
+
+            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+
+            var expectedInputFiles = new[]
+            {
+                new PredictedItem(StyleCopPredictor.StyleCopSettingsDefaultFileName, nameof(StyleCopPredictor)),
+            };
+            var expectedOutputFiles = new[]
+            {
+                new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
+            };
+            new StyleCopPredictor()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    expectedInputFiles.MakeAbsolute(_rootDir),
+                    null,
+                    expectedOutputFiles.MakeAbsolute(_rootDir),
+                    null);
+        }
+
+        [Fact]
+        public void FindItemsWithMissingInvalidSettingsFile()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"project.csproj"));
+            projectRootElement.AddProperty(StyleCopPredictor.StyleCopEnabledPropertyName, "true");
+            projectRootElement.AddProperty(StyleCopPredictor.StyleCopOutputFilePropertyName, @"bin\x64\StyleCopViolations.xml");
+            projectRootElement.AddTarget(StyleCopPredictor.StyleCopTargetName);
+
+            File.WriteAllText(Path.Combine(_rootDir, "CustomSettings.StyleCop"), "This is not valid Xml");
+            projectRootElement.AddProperty(StyleCopPredictor.StyleCopOverrideSettingsFilePropertyName, "CustomSettings.StyleCop");
+
+            // Ensure the default project settings do get picked up
+            File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsDefaultFileName), "SomeContent");
+
+            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+
+            var expectedInputFiles = new[]
+            {
+                new PredictedItem(StyleCopPredictor.StyleCopSettingsDefaultFileName, nameof(StyleCopPredictor)),
             };
             var expectedOutputFiles = new[]
             {
