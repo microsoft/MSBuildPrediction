@@ -5,6 +5,7 @@ namespace Microsoft.Build.Prediction.Predictors
 {
     using System;
     using System.IO;
+    using System.Xml;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
@@ -29,6 +30,12 @@ namespace Microsoft.Build.Prediction.Predictors
 
         internal const string StyleCopOutputFilePropertyName = "StyleCopOutputFile";
 
+        private readonly XmlReaderSettings _xmlReaderSettings = new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null, // Avoid external schema checks.
+        };
+
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(Project project, ProjectInstance projectInstance, ProjectPredictionReporter predictionReporter)
         {
@@ -39,9 +46,10 @@ namespace Microsoft.Build.Prediction.Predictors
                 return;
             }
 
-            // Find the StyleCop settings file as an input.
-            string styleCopOverrideSettingsFile = projectInstance.GetPropertyValue(StyleCopOverrideSettingsFilePropertyName);
-            string styleCopSettingsFile = !string.IsNullOrEmpty(styleCopOverrideSettingsFile)
+            // Find the StyleCop settings file as an input. If the override settings file is specified and valid,
+            // it's used. Else fall back to finding the project settings file. Note that the validation or lack thereof
+            // mimics what StyleCop actually does.
+            string styleCopSettingsFile = TryGetOverrideSettingsFile(projectInstance, out string styleCopOverrideSettingsFile)
                 ? styleCopOverrideSettingsFile
                 : GetProjectSettingsFile(projectInstance.Directory);
             if (!string.IsNullOrEmpty(styleCopSettingsFile))
@@ -95,6 +103,42 @@ namespace Microsoft.Build.Prediction.Predictors
             }
 
             return null;
+        }
+
+        private bool TryGetOverrideSettingsFile(ProjectInstance projectInstance, out string settingsFile)
+        {
+            settingsFile = projectInstance.GetPropertyValue(StyleCopOverrideSettingsFilePropertyName);
+
+            if (string.IsNullOrEmpty(settingsFile))
+            {
+                return false;
+            }
+
+            try
+            {
+                settingsFile = Path.Combine(projectInstance.Directory, settingsFile);
+
+                // Ignore the override settings file when it's missing
+                if (!File.Exists(settingsFile))
+                {
+                    return false;
+                }
+
+                using (var reader = new StreamReader(settingsFile))
+                using (XmlReader xmlReader = XmlReader.Create(reader, _xmlReaderSettings))
+                {
+                    var xmlDocument = new XmlDocument() { XmlResolver = null };
+                    xmlDocument.Load(xmlReader);
+
+                    // If the file is a valid XML file, that's good enough for StyleCop.
+                    return true;
+                }
+            }
+            catch (XmlException)
+            {
+                // Any exceptions while parsing result in ignoring the override settings file.
+                return false;
+            }
         }
     }
 }
