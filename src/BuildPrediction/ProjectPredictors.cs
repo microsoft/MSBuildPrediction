@@ -39,6 +39,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="VSCTCompileItemsPredictor"/></item>
         /// <item><see cref="EditorConfigFilesItemsPredictor"/></item>
         /// <item><see cref="ApplicationIconPredictor"/></item>
+        /// <item><see cref="GeneratePackageOnBuildPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -63,6 +64,7 @@ namespace Microsoft.Build.Prediction
             new VSCTCompileItemsPredictor(),
             new EditorConfigFilesItemsPredictor(),
             new ApplicationIconPredictor(),
+            new GeneratePackageOnBuildPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -93,6 +95,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="VSCTCompileItemsPredictor"/></item>
         /// <item><see cref="EditorConfigFilesItemsPredictor"/></item>
         /// <item><see cref="ApplicationIconPredictor"/></item>
+        /// <item><see cref="GeneratePackageOnBuildPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -119,6 +122,7 @@ namespace Microsoft.Build.Prediction
             new VSCTCompileItemsPredictor(),
             new EditorConfigFilesItemsPredictor(),
             new ApplicationIconPredictor(),
+            new GeneratePackageOnBuildPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
