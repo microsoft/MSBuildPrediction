@@ -40,6 +40,10 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="EditorConfigFilesItemsPredictor"/></item>
         /// <item><see cref="ApplicationIconPredictor"/></item>
         /// <item><see cref="GeneratePackageOnBuildPredictor"/></item>
+        /// <item><see cref="CompiledAssemblyPredictor"/></item>
+        /// <item><see cref="DocumentationFilePredictor"/></item>
+        /// <item><see cref="RefAssemblyPredictor"/></item>
+        /// <item><see cref="SymbolsFilePredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -65,6 +69,10 @@ namespace Microsoft.Build.Prediction
             new EditorConfigFilesItemsPredictor(),
             new ApplicationIconPredictor(),
             new GeneratePackageOnBuildPredictor(),
+            new CompiledAssemblyPredictor(),
+            new DocumentationFilePredictor(),
+            new RefAssemblyPredictor(),
+            new SymbolsFilePredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -96,6 +104,10 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="EditorConfigFilesItemsPredictor"/></item>
         /// <item><see cref="ApplicationIconPredictor"/></item>
         /// <item><see cref="GeneratePackageOnBuildPredictor"/></item>
+        /// <item><see cref="CompiledAssemblyPredictor"/></item>
+        /// <item><see cref="DocumentationFilePredictor"/></item>
+        /// <item><see cref="RefAssemblyPredictor"/></item>
+        /// <item><see cref="SymbolsFilePredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -123,6 +135,10 @@ namespace Microsoft.Build.Prediction
             new EditorConfigFilesItemsPredictor(),
             new ApplicationIconPredictor(),
             new GeneratePackageOnBuildPredictor(),
+            new CompiledAssemblyPredictor(),
+            new DocumentationFilePredictor(),
+            new RefAssemblyPredictor(),
+            new SymbolsFilePredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
