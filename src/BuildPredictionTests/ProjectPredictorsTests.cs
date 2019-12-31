@@ -16,7 +16,7 @@ namespace Microsoft.Build.Prediction.Tests
         {
             IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.BasicPredictors;
 
-            Assert.Equal(20, predictors.Count);
+            Assert.Equal(24, predictors.Count);
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItemsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItemsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItemsPredictor));
@@ -37,6 +37,10 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is EditorConfigFilesItemsPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ApplicationIconPredictor));
             Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is GeneratePackageOnBuildPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CompiledAssemblyPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is DocumentationFilePredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is RefAssemblyPredictor));
+            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is SymbolsFilePredictor));
         }
 
         [Fact]
