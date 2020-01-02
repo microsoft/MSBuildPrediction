@@ -45,6 +45,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="RefAssemblyPredictor"/></item>
         /// <item><see cref="SymbolsFilePredictor"/></item>
         /// <item><see cref="XamlAppDefPredictor"/></item>
+        /// <item><see cref="TypeScriptCompileItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -75,6 +76,7 @@ namespace Microsoft.Build.Prediction
             new RefAssemblyPredictor(),
             new SymbolsFilePredictor(),
             new XamlAppDefPredictor(),
+            new TypeScriptCompileItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -111,6 +113,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="RefAssemblyPredictor"/></item>
         /// <item><see cref="SymbolsFilePredictor"/></item>
         /// <item><see cref="XamlAppDefPredictor"/></item>
+        /// <item><see cref="TypeScriptCompileItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -143,6 +146,7 @@ namespace Microsoft.Build.Prediction
             new RefAssemblyPredictor(),
             new SymbolsFilePredictor(),
             new XamlAppDefPredictor(),
+            new TypeScriptCompileItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
