@@ -7,11 +7,11 @@ namespace Microsoft.Build.Prediction.Predictors
     using Microsoft.Build.Execution;
 
     /// <summary>
-    /// Finds EditorConfigFiles items as inputs.
+    /// Finds TypeScriptCompile items as inputs.
     /// </summary>
-    public sealed class EditorConfigFilesItemsPredictor : IProjectPredictor
+    public sealed class TypeScriptCompileItemsPredictor : IProjectPredictor
     {
-        internal const string EditorConfigFilesItemName = "EditorConfigFiles";
+        internal const string TypeScriptCompileItemName = "TypeScriptCompile";
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
@@ -19,7 +19,7 @@ namespace Microsoft.Build.Prediction.Predictors
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
-            foreach (ProjectItemInstance item in projectInstance.GetItems(EditorConfigFilesItemName))
+            foreach (ProjectItemInstance item in projectInstance.GetItems(TypeScriptCompileItemName))
             {
                 predictionReporter.ReportInputFile(item.EvaluatedInclude);
             }
