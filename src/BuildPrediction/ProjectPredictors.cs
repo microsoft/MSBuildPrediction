@@ -46,6 +46,10 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="SymbolsFilePredictor"/></item>
         /// <item><see cref="XamlAppDefPredictor"/></item>
         /// <item><see cref="TypeScriptCompileItemsPredictor"/></item>
+        /// <item><see cref="ApplicationDefinitionItemsPredictor"/></item>
+        /// <item><see cref="PageItemsPredictor"/></item>
+        /// <item><see cref="ResourceItemsPredictor"/></item>
+        /// <item><see cref="SplashScreenItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -77,6 +81,10 @@ namespace Microsoft.Build.Prediction
             new SymbolsFilePredictor(),
             new XamlAppDefPredictor(),
             new TypeScriptCompileItemsPredictor(),
+            new ApplicationDefinitionItemsPredictor(),
+            new PageItemsPredictor(),
+            new ResourceItemsPredictor(),
+            new SplashScreenItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -114,6 +122,10 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="SymbolsFilePredictor"/></item>
         /// <item><see cref="XamlAppDefPredictor"/></item>
         /// <item><see cref="TypeScriptCompileItemsPredictor"/></item>
+        /// <item><see cref="ApplicationDefinitionItemsPredictor"/></item>
+        /// <item><see cref="PageItemsPredictor"/></item>
+        /// <item><see cref="ResourceItemsPredictor"/></item>
+        /// <item><see cref="SplashScreenItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -147,6 +159,10 @@ namespace Microsoft.Build.Prediction
             new SymbolsFilePredictor(),
             new XamlAppDefPredictor(),
             new TypeScriptCompileItemsPredictor(),
+            new ApplicationDefinitionItemsPredictor(),
+            new PageItemsPredictor(),
+            new ResourceItemsPredictor(),
+            new SplashScreenItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
