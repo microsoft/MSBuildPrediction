@@ -11,7 +11,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     public class XamlAppDefPredictorTests
     {
         [Fact]
-        public void FindItems()
+        public void NoCopy()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddItem(XamlAppDefPredictor.XamlAppDefItemName, "Foo.xaml");
@@ -33,6 +33,42 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     expectedInputFiles,
                     null,
                     null,
+                    null);
+        }
+
+        [Fact]
+        public void WithCopy()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.AddProperty(XamlAppDefPredictor.OutDirPropertyName, @"bin\");
+            projectRootElement.AddItem(XamlAppDefPredictor.XamlAppDefItemName, "Foo.xaml")
+                .AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+            projectRootElement.AddItem(XamlAppDefPredictor.XamlAppDefItemName, "Bar.xaml")
+                .AddMetadata("CopyToOutputDirectory", "Always");
+            projectRootElement.AddItem(XamlAppDefPredictor.XamlAppDefItemName, "Baz.xaml")
+                .AddMetadata("CopyToOutputDirectory", "Never");
+            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+
+            var expectedInputFiles = new[]
+            {
+                new PredictedItem("Foo.xaml", nameof(XamlAppDefPredictor)),
+                new PredictedItem("Bar.xaml", nameof(XamlAppDefPredictor)),
+                new PredictedItem("Baz.xaml", nameof(XamlAppDefPredictor)),
+            };
+
+            var expectedOutputFiles = new[]
+            {
+                new PredictedItem(@"bin\Foo.xaml", nameof(XamlAppDefPredictor)),
+                new PredictedItem(@"bin\Bar.xaml", nameof(XamlAppDefPredictor)),
+            };
+
+            new XamlAppDefPredictor()
+                .GetProjectPredictions(project)
+                .AssertPredictions(
+                    project,
+                    expectedInputFiles,
+                    null,
+                    expectedOutputFiles,
                     null);
         }
     }
