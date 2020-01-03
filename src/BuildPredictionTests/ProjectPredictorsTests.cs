@@ -14,48 +14,57 @@ namespace Microsoft.Build.Prediction.Tests
         [Fact]
         public void BasicPredictors()
         {
-            IReadOnlyCollection<IProjectPredictor> predictors = ProjectPredictors.BasicPredictors;
+            var expectedPredictorTypes = new[]
+            {
+                typeof(AvailableItemNameItemsPredictor),
+                typeof(ContentItemsPredictor),
+                typeof(NoneItemsPredictor),
+                typeof(CompileItemsPredictor),
+                typeof(IntermediateOutputPathPredictor),
+                typeof(OutDirOrOutputPathPredictor),
+                typeof(ProjectFileAndImportsPredictor),
+                typeof(AzureCloudServicePredictor),
+                typeof(ServiceFabricServiceManifestPredictor),
+                typeof(AzureCloudServiceWorkerFilesPredictor),
+                typeof(CodeAnalysisRuleSetPredictor),
+                typeof(AssemblyOriginatorKeyFilePredictor),
+                typeof(EmbeddedResourceItemsPredictor),
+                typeof(ReferenceItemsPredictor),
+                typeof(StyleCopPredictor),
+                typeof(ManifestsPredictor),
+                typeof(VSCTCompileItemsPredictor),
+                typeof(EditorConfigFilesItemsPredictor),
+                typeof(ApplicationIconPredictor),
+                typeof(GeneratePackageOnBuildPredictor),
+                typeof(CompiledAssemblyPredictor),
+                typeof(DocumentationFilePredictor),
+                typeof(RefAssemblyPredictor),
+                typeof(SymbolsFilePredictor),
+                typeof(XamlAppDefPredictor),
+                typeof(TypeScriptCompileItemsPredictor),
+                typeof(ApplicationDefinitionItemsPredictor),
+                typeof(PageItemsPredictor),
+                typeof(ResourceItemsPredictor),
+                typeof(SplashScreenItemsPredictor),
+            };
 
-            Assert.Equal(26, predictors.Count);
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AvailableItemNameItemsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ContentItemsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is NoneItemsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CompileItemsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is IntermediateOutputPathPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is OutDirOrOutputPathPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ProjectFileAndImportsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AzureCloudServicePredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ServiceFabricServiceManifestPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AzureCloudServiceWorkerFilesPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CodeAnalysisRuleSetPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is AssemblyOriginatorKeyFilePredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is EmbeddedResourceItemsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ReferenceItemsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is StyleCopPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ManifestsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is VSCTCompileItemsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is EditorConfigFilesItemsPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is ApplicationIconPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is GeneratePackageOnBuildPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is CompiledAssemblyPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is DocumentationFilePredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is RefAssemblyPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is SymbolsFilePredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is XamlAppDefPredictor));
-            Assert.NotNull(predictors.FirstOrDefault(predictor => predictor is TypeScriptCompileItemsPredictor));
+            AssertPredictorsList(expectedPredictorTypes, ProjectPredictors.BasicPredictors);
         }
 
         [Fact]
         public void AllPredictors()
         {
             // All predictors means all predictors. Use reflection to ensure we really did get all creatable IProjectPredictors.
-            var expectedPredictorTypes = typeof(IProjectPredictor).Assembly.GetTypes()
+            Type[] expectedPredictorTypes = typeof(IProjectPredictor).Assembly.GetTypes()
                 .Where(type => !type.IsInterface && !type.IsAbstract && typeof(IProjectPredictor).IsAssignableFrom(type))
-                .ToList();
+                .ToArray();
 
-            IReadOnlyCollection<IProjectPredictor> actualPredictors = ProjectPredictors.AllPredictors;
+            AssertPredictorsList(expectedPredictorTypes, ProjectPredictors.AllPredictors);
+        }
 
-            Assert.Equal(expectedPredictorTypes.Count, actualPredictors.Count);
+        private static void AssertPredictorsList(Type[] expectedPredictorTypes, IReadOnlyCollection<IProjectPredictor> actualPredictors)
+        {
+            Assert.Equal(expectedPredictorTypes.Length, actualPredictors.Count);
             foreach (Type predictorType in expectedPredictorTypes)
             {
                 Assert.NotNull(actualPredictors.FirstOrDefault(predictor => predictor.GetType() == predictorType));
