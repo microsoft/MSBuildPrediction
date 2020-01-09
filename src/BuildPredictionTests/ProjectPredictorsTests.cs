@@ -46,6 +46,7 @@ namespace Microsoft.Build.Prediction.Tests
                 typeof(PageItemsPredictor),
                 typeof(ResourceItemsPredictor),
                 typeof(SplashScreenItemsPredictor),
+                typeof(TsConfigPredictor),
             };
 
             AssertPredictorsList(expectedPredictorTypes, ProjectPredictors.BasicPredictors);

@@ -50,6 +50,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="PageItemsPredictor"/></item>
         /// <item><see cref="ResourceItemsPredictor"/></item>
         /// <item><see cref="SplashScreenItemsPredictor"/></item>
+        /// <item><see cref="TsConfigPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -85,6 +86,7 @@ namespace Microsoft.Build.Prediction
             new PageItemsPredictor(),
             new ResourceItemsPredictor(),
             new SplashScreenItemsPredictor(),
+            new TsConfigPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
@@ -126,6 +128,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="PageItemsPredictor"/></item>
         /// <item><see cref="ResourceItemsPredictor"/></item>
         /// <item><see cref="SplashScreenItemsPredictor"/></item>
+        /// <item><see cref="TsConfigPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -163,6 +166,7 @@ namespace Microsoft.Build.Prediction
             new PageItemsPredictor(),
             new ResourceItemsPredictor(),
             new SplashScreenItemsPredictor(),
+            new TsConfigPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
