@@ -3,6 +3,8 @@
 
 namespace Microsoft.Build.Prediction
 {
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// A reporter that <see cref="IProjectPredictor"/> instances use to report predictions.
     /// </summary>
@@ -17,7 +19,7 @@ namespace Microsoft.Build.Prediction
     {
         private readonly IProjectPredictionCollector _predictionCollector;
 
-        private readonly string _projectDirectory;
+        private readonly ProjectInstance _projectInstance;
 
         private readonly string _predictorName;
 
@@ -27,11 +29,11 @@ namespace Microsoft.Build.Prediction
         /// </remarks>
         internal ProjectPredictionReporter(
             IProjectPredictionCollector predictionCollector,
-            string projectDirectory,
+            ProjectInstance projectInstance,
             string predictorName)
         {
             _predictionCollector = predictionCollector;
-            _projectDirectory = projectDirectory;
+            _projectInstance = projectInstance;
             _predictorName = predictorName;
         }
 
@@ -39,24 +41,24 @@ namespace Microsoft.Build.Prediction
         /// Report a prediction for an input file.
         /// </summary>
         /// <param name="path">The path of the file input.</param>
-        public void ReportInputFile(string path) => _predictionCollector.AddInputFile(path, _projectDirectory, _predictorName);
+        public void ReportInputFile(string path) => _predictionCollector.AddInputFile(path, _projectInstance, _predictorName);
 
         /// <summary>
         /// Report a prediction for an input directory. Implicitly this means the directory's contents, but not its subdirectories, are used as inputs. This is equivalent to a "*" glob.
         /// </summary>
         /// <param name="path">The path of the file input.</param>
-        public void ReportInputDirectory(string path) => _predictionCollector.AddInputDirectory(path, _projectDirectory, _predictorName);
+        public void ReportInputDirectory(string path) => _predictionCollector.AddInputDirectory(path, _projectInstance, _predictorName);
 
         /// <summary>
         /// Report a prediction for an output file.
         /// </summary>
         /// <param name="path">The path of the directory output.</param>
-        public void ReportOutputFile(string path) => _predictionCollector.AddOutputFile(path, _projectDirectory, _predictorName);
+        public void ReportOutputFile(string path) => _predictionCollector.AddOutputFile(path, _projectInstance, _predictorName);
 
         /// <summary>
         /// Report a prediction for an output directory.
         /// </summary>
         /// <param name="path">The path of the directory output.</param>
-        public void ReportOutputDirectory(string path) => _predictionCollector.AddOutputDirectory(path, _projectDirectory, _predictorName);
+        public void ReportOutputDirectory(string path) => _predictionCollector.AddOutputDirectory(path, _projectInstance, _predictorName);
     }
 }

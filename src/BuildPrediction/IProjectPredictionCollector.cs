@@ -3,6 +3,8 @@
 
 namespace Microsoft.Build.Prediction
 {
+    using Microsoft.Build.Execution;
+
     /// <summary>
     /// Implementations of this interface are used during project prediction to
     /// collect all predictions from predictors.
@@ -13,32 +15,32 @@ namespace Microsoft.Build.Prediction
         /// Add a prediction for an input file.
         /// </summary>
         /// <param name="path">The path of the input file.</param>
-        /// <param name="projectDirectory">The path to the directory of the project prediction originated from, used for determining where the path might be relative to.</param>
+        /// <param name="projectInstance">The associated project instance for the prediction.</param>
         /// <param name="predictorName">The name of the predictor which made the prediction, used for debugging purposes.</param>
-        void AddInputFile(string path, string projectDirectory, string predictorName);
+        void AddInputFile(string path, ProjectInstance projectInstance, string predictorName);
 
         /// <summary>
         /// Add a prediction for an input directory. Implicitly this means the directory's contents, but not its subdirectories, are used as inputs. This is equivalent to a "*" glob.
         /// </summary>
         /// <param name="path">The path of the input directory.</param>
-        /// <param name="projectDirectory">The path to the directory of the project prediction originated from, used for determining where the path might be relative to.</param>
+        /// <param name="projectInstance">The associated project instance for the prediction.</param>
         /// <param name="predictorName">The name of the predictor which made the prediction, used for debugging purposes.</param>
-        void AddInputDirectory(string path, string projectDirectory, string predictorName);
+        void AddInputDirectory(string path, ProjectInstance projectInstance, string predictorName);
 
         /// <summary>
         /// Add a prediction for an output file.
         /// </summary>
         /// <param name="path">The path of the output file.</param>
-        /// <param name="projectDirectory">The path to the directory of the project prediction originated from, used for determining where the path might be relative to.</param>
+        /// <param name="projectInstance">The associated project instance for the prediction.</param>
         /// <param name="predictorName">The name of the predictor which made the prediction, used for debugging purposes.</param>
-        void AddOutputFile(string path, string projectDirectory, string predictorName);
+        void AddOutputFile(string path, ProjectInstance projectInstance, string predictorName);
 
         /// <summary>
         /// Add a prediction for an output directory.
         /// </summary>
         /// <param name="path">The path of the output directory.</param>
-        /// <param name="projectDirectory">The path to the directory of the project prediction originated from, used for determining where the path might be relative to.</param>
+        /// <param name="projectInstance">The associated project instance for the prediction.</param>
         /// <param name="predictorName">The name of the predictor which made the prediction, used for debugging purposes.</param>
-        void AddOutputDirectory(string path, string projectDirectory, string predictorName);
+        void AddOutputDirectory(string path, ProjectInstance projectInstance, string predictorName);
     }
 }

@@ -15,7 +15,7 @@ namespace Microsoft.Build.Prediction
     /// </summary>
     public sealed class ProjectPredictionExecutor
     {
-        private readonly PredictorAndName[] _predictors;
+        private readonly ValueAndTypeName<IProjectPredictor>[] _projectPredictors;
         private readonly ProjectPredictionOptions _options;
 
         /// <summary>Initializes a new instance of the <see cref="ProjectPredictionExecutor"/> class.</summary>
@@ -33,10 +33,10 @@ namespace Microsoft.Build.Prediction
             IEnumerable<IProjectPredictor> predictors,
             ProjectPredictionOptions options)
         {
-            _predictors = predictors
+            _projectPredictors = predictors
                 .ThrowIfNull(nameof(predictors))
-                .Select(p => new PredictorAndName(p))
-                .ToArray();  // Array = faster parallel performance.
+                .Select(p => new ValueAndTypeName<IProjectPredictor>(p))
+                .ToArray(); // Array = faster parallel performance.
             _options = options ?? new ProjectPredictionOptions();
         }
 
@@ -50,9 +50,9 @@ namespace Microsoft.Build.Prediction
         /// <returns>An object describing all predicted inputs and outputs.</returns>
         public ProjectPredictions PredictInputsAndOutputs(ProjectInstance projectInstance)
         {
-            var eventSink = new DefaultProjectPredictionCollector();
-            PredictInputsAndOutputs(projectInstance, eventSink);
-            return eventSink.Predictions;
+            var projectPredictionCollector = new DefaultProjectPredictionCollector();
+            PredictInputsAndOutputs(projectInstance, projectPredictionCollector);
+            return projectPredictionCollector.Predictions;
         }
 
         /// <summary>
@@ -68,55 +68,46 @@ namespace Microsoft.Build.Prediction
             projectInstance.ThrowIfNull(nameof(projectInstance));
             projectPredictionCollector.ThrowIfNull(nameof(projectPredictionCollector));
 
+            ExecuteProjectPredictors(projectInstance, _projectPredictors, projectPredictionCollector, _options.MaxDegreeOfParallelism);
+        }
+
+        internal static void ExecuteProjectPredictors(
+            ProjectInstance projectInstance,
+            ValueAndTypeName<IProjectPredictor>[] projectPredictors,
+            IProjectPredictionCollector projectPredictionCollector,
+            int maxDegreeOfParallelism)
+        {
             // Special-case single-threaded prediction to avoid the overhead of Parallel.For in favor of a simple loop.
-            if (_options.MaxDegreeOfParallelism == 1)
+            if (maxDegreeOfParallelism == 1)
             {
-                for (var i = 0; i < _predictors.Length; i++)
+                for (var i = 0; i < projectPredictors.Length; i++)
                 {
-                    ExecuteSinglePredictor(projectInstance, _predictors[i], projectPredictionCollector);
+                    ExecuteSingleProjectPredictor(projectInstance, projectPredictors[i], projectPredictionCollector);
                 }
             }
             else
             {
                 Parallel.For(
                     0,
-                    _predictors.Length,
-                    new ParallelOptions { MaxDegreeOfParallelism = _options.MaxDegreeOfParallelism },
-                    i => ExecuteSinglePredictor(projectInstance, _predictors[i], projectPredictionCollector));
+                    projectPredictors.Length,
+                    new ParallelOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism },
+                    i => ExecuteSingleProjectPredictor(projectInstance, projectPredictors[i], projectPredictionCollector));
             }
         }
 
-        private static void ExecuteSinglePredictor(
+        private static void ExecuteSingleProjectPredictor(
             ProjectInstance projectInstance,
-            PredictorAndName predictorAndName,
+            ValueAndTypeName<IProjectPredictor> projectPredictorAndName,
             IProjectPredictionCollector projectPredictionCollector)
         {
             var predictionReporter = new ProjectPredictionReporter(
                 projectPredictionCollector,
-                projectInstance.Directory,
-                predictorAndName.TypeName);
+                projectInstance,
+                projectPredictorAndName.TypeName);
 
-            predictorAndName.Predictor.PredictInputsAndOutputs(
+            projectPredictorAndName.Value.PredictInputsAndOutputs(
                 projectInstance,
                 predictionReporter);
-        }
-
-        private readonly struct PredictorAndName
-        {
-            public readonly IProjectPredictor Predictor;
-
-            /// <summary>
-            /// Cached type name - we expect predictor instances to be reused many times in
-            /// an overall parsing session, avoid doing the reflection over and over in
-            /// the prediction methods.
-            /// </summary>
-            public readonly string TypeName;
-
-            public PredictorAndName(IProjectPredictor predictor)
-            {
-                Predictor = predictor;
-                TypeName = predictor.GetType().Name;
-            }
         }
     }
 }
