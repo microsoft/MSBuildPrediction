@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -17,7 +17,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddItem(SymbolsFilePredictor.DebugSymbolsIntermediatePathItemName, @"obj\Foo.pdb");
             projectRootElement.AddItem(SymbolsFilePredictor.DebugSymbolsOutputPathItemName, @"bin\Foo.pdb");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedOutputFiles = new[]
             {
@@ -26,9 +26,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new SymbolsFilePredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     expectedOutputFiles,

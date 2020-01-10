@@ -6,7 +6,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using System;
     using System.Collections.Generic;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -15,23 +15,23 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void AvailableItemNamesFindItems()
         {
-            Project project = CreateTestProject(
+            ProjectInstance projectInstance = CreateTestProjectInstance(
                 new[] { "Available1", "Available2" },
                 Tuple.Create("Available1", "available1Value"),
                 Tuple.Create("Available1", "available1Value2"),
                 Tuple.Create("Available2", "available2Value"),
                 Tuple.Create("NotAvailable", "shouldNotGetThisAsAnInput"));
             new AvailableItemNameItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     new[] { new PredictedItem("available1Value", nameof(AvailableItemNameItemsPredictor)), new PredictedItem("available1Value2", nameof(AvailableItemNameItemsPredictor)), new PredictedItem("available2Value", nameof(AvailableItemNameItemsPredictor)) },
                     null,
                     null,
                     null);
         }
 
-        private static Project CreateTestProject(IEnumerable<string> availableItemNames, params Tuple<string, string>[] itemNamesAndValues)
+        private static ProjectInstance CreateTestProjectInstance(IEnumerable<string> availableItemNames, params Tuple<string, string>[] itemNamesAndValues)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
 
@@ -49,7 +49,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 namesItemGroup.AddItem(AvailableItemNameItemsPredictor.AvailableItemName, availableItemName);
             }
 
-            return TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            return TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
         }
     }
 }

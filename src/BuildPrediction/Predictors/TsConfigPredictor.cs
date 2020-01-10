@@ -7,7 +7,6 @@ namespace Microsoft.Build.Prediction.Predictors
     using System.Collections.Generic;
     using System.IO;
     using System.Text.Json;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
     using Microsoft.Build.Globbing;
 
@@ -33,7 +32,6 @@ namespace Microsoft.Build.Prediction.Predictors
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
-            Project project,
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {

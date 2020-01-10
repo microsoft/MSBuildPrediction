@@ -6,7 +6,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using System;
     using System.IO;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -26,9 +26,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = CreateProjectRootElement();
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
             new ManifestsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
@@ -38,16 +38,16 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement projectRootElement = CreateProjectRootElement();
             projectRootElement.AddProperty(ManifestsPredictor.ApplicationManifestPropertyName, "app.manifest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
                 new PredictedItem(@"app.manifest", nameof(ManifestsPredictor)),
             };
             new ManifestsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     null,
@@ -64,7 +64,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             projectRootElement.AddProperty(ManifestsPredictor.ApplicationManifestPropertyName, "app.manifest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -78,9 +78,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\Release\MyApplication.application", nameof(ManifestsPredictor)),
             };
             new ManifestsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -97,7 +97,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             projectRootElement.AddItem(ManifestsPredictor.BaseApplicationManifestItemName, @"Properties\app.manifest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -111,9 +111,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\Release\MyApplication.application", nameof(ManifestsPredictor)),
             };
             new ManifestsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -130,7 +130,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             projectRootElement.AddItem(ManifestsPredictor.NoneItemName, @"Properties\app.manifest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -144,9 +144,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\Release\MyApplication.application", nameof(ManifestsPredictor)),
             };
             new ManifestsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -164,7 +164,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(ManifestsPredictor.OutputTypePropertyName, @"Library");
             projectRootElement.AddItem(ManifestsPredictor.NoneItemName, @"Properties\app.manifest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -178,9 +178,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\Release\MyApplication.application", nameof(ManifestsPredictor)),
             };
             new ManifestsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -198,7 +198,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(ManifestsPredictor.HostInBrowserPropertyName, "true");
             projectRootElement.AddItem(ManifestsPredictor.NoneItemName, @"Properties\app.manifest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -212,9 +212,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\Release\MyApplication.xbap", nameof(ManifestsPredictor)),
             };
             new ManifestsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -233,7 +233,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(ManifestsPredictor.TargetZonePropertyName, "Internet");
             projectRootElement.AddItem(ManifestsPredictor.NoneItemName, @"Properties\app.manifest");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -248,9 +248,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"obj\Release\MyApplication.exe.TrustInfo.xml", nameof(ManifestsPredictor)),
             };
             new ManifestsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),

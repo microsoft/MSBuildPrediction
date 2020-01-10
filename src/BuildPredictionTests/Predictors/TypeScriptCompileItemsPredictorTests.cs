@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -18,7 +18,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddItem(TypeScriptCompileItemsPredictor.TypeScriptCompileItemName, "Bar.ts");
             projectRootElement.AddItem(TypeScriptCompileItemsPredictor.TypeScriptCompileItemName, "Baz.ts");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -27,9 +27,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem("Baz.ts", nameof(TypeScriptCompileItemsPredictor)),
             };
             new TypeScriptCompileItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,

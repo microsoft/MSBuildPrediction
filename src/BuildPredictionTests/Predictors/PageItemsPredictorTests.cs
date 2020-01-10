@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -18,7 +18,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             itemGroup.AddItem(PageItemsPredictor.PageItemName, "Foo.xaml");
             itemGroup.AddItem(PageItemsPredictor.PageItemName, "Bar.xaml");
             itemGroup.AddItem(PageItemsPredictor.PageItemName, "Baz.xaml");
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -28,9 +28,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new PageItemsPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     null,
                     null,

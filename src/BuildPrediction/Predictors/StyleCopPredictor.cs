@@ -6,7 +6,6 @@ namespace Microsoft.Build.Prediction.Predictors
     using System;
     using System.IO;
     using System.Xml;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
     /// <summary>
@@ -37,7 +36,7 @@ namespace Microsoft.Build.Prediction.Predictors
         };
 
         /// <inheritdoc/>
-        public void PredictInputsAndOutputs(Project project, ProjectInstance projectInstance, ProjectPredictionReporter predictionReporter)
+        public void PredictInputsAndOutputs(ProjectInstance projectInstance, ProjectPredictionReporter predictionReporter)
         {
             // This predictor only applies when StyleCop exists and is enabled.
             if (!projectInstance.Targets.ContainsKey(StyleCopTargetName)

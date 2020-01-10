@@ -6,7 +6,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using System;
     using System.IO;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -52,7 +52,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 @"node_modules\b\index.ts",
                 @"node_modules\c\index.ts");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -67,9 +67,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new TsConfigPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -109,7 +109,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 @"node_modules\b\index.ts",
                 @"node_modules\c\index.ts");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -124,9 +124,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new TsConfigPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -171,7 +171,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 @"node_modules\b\index.ts",
                 @"node_modules\c\index.ts");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -189,9 +189,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new TsConfigPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -221,7 +221,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 @"node_modules\b\index.ts",
                 @"node_modules\c\index.ts");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -236,9 +236,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new TsConfigPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -269,7 +269,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 "bar.ts",
                 "baz.ts");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -284,9 +284,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new TsConfigPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     null,
@@ -340,7 +340,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 @"bar\index.ts",
                 @"baz\index.ts");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -357,9 +357,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new TsConfigPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -391,7 +391,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 @"node_modules\b\index.js",
                 @"node_modules\c\index.js");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -401,9 +401,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             };
 
             new TsConfigPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     null,

@@ -9,7 +9,6 @@ namespace Microsoft.Build.Prediction.Predictors
     using System.IO;
     using System.Xml;
     using System.Xml.Linq;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
     /// <summary>
@@ -34,7 +33,6 @@ namespace Microsoft.Build.Prediction.Predictors
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
-            Project project,
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {

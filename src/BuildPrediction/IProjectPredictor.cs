@@ -3,7 +3,6 @@
 
 namespace Microsoft.Build.Prediction
 {
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
     /// <summary>
@@ -25,16 +24,9 @@ namespace Microsoft.Build.Prediction
         /// pure method transforming its inputs into zero or more predictions in a thread-safe
         /// and idempotent fashion.
         /// </summary>
-        /// <param name="project">The MSBuild <see cref="Microsoft.Build.Evaluation.Project"/> to use for predictions.</param>
-        /// <param name="projectInstance">
-        /// A <see cref="Microsoft.Build.Execution.ProjectInstance"/> derived from the the Project.
-        /// </param>
+        /// <param name="projectInstance">The MSBuild <see cref="ProjectInstance"/> to use for predictions.</param>
         /// <param name="predictionReporter">A reporter to report predictions to.</param>
-        /// <remarks>
-        /// Non-async since this should not require I/O, just CPU when examining the Project.
-        /// </remarks>
         void PredictInputsAndOutputs(
-            Project project,
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter);
     }

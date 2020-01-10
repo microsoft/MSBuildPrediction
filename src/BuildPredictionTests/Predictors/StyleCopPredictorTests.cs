@@ -6,7 +6,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
     using System;
     using System.IO;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -26,9 +26,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"project.csproj"));
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
@@ -40,9 +40,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(StyleCopPredictor.StyleCopOutputFilePropertyName, @"bin\x64\StyleCopViolations.xml");
             projectRootElement.AddTarget(StyleCopPredictor.StyleCopTargetName);
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
@@ -54,16 +54,16 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddProperty(StyleCopPredictor.StyleCopOutputFilePropertyName, @"bin\x64\StyleCopViolations.xml");
             projectRootElement.AddTarget(StyleCopPredictor.StyleCopTargetName);
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedOutputFiles = new[]
             {
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -87,7 +87,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             Directory.CreateDirectory(Path.Combine(_rootDir, @"addinPaths\2"));
             Directory.CreateDirectory(Path.Combine(_rootDir, @"addinPaths\3"));
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputDirectories = new[]
             {
@@ -100,9 +100,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     expectedInputDirectories.MakeAbsolute(_rootDir),
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -123,7 +123,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             // Ensure the default project settings don't get picked up
             File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsDefaultFileName), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -134,9 +134,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -156,7 +156,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             // Ensure the default project settings do get picked up
             File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsDefaultFileName), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -167,9 +167,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -190,7 +190,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             // Ensure the default project settings do get picked up
             File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsDefaultFileName), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -201,9 +201,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -220,7 +220,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsDefaultFileName), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -231,9 +231,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -250,7 +250,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsAlternateFileName), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -261,9 +261,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -280,7 +280,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsLegacyFileName), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -291,9 +291,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),
@@ -313,7 +313,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsAlternateFileName), "SomeContent");
             File.WriteAllText(Path.Combine(_rootDir, StyleCopPredictor.StyleCopSettingsLegacyFileName), "SomeContent");
 
-            Project project = TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
             var expectedInputFiles = new[]
             {
@@ -324,9 +324,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"bin\x64\StyleCopViolations.xml", nameof(StyleCopPredictor)),
             };
             new StyleCopPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputFiles.MakeAbsolute(_rootDir),

@@ -7,7 +7,6 @@ namespace Microsoft.Build.Prediction.Predictors
     using System.Collections.Generic;
     using System.IO;
     using System.Text.RegularExpressions;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
     /// <summary>
@@ -41,7 +40,7 @@ namespace Microsoft.Build.Prediction.Predictors
         private static readonly char[] DirectorySeparatorChars = { Path.DirectorySeparatorChar };
 
         /// <inheritdoc/>
-        public void PredictInputsAndOutputs(Project project, ProjectInstance projectInstance, ProjectPredictionReporter predictionReporter)
+        public void PredictInputsAndOutputs(ProjectInstance projectInstance, ProjectPredictionReporter predictionReporter)
         {
             // This predictor only applies to projects using the Microsoft.Build.Artifacts Sdk.
             var usingMicrosoftArtifactsSdk = projectInstance.GetPropertyValue(UsingMicrosoftArtifactsSdkPropertyName);

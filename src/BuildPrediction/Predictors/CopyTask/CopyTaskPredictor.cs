@@ -7,7 +7,6 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
     /// <summary>
@@ -28,7 +27,6 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
 
         /// <inheritdoc />
         public void PredictInputsAndOutputs(
-            Project project,
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {

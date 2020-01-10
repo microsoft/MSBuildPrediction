@@ -4,7 +4,7 @@
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -14,11 +14,11 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         public void OutDirFoundAsOutputDir()
         {
             const string outDir = @"C:\repo\bin\x64";
-            Project project = CreateTestProject(outDir, null);
+            ProjectInstance projectInstance = CreateTestProject(outDir, null);
             new OutDirOrOutputPathPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     null,
@@ -29,11 +29,11 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         public void OutputPathUsedAsFallback()
         {
             const string outputPath = @"C:\repo\OutputPath";
-            Project project = CreateTestProject(null, outputPath);
+            ProjectInstance projectInstance = CreateTestProject(null, outputPath);
             new OutDirOrOutputPathPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     null,
                     null,
                     null,
@@ -43,13 +43,13 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void NoOutputsReportedIfNoOutDirOrOutputPath()
         {
-            Project project = CreateTestProject(null, null);
+            ProjectInstance projectInstance = CreateTestProject(null, null);
             new OutDirOrOutputPathPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
-        private static Project CreateTestProject(string outDir, string outputPath)
+        private static ProjectInstance CreateTestProject(string outDir, string outputPath)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             if (outDir != null)
@@ -62,7 +62,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 projectRootElement.AddProperty(OutDirOrOutputPathPredictor.OutputPathMacro, outputPath);
             }
 
-            return TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            return TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
         }
     }
 }

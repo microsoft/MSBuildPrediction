@@ -6,12 +6,11 @@ namespace Microsoft.Build.Prediction
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
     /// <summary>
     /// Executes a set of <see cref="IProjectPredictor"/> instances against
-    /// a <see cref="Microsoft.Build.Evaluation.Project"/> instance, aggregating
+    /// a <see cref="ProjectInstance"/> instance, aggregating
     /// the results.
     /// </summary>
     public sealed class ProjectPredictionExecutor
@@ -47,12 +46,12 @@ namespace Microsoft.Build.Prediction
         /// paths, not relative to the directory containing the Project, since inputs and
         /// outputs could lie outside of that directory.
         /// </summary>
-        /// <param name="project">The project to execute predictors against.</param>
+        /// <param name="projectInstance">The project instance to execute predictors against.</param>
         /// <returns>An object describing all predicted inputs and outputs.</returns>
-        public ProjectPredictions PredictInputsAndOutputs(Project project)
+        public ProjectPredictions PredictInputsAndOutputs(ProjectInstance projectInstance)
         {
             var eventSink = new DefaultProjectPredictionCollector();
-            PredictInputsAndOutputs(project, eventSink);
+            PredictInputsAndOutputs(projectInstance, eventSink);
             return eventSink.Predictions;
         }
 
@@ -62,24 +61,19 @@ namespace Microsoft.Build.Prediction
         /// predictions from <see cref="ProjectPredictions"/> to the caller's own object model,
         /// or for custom path normalization logic.
         /// </summary>
-        /// <param name="project">The project to execute predictors against.</param>
+        /// <param name="projectInstance">The project instance to execute predictors against.</param>
         /// <param name="projectPredictionCollector">The prediction collector to use.</param>
-        public void PredictInputsAndOutputs(Project project, IProjectPredictionCollector projectPredictionCollector)
+        public void PredictInputsAndOutputs(ProjectInstance projectInstance, IProjectPredictionCollector projectPredictionCollector)
         {
-            project.ThrowIfNull(nameof(project));
+            projectInstance.ThrowIfNull(nameof(projectInstance));
             projectPredictionCollector.ThrowIfNull(nameof(projectPredictionCollector));
-
-            // Squash the Project with its full XML contents and tracking down to
-            // a more memory-efficient format that can be used to evaluate conditions.
-            // TODO: Static Graph needs to provide both, not just ProjectInstance, when we integrate.
-            ProjectInstance projectInstance = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
 
             // Special-case single-threaded prediction to avoid the overhead of Parallel.For in favor of a simple loop.
             if (_options.MaxDegreeOfParallelism == 1)
             {
                 for (var i = 0; i < _predictors.Length; i++)
                 {
-                    ExecuteSinglePredictor(project, projectInstance, _predictors[i], projectPredictionCollector);
+                    ExecuteSinglePredictor(projectInstance, _predictors[i], projectPredictionCollector);
                 }
             }
             else
@@ -88,12 +82,11 @@ namespace Microsoft.Build.Prediction
                     0,
                     _predictors.Length,
                     new ParallelOptions { MaxDegreeOfParallelism = _options.MaxDegreeOfParallelism },
-                    i => ExecuteSinglePredictor(project, projectInstance, _predictors[i], projectPredictionCollector));
+                    i => ExecuteSinglePredictor(projectInstance, _predictors[i], projectPredictionCollector));
             }
         }
 
         private static void ExecuteSinglePredictor(
-            Project project,
             ProjectInstance projectInstance,
             PredictorAndName predictorAndName,
             IProjectPredictionCollector projectPredictionCollector)
@@ -104,7 +97,6 @@ namespace Microsoft.Build.Prediction
                 predictorAndName.TypeName);
 
             predictorAndName.Predictor.PredictInputsAndOutputs(
-                project,
                 projectInstance,
                 predictionReporter);
         }

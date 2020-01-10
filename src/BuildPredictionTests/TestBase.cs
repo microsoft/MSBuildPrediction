@@ -5,7 +5,9 @@ namespace Microsoft.Build.Prediction.Tests
 {
     using System.Collections.Generic;
     using System.IO;
+    using Microsoft.Build.Definition;
     using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
 
     /// <summary>
     /// Base class that provides helper methods for test code, including
@@ -29,21 +31,26 @@ namespace Microsoft.Build.Prediction.Tests
             IReadOnlyCollection<PredictedItem> expectedOutputFiles,
             IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
         {
+            var globalProperties = new Dictionary<string, string>
+            {
+                { "Platform", "amd64" },
+                { "Configuration", "debug" },
+            };
             var projectCollection = new ProjectCollection();
-            var project = new Project(
-                Path.Combine(TestsDirectoryPath, projFileName),  // TestsData files are marked to CopyToOutput and are available next to the executing assembly
-                new Dictionary<string, string>
-                {
-                    { "Platform", "amd64" },
-                    { "Configuration", "debug" },
-                },
-                null,
-                projectCollection);
+
+            var projectOptions = new ProjectOptions
+            {
+                ProjectCollection = projectCollection,
+                GlobalProperties = globalProperties,
+            };
+
+            // TestsData files are marked to CopyToOutput and are available next to the executing assembly
+            var projectInstance = ProjectInstance.FromFile(Path.Combine(TestsDirectoryPath, projFileName), projectOptions);
 
             predictor
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles,
                     expectedInputDirectories,
                     expectedOutputFiles,

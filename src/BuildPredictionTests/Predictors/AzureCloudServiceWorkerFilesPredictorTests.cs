@@ -5,7 +5,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 {
     using System.IO;
     using Microsoft.Build.Construction;
-    using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Execution;
     using Microsoft.Build.Prediction.Predictors;
     using Xunit;
 
@@ -14,16 +14,16 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void FindItems()
         {
-            Project project = CreateTestProject("project.ccproj");
+            ProjectInstance projectInstance = CreateTestProjectInstance("project.ccproj");
             var expectedInputFiles = new[]
             {
                 new PredictedItem($@"Worker1\{AzureCloudServiceWorkerFilesPredictor.AppConfigFileName}", nameof(AzureCloudServiceWorkerFilesPredictor)),
                 new PredictedItem($@"Worker2\{AzureCloudServiceWorkerFilesPredictor.AppConfigFileName}", nameof(AzureCloudServiceWorkerFilesPredictor)),
             };
             new AzureCloudServiceWorkerFilesPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
-                    project,
+                    projectInstance,
                     expectedInputFiles.MakeAbsolute(Directory.GetCurrentDirectory()),
                     null,
                     null,
@@ -33,13 +33,13 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         [Fact]
         public void SkipOtherProjectTypes()
         {
-            Project project = CreateTestProject("project.csproj");
+            ProjectInstance projectInstance = CreateTestProjectInstance("project.csproj");
             new AzureCloudServiceWorkerFilesPredictor()
-                .GetProjectPredictions(project)
+                .GetProjectPredictions(projectInstance)
                 .AssertNoPredictions();
         }
 
-        private static Project CreateTestProject(string fileName)
+        private static ProjectInstance CreateTestProjectInstance(string fileName)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create($@"AzureCloudService\{fileName}");
 
@@ -54,7 +54,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             Directory.CreateDirectory(@"Worker2");
             File.WriteAllText($@"Worker2\{AzureCloudServiceWorkerFilesPredictor.AppConfigFileName}", "SomeContent");
 
-            return TestHelpers.CreateProjectFromRootElement(projectRootElement);
+            return TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
         }
     }
 }

@@ -4,7 +4,6 @@
 namespace Microsoft.Build.Prediction.Predictors
 {
     using System;
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
 
     /// <summary>
@@ -41,7 +40,7 @@ namespace Microsoft.Build.Prediction.Predictors
         internal const string TargetZonePropertyName = "TargetZone";
 
         /// <inheritdoc/>
-        public void PredictInputsAndOutputs(Project project, ProjectInstance projectInstance, ProjectPredictionReporter predictionReporter)
+        public void PredictInputsAndOutputs(ProjectInstance projectInstance, ProjectPredictionReporter predictionReporter)
         {
             // Non-ClickOnce applications use $(Win32Manifest) as an input to CSC, and the _SetEmbeddedWin32ManifestProperties target sets $(Win32Manifest) = $(ApplicationManifest).
             // ClickOnce applications don't use $(Win32Manifest) but do use $(ApplicationManifest) as an input anyway, so just always consider it an input.
