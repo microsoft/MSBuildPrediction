@@ -15,10 +15,10 @@
 
   <ItemGroup>
     <FilesToSign Include="$(TargetPath)">
-      <Authenticode>Microsoft</Authenticode>
+      <Authenticode>Microsoft400</Authenticode>
     </FilesToSign>
     <FilesToSign Include="$(TargetRefPath)">
-      <Authenticode>Microsoft</Authenticode>
+      <Authenticode>Microsoft400</Authenticode>
     </FilesToSign>
     <SignNuGetPackFiles Include="$(PackageOutputPath)\$(AssemblyName).$(PackageVersion).snupkg" />
   </ItemGroup>
