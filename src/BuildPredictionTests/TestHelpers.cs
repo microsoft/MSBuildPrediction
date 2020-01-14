@@ -13,10 +13,17 @@ namespace Microsoft.Build.Prediction.Tests
     using Microsoft.Build.Definition;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Execution;
+    using Microsoft.Build.Graph;
     using Xunit;
 
     internal static class TestHelpers
     {
+        private static readonly Dictionary<string, string> _globalProperties = new Dictionary<string, string>
+        {
+            { "Platform", "amd64" },
+            { "Configuration", "debug" },
+        };
+
         public static void AssertNoPredictions(this ProjectPredictions predictions) => predictions.AssertPredictions(null, null, null, null);
 
         public static void AssertPredictions(
@@ -28,10 +35,25 @@ namespace Microsoft.Build.Prediction.Tests
             IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
             => AssertPredictions(
                 predictions,
-                expectedInputFiles.MakeAbsolute(projectInstance.Directory),
-                expectedInputDirectories.MakeAbsolute(projectInstance.Directory),
-                expectedOutputFiles.MakeAbsolute(projectInstance.Directory),
-                expectedOutputDirectories.MakeAbsolute(projectInstance.Directory));
+                projectInstance.Directory,
+                expectedInputFiles,
+                expectedInputDirectories,
+                expectedOutputFiles,
+                expectedOutputDirectories);
+
+        public static void AssertPredictions(
+            this ProjectPredictions predictions,
+            string rootDir,
+            IReadOnlyCollection<PredictedItem> expectedInputFiles,
+            IReadOnlyCollection<PredictedItem> expectedInputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedOutputFiles,
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
+            => AssertPredictions(
+                predictions,
+                expectedInputFiles.MakeAbsolute(rootDir),
+                expectedInputDirectories.MakeAbsolute(rootDir),
+                expectedOutputFiles.MakeAbsolute(rootDir),
+                expectedOutputDirectories.MakeAbsolute(rootDir));
 
         public static ProjectInstance ProjectInstanceFromXml(string xml)
         {
@@ -50,19 +72,13 @@ namespace Microsoft.Build.Prediction.Tests
 
         public static ProjectInstance CreateProjectInstanceFromRootElement(ProjectRootElement projectRootElement)
         {
-            var globalProperties = new Dictionary<string, string>
-            {
-                { "Platform", "amd64" },
-                { "Configuration", "debug" },
-            };
-
             // Use a new project collection to avoid collisions in the global one.
             // TODO! Refactor tests to be more isolated, both ProjectCollection-wide and disk-wise
             var projectCollection = new ProjectCollection();
 
             var projectOptions = new ProjectOptions
             {
-                GlobalProperties = globalProperties,
+                GlobalProperties = _globalProperties,
                 ProjectCollection = projectCollection,
             };
 
@@ -74,9 +90,22 @@ namespace Microsoft.Build.Prediction.Tests
             var projectPredictionCollector = new DefaultProjectPredictionCollector();
             var predictionReporter = new ProjectPredictionReporter(
                 projectPredictionCollector,
-                projectInstance.Directory,
+                projectInstance,
                 predictor.GetType().Name);
             predictor.PredictInputsAndOutputs(projectInstance, predictionReporter);
+            return projectPredictionCollector.Predictions;
+        }
+
+        public static ProjectPredictions GetProjectPredictions(this IProjectGraphPredictor predictor, string projectFile)
+        {
+            var graph = new ProjectGraph(projectFile, _globalProperties, new ProjectCollection());
+            var entryPointNode = graph.EntryPointNodes.Single();
+            var projectPredictionCollector = new DefaultProjectPredictionCollector();
+            var predictionReporter = new ProjectPredictionReporter(
+                projectPredictionCollector,
+                entryPointNode.ProjectInstance,
+                predictor.GetType().Name);
+            predictor.PredictInputsAndOutputs(entryPointNode, predictionReporter);
             return projectPredictionCollector.Predictions;
         }
 
