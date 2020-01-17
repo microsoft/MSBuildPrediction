@@ -22,6 +22,8 @@ namespace Microsoft.Build.Prediction.Predictors
 
         internal const string OutputPathPropertyName = "OutputPath";
 
+        internal const string OutputFileNamesWithoutVersionPropertyName = "OutputFileNamesWithoutVersion";
+
         internal const string NuspecOutputPathPropertyName = "NuspecOutputPath";
 
         internal const string IncludeSourcePropertyName = "IncludeSource";
@@ -52,6 +54,7 @@ namespace Microsoft.Build.Prediction.Predictors
             var nuspecOutputPath = projectInstance.GetPropertyValue(NuspecOutputPathPropertyName);
             var includeSource = projectInstance.GetPropertyValue(IncludeSourcePropertyName).Equals("true", StringComparison.OrdinalIgnoreCase);
             var includeSymbols = projectInstance.GetPropertyValue(IncludeSymbolsPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase);
+            var outputFileNamesWithoutVersion = projectInstance.GetPropertyValue(OutputFileNamesWithoutVersionPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase);
 
             var symbolPackageFormat = projectInstance.GetPropertyValue(SymbolPackageFormatPropertyName);
 
@@ -68,7 +71,7 @@ namespace Microsoft.Build.Prediction.Predictors
                 && !string.IsNullOrEmpty(nuspecOutputPath)
                 && !string.IsNullOrEmpty(symbolPackageFormat))
             {
-                var fileBaseName = $"{packageId}.{packageVersion}";
+                var fileBaseName = outputFileNamesWithoutVersion ? packageId : $"{packageId}.{packageVersion}";
 
                 // Nuspec files can also be provided instead of generated, in which case we should treat it like an input, not an output.
                 var nuspecFile = projectInstance.GetPropertyValue(NuspecFilePropertyName);
