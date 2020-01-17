@@ -27,6 +27,34 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
+        public void OutputFileNamesWithoutVersion()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.OutputPathPropertyName, "bin");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.OutputFileNamesWithoutVersionPropertyName, "true");
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+
+            var expectedOutputFiles = new[]
+            {
+                new PredictedItem(@"obj\SomePackage.nuspec", nameof(GeneratePackageOnBuildPredictor)),
+                new PredictedItem(@"bin\SomePackage.nupkg", nameof(GeneratePackageOnBuildPredictor)),
+            };
+            new GeneratePackageOnBuildPredictor()
+                .GetProjectPredictions(projectInstance)
+                .AssertPredictions(
+                    projectInstance,
+                    null,
+                    null,
+                    expectedOutputFiles,
+                    null);
+        }
+
+        [Fact]
         public void GeneratedNuspecDefaultNuspecOutputPath()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
