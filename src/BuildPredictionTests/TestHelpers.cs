@@ -26,6 +26,16 @@ namespace Microsoft.Build.Prediction.Tests
 
         public static void AssertNoPredictions(this ProjectPredictions predictions) => predictions.AssertPredictions(null, null, null, null);
 
+        public static void AssertNoPredictions<TPredictor>(
+            this ProjectRootElement rootElement)
+            where TPredictor : IProjectPredictor, new()
+        {
+            ProjectInstance instance = CreateProjectInstanceFromRootElement(rootElement);
+
+            new TPredictor().GetProjectPredictions(instance)
+                .AssertNoPredictions();
+        }
+
         public static void AssertPredictions(
             this ProjectPredictions predictions,
             ProjectInstance projectInstance,
@@ -54,6 +64,25 @@ namespace Microsoft.Build.Prediction.Tests
                 expectedInputDirectories.MakeAbsolute(rootDir),
                 expectedOutputFiles.MakeAbsolute(rootDir),
                 expectedOutputDirectories.MakeAbsolute(rootDir));
+
+        public static void AssertPredictions<TPredictor>(
+            this ProjectRootElement rootElement,
+            IReadOnlyCollection<PredictedItem> expectedInputFiles,
+            IReadOnlyCollection<PredictedItem> expectedInputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedOutputFiles,
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
+             where TPredictor : IProjectPredictor, new()
+         {
+            ProjectInstance instance = CreateProjectInstanceFromRootElement(rootElement);
+
+            new TPredictor().GetProjectPredictions(instance)
+                .AssertPredictions(
+                    instance,
+                    expectedInputFiles,
+                    expectedInputDirectories,
+                    expectedOutputFiles,
+                    expectedOutputDirectories);
+        }
 
         public static ProjectInstance ProjectInstanceFromXml(string xml)
         {

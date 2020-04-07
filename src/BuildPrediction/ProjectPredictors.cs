@@ -14,7 +14,7 @@ namespace Microsoft.Build.Prediction
     public static class ProjectPredictors
     {
         /// <summary>
-        /// Gets a collection of all <see cref="IProjectPredictor"/>s. This is for convencience to avoid needing to specify all predictors explicitly.
+        /// Gets a collection of all <see cref="IProjectPredictor"/>s. This is for convenience to avoid needing to specify all predictors explicitly.
         /// </summary>
         /// <remarks>
         /// This includes the following predictors:
@@ -52,6 +52,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ResourceItemsPredictor"/></item>
         /// <item><see cref="SplashScreenItemsPredictor"/></item>
         /// <item><see cref="TsConfigPredictor"/></item>
+        /// <item><see cref="MasmItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -90,11 +91,12 @@ namespace Microsoft.Build.Prediction
             new ResourceItemsPredictor(),
             new SplashScreenItemsPredictor(),
             new TsConfigPredictor(),
+            new MasmItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
         /// <summary>
-        /// Gets a collection of all <see cref="IProjectGraphPredictor"/>s. This is for convencience to avoid needing to specify all graph predictors explicitly.
+        /// Gets a collection of all <see cref="IProjectGraphPredictor"/>s. This is for convenience to avoid needing to specify all graph predictors explicitly.
         /// </summary>
         /// <remarks>
         /// This includes the following graph predictors:
