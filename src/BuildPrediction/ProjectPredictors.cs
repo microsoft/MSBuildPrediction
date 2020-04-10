@@ -53,6 +53,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="SplashScreenItemsPredictor"/></item>
         /// <item><see cref="TsConfigPredictor"/></item>
         /// <item><see cref="MasmItemsPredictor"/></item>
+        /// <item><see cref="ClIncludeItemsPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -92,6 +93,7 @@ namespace Microsoft.Build.Prediction
             new SplashScreenItemsPredictor(),
             new TsConfigPredictor(),
             new MasmItemsPredictor(),
+            new ClIncludeItemsPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
