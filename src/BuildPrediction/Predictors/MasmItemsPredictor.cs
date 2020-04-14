@@ -106,9 +106,10 @@ namespace Microsoft.Build.Prediction.Predictors
             // Avoid reporting paths that we've already reported for this project.
             foreach (string includePath in includePaths)
             {
-                if (reportedIncludes.Add(includePath))
+                string trimmedPath = includePath.Trim();
+                if (!string.IsNullOrEmpty(trimmedPath) && reportedIncludes.Add(trimmedPath))
                 {
-                    reporter.ReportInputDirectory(includePath);
+                    reporter.ReportInputDirectory(trimmedPath);
                 }
             }
         }
