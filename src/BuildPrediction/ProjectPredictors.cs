@@ -105,6 +105,7 @@ namespace Microsoft.Build.Prediction
         /// <list type="bullet">
         /// <item><see cref="ProjectFileAndImportsGraphPredictor"/></item>
         /// <item><see cref="GetCopyToOutputDirectoryItemsGraphPredictor"/></item>
+        /// <item><see cref="ServiceFabricPackageRootFilesGraphPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectGraphPredictor"/>.</returns>
@@ -112,6 +113,7 @@ namespace Microsoft.Build.Prediction
         {
             new ProjectFileAndImportsGraphPredictor(),
             new GetCopyToOutputDirectoryItemsGraphPredictor(),
+            new ServiceFabricPackageRootFilesGraphPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
