@@ -90,8 +90,8 @@ namespace Microsoft.Build.Prediction.Predictors
                 string linkMetadata = item.GetMetadataValue("Link");
                 if (!string.IsNullOrEmpty(linkMetadata))
                 {
-                    packageFileFullPath = Path.GetFullPath(Path.Combine(projectFolder, linkMetadata));
-                    if (packageFileFullPath.StartsWith(packageRootPath, StringComparison.OrdinalIgnoreCase))
+                    string linkFullPath = Path.GetFullPath(Path.Combine(projectFolder, linkMetadata));
+                    if (linkFullPath.StartsWith(packageRootPath, StringComparison.OrdinalIgnoreCase))
                     {
                         predictionReporter.ReportInputFile(packageFileFullPath);
                         continue;

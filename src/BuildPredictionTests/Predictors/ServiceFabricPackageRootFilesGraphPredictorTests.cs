@@ -46,7 +46,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             // Linked package file
             string dependency3File = Path.Combine(_rootDir, @"dep3\dep3.csproj");
             ProjectRootElement dependency3RootElement = ProjectRootElement.Create(dependency3File);
-            dependency3RootElement.AddItem(ContentItemsPredictor.ContentItemName, @"..\some\crazy\path.xml")
+            dependency3RootElement.AddItem(ContentItemsPredictor.ContentItemName, @"..\dep3_linked\PackageRoot\Config\Settings.xml")
                 .AddMetadata("Link", @"PackageRoot\Config\Settings.xml");
             Directory.CreateDirectory(Path.Combine(_rootDir, @"dep3\PackageRoot"));
 
@@ -66,7 +66,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             {
                 new PredictedItem(@"dep1\PackageRoot\Config\Settings.xml", nameof(ServiceFabricPackageRootFilesGraphPredictor)),
                 new PredictedItem(@"dep2\PackageRoot\Config\Settings.xml", nameof(ServiceFabricPackageRootFilesGraphPredictor)),
-                new PredictedItem(@"dep3\PackageRoot\Config\Settings.xml", nameof(ServiceFabricPackageRootFilesGraphPredictor)),
+                new PredictedItem(@"dep3_linked\PackageRoot\Config\Settings.xml", nameof(ServiceFabricPackageRootFilesGraphPredictor)),
                 new PredictedItem(@"dep4\PackageRoot\Config\Settings.xml", nameof(ServiceFabricPackageRootFilesGraphPredictor)),
             };
             new ServiceFabricPackageRootFilesGraphPredictor()
@@ -105,7 +105,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             // Linked package file
             string dependency3File = Path.Combine(_rootDir, @"dep3\dep3.csproj");
             ProjectRootElement dependency3RootElement = ProjectRootElement.Create(dependency3File);
-            dependency3RootElement.AddItem(ContentItemsPredictor.ContentItemName, @"..\some\crazy\path.xml")
+            dependency3RootElement.AddItem(ContentItemsPredictor.ContentItemName, @"..\dep3_linked\PackageRoot\Config\Settings.xml")
                 .AddMetadata("Link", @"PackageRoot\Config\Settings.xml");
             Directory.CreateDirectory(Path.Combine(_rootDir, @"dep3\PackageRoot"));
 
