@@ -55,6 +55,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="MasmItemsPredictor"/></item>
         /// <item><see cref="ClIncludeItemsPredictor"/></item>
         /// <item><see cref="SqlBuildPredictor"/></item>
+        /// <item><see cref="AdditionalIncludeDirectoriesPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -96,6 +97,7 @@ namespace Microsoft.Build.Prediction
             new MasmItemsPredictor(),
             new ClIncludeItemsPredictor(),
             new SqlBuildPredictor(),
+            new AdditionalIncludeDirectoriesPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
