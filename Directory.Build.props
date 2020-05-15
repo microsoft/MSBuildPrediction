@@ -15,7 +15,7 @@
     <!-- Packaging -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Title>MSBuild Prediction</Title>
-    <Version>0.7.0</Version>
+    <Version>0.8.0</Version>
     <Description>A library to predict inputs and outputs of MSBuild projects</Description>
     <Authors>Microsoft</Authors>
     <Company>Microsoft</Company>
