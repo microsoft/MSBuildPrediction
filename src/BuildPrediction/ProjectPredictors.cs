@@ -58,6 +58,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="AdditionalIncludeDirectoriesPredictor"/></item>
         /// <item><see cref="AnalyzerItemsPredictor"/></item>
         /// <item><see cref="ModuleDefinitionFilePredictor"/></item>
+        /// <item><see cref="CppContentFilesProjectOutputGroupPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -102,6 +103,7 @@ namespace Microsoft.Build.Prediction
             new AdditionalIncludeDirectoriesPredictor(),
             new AnalyzerItemsPredictor(),
             new ModuleDefinitionFilePredictor(),
+            new CppContentFilesProjectOutputGroupPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
