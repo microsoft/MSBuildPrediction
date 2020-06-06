@@ -117,6 +117,8 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="GetCopyToOutputDirectoryItemsGraphPredictor"/></item>
         /// <item><see cref="ServiceFabricPackageRootFilesGraphPredictor"/></item>
         /// <item><see cref="AzureCloudServicePipelineTransformPhaseGraphPredictor"/></item>
+        /// <item><see cref="GetCopyToPublishDirectoryItemsGraphPredictor"/></item>
+        /// <item><see cref="ServiceFabricCopyFilesToPublishDirectoryGraphPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectGraphPredictor"/>.</returns>
@@ -126,6 +128,8 @@ namespace Microsoft.Build.Prediction
             new GetCopyToOutputDirectoryItemsGraphPredictor(),
             new ServiceFabricPackageRootFilesGraphPredictor(),
             new AzureCloudServicePipelineTransformPhaseGraphPredictor(),
+            new GetCopyToPublishDirectoryItemsGraphPredictor(),
+            new ServiceFabricCopyFilesToPublishDirectoryGraphPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
     }
