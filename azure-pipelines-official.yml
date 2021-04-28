@@ -1,5 +1,5 @@
 pool:
-  name: VSEng-MicroBuildVS2019
+  name: 'VSEngSS-MicroBuild2019'
   demands: msbuild
 
 variables:
@@ -87,7 +87,7 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
     ArtifactName: logs
     ArtifactType: Container
-    
+
 - task: CopyPublishBuildArtifacts@1
   displayName: 'Upload MicroBuildOutputs to drop'
   inputs:
