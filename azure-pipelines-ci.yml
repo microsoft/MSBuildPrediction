@@ -1,5 +1,5 @@
 trigger:
-- master
+- main
 
 variables:
   solution: 'MSBuildPrediction.sln'
@@ -19,7 +19,7 @@ jobs:
   - task: VSTest@2
     inputs:
       testSelector: 'testAssemblies'
-      testAssemblyVer2: | 
+      testAssemblyVer2: |
         src\**\*test*.dll
         !src\**\obj\**
       searchFolder: '$(System.DefaultWorkingDirectory)'
