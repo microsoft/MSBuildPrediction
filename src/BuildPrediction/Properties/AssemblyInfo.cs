@@ -1,6 +1,0 @@
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-using System.Runtime.CompilerServices;
-
-[assembly: InternalsVisibleTo("Microsoft.Build.Prediction.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001002d1546e2940dbeea580cb7eb717e4f93fbbf25bc9cbff78356c3c79abe11adff516e607b172db2d19b2ff9964adb5c0604ac6d97687f9999d8951d1c08070cb6505c3103ab8e8bdb6848dd2012d73606e3a2c7b7708a036043550db2a9148c61a8dec350b6c6927260afe7a3b12a8c479e4912a777a4a072e445e690291631d4")]

@@ -1,101 +1,80 @@
-pool:
-  name: 'VSEngSS-MicroBuild2019'
-  demands: msbuild
+resources:
+- repo: self
 
 variables:
-  solution: 'MSBuildPrediction.sln'
-  buildConfiguration: 'Release'
-  signType: 'Real'
-  teamName: 'MSBuild'
+  Solution: 'MSBuildPrediction.sln'
+  ArtifactsDirectoryName: 'artifacts'
+  BuildConfiguration: 'Release'
+  BuildPlatform: 'Any CPU'
+  DotNetCoreVersion: '5.x'
+  SignType: 'Test'
+  TeamName: 'MSBuild'
 
-steps:
-- task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
-  displayName: 'Install Signing Plugin'
-  inputs:
-    signType: '$(SignType)'
-- task: CmdLine@2
-  inputs:
-    script: 'mkdir $(Build.ArtifactStagingDirectory)\logs'
-- task: MSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildVersion: '16.0'
-    configuration: $(buildConfiguration)
-    msbuildArguments: '/binaryLogger:LogFile=$(Build.ArtifactStagingDirectory)\logs\msbuild.binlog /p:SignType=$(signType)'
+trigger:
+  batch: true
+  branches:
+    include:
+    - 'main'
+    - 'refs/tags/*'
+  paths:
+    exclude:
+    - '*.md'
 
-- task: CopyFiles@2
-  displayName: Collect Symbols
-  inputs:
-    SourceFolder: 'src/'
-    Contents: '**\\*.pdb'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/symbols'
-    CleanTargetFolder: true
+stages:
+- stage:
+  displayName: 'Build'
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    pool:
+      name: VSEngSS-MicroBuild2019
+    steps:
+    - script: 'echo ##vso[task.setvariable variable=SignType;]Real'
+      displayName: 'Set SignType to Real for tagged commits'
+      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
 
-- task: PublishBuildArtifacts@1
-  displayName: Upload Symbols
-  condition: eq(variables['system.pullrequest.isfork'], false)
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/symbols'
-    ArtifactName: symbols
-    ArtifactType: Container
+    - task: UseDotNet@2
+      displayName: 'Install .NET Core $(DotNetCoreVersion)'
+      inputs:
+        version: '$(DotNetCoreVersion)'
 
-- task: CopyFiles@2
-  displayName: Collect Binaries
-  inputs:
-    SourceFolder: 'src/BuildPrediction/bin'
-    Contents: '**'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/bin'
-    CleanTargetFolder: true
+    - task: MicroBuildSigningPlugin@1
+      displayName: 'Install MicroBuild Signing Plugin'
+      inputs:
+        signType: '$(SignType)'
+        zipSources: false
 
-- task: PublishBuildArtifacts@1
-  displayName: Upload Binaries
-  condition: eq(variables['system.pullrequest.isfork'], false)
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/bin'
-    ArtifactName: bin
-    ArtifactType: Container
+    - task: DotNetCoreCLI@2
+      displayName: 'Build Solution'
+      inputs:
+        command: 'build'
+        projects: '$(Solution)'
+        arguments: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
 
-- task: CopyFiles@2
-  displayName: Collect Packages
-  inputs:
-    SourceFolder: 'src/BuildPrediction/bin/$(BuildConfiguration)'
-    Contents: '*.*nupkg'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/pkg'
-    CleanTargetFolder: true
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifacts'
+      inputs:
+        PathtoPublish: '$(ArtifactsDirectoryName)'
+        ArtifactName: $(ArtifactsDirectoryName)
+      condition: always()
 
-- task: PublishBuildArtifacts@1
-  displayName: Upload Packages
-  condition: eq(variables['system.pullrequest.isfork'], false)
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/pkg'
-    ArtifactName: pkg
-    ArtifactType: Container
-
-- task: CopyFiles@2
-  displayName: Collect logs
-  condition: eq(variables['system.pullrequest.isfork'], false)
-  inputs:
-    SourceFolder: ''
-    Contents: 'msbuild.binlog'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/logs'
-    CleanTargetFolder: true
-
-- task: PublishBuildArtifacts@1
-  displayName: Upload Logs
-  condition: eq(variables['system.pullrequest.isfork'], false)
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
-    ArtifactName: logs
-    ArtifactType: Container
-
-- task: CopyPublishBuildArtifacts@1
-  displayName: 'Upload MicroBuildOutputs to drop'
-  inputs:
-    CopyRoot: '$(Build.StagingDirectory)\MicroBuild\Output'
-    Contents: '**'
-    ArtifactName: MicroBuildOutputs
-    ArtifactType: Container
-  continueOnError: true
-
-- task: ms-vseng.MicroBuildTasks.521a94ea-9e68-468a-8167-6dcf361ea776.MicroBuildCleanup@1
-  displayName: 'Execute cleanup tasks'
+- stage:
+  displayName: 'Deploy'
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+  jobs:
+  - deployment: 'NuGet'
+    displayName: 'Publish NuGet Packages'
+    pool:
+      vmImage: 'windows-latest'
+    environment: 'MSBuildPrediction-NuGet'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: NuGetCommand@2
+            displayName: 'Push NuGet Packages to nuget.org'
+            inputs:
+              command: 'push'
+              packagesToPush: '$(Pipeline.Workspace)/$(ArtifactsDirectoryName)/**/Microsoft.Build.Prediction*.nupkg'
+              nuGetFeedType: 'external'
+              publishFeedCredentials: 'NuGet-1ES-Full'

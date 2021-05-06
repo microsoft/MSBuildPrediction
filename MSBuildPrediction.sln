@@ -7,21 +7,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Build.Prediction"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Build.Prediction.Tests", "src\BuildPredictionTests\Microsoft.Build.Prediction.Tests.csproj", "{D72B867F-DB32-4F06-881B-10C3503C4A2A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{759B4D76-7982-4D30-ADB6-73FA28283F5D}"
-	ProjectSection(SolutionItems) = preProject
-		build\CodeAnalysis.ruleset = build\CodeAnalysis.ruleset
-		build\stylecop.json = build\stylecop.json
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9E301AE6-4993-4D57-8911-79EC556A8A9E}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		azure-pipelines-ci.yml = azure-pipelines-ci.yml
+		azure-pipelines-official.yml = azure-pipelines-official.yml
+		CodeAnalysis.ruleset = CodeAnalysis.ruleset
 		Directory.Build.props = Directory.Build.props
 		Directory.build.rsp = Directory.build.rsp
-		LICENSE = LICENSE
+		Directory.Build.targets = Directory.Build.targets
+		LICENSE.txt = LICENSE.txt
 		NuGet.config = NuGet.config
 		README.md = README.md
+		stylecop.json = stylecop.json
+		version.json = version.json
 	EndProjectSection
 EndProject
 Global
@@ -61,9 +61,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{759B4D76-7982-4D30-ADB6-73FA28283F5D} = {9E301AE6-4993-4D57-8911-79EC556A8A9E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {72BF2144-0B3B-4C36-9757-3FAC4476E30D}

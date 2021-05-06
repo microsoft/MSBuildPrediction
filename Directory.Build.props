@@ -3,40 +3,39 @@
   <PropertyGroup>
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\build\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <Deterministic>true</Deterministic>
-    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <LangVersion>latest</LangVersion>
 
     <!-- Enabled the built-in analyzers -->
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
 
-    <!-- Strong naming -->
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\build\StrongNaming.snk</AssemblyOriginatorKeyFile>
-    
-    <!-- Packaging -->
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Title>MSBuild Prediction</Title>
-    <Version>0.10.0</Version>
-    <Description>A library to predict inputs and outputs of MSBuild projects</Description>
+    <NoWarn>$(NoWarn);SA0001</NoWarn>
+  </PropertyGroup>
+
+  <!-- Packaging -->
+  <PropertyGroup>
     <Authors>Microsoft</Authors>
     <Company>Microsoft</Company>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicensePath>$(MSBuildThisFileDirectory)$(PackageLicenseFile)</PackageLicensePath>
     <PackageProjectUrl>https://github.com/microsoft/MSBuildPrediction</PackageProjectUrl>
     <RepositoryUrl>https://github.com/microsoft/MSBuildPrediction.git</RepositoryUrl>
     <PackageTags>msbuild</PackageTags>
   </PropertyGroup>
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="$(PackageLicensePath)"
+          Pack="true"
+          PackagePath="$(PackageLicenseFile)"
+          Visible="false" />
+  </ItemGroup>
 
   <!-- StyleCop -->
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" IncludeAssets="Analyzers;Build" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)\build\stylecop.json">
-      <Visible>false</Visible>
-    </AdditionalFiles>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" Visible="false" />
   </ItemGroup>
 
   <!-- Get the ref assemblies from a package to avoid depending on the ref assemblies being available on the machine -->
@@ -52,6 +51,14 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- Artifacts -->
+  <PropertyGroup>
+    <BaseArtifactsPath>$(MSBuildThisFileDirectory)artifacts</BaseArtifactsPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Artifacts" Version="2.2.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>

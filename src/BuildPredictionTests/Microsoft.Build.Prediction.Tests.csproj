@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
     <!-- Documentation rules aren't needed for the test project -->
-    <NoWarn>$(NoWarn);SA0001;SA1600;SA1611;SA1615</NoWarn>
+    <NoWarn>$(NoWarn);SA1600;SA1611;SA1615</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\BuildPrediction\Microsoft.Build.Prediction.csproj" />
