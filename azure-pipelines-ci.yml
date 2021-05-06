@@ -1,42 +1,62 @@
-trigger:
-- main
+resources:
+- repo: self
 
 variables:
-  solution: 'MSBuildPrediction.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  Solution: 'MSBuildPrediction.sln'
+  ArtifactsDirectoryName: 'artifacts'
+  BuildConfiguration: 'Debug'
+  BuildPlatform: 'Any CPU'
+  DotNetCoreVersion: '5.x'
+  SignType: 'Test'
+
+trigger:
+  batch: 'true'
+  branches:
+    include:
+    - 'main'
+  paths:
+    exclude:
+    - '*.md'
+
+pr:
+  branches:
+    include:
+    - 'main'
+    - 'rel/*'
+  paths:
+    exclude:
+    - '*.md'
 
 jobs:
-- job: BuildOnWindows
-  displayName: "Build and test on Windows"
+- job: BuildAndTest
+  displayName: 'Build and Test'
   pool:
-    name: 'Hosted Windows 2019 with VS2019'
+    vmImage: windows-latest
   steps:
-  - task: MSBuild@1
+  - task: UseDotNet@2
+    displayName: 'Install .NET Core $(DotNetCoreVersion)'
     inputs:
-      solution: '**/*.sln'
-      msbuildVersion: '16.0'
+      version: '$(DotNetCoreVersion)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Solution'
+    inputs:
+      command: 'build'
+      projects: '$(Solution)'
+      arguments: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
+
   - task: VSTest@2
     inputs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: |
-        src\**\*test*.dll
-        !src\**\obj\**
+        **\*test*.dll
+        !**\*TestAdapter.dll
+        !**\obj\**
       searchFolder: '$(System.DefaultWorkingDirectory)'
-      runOnlyImpactedTests: false
-      runInParallel: true
-      codeCoverageEnabled: true
-- job: BuildOnLinux
-  displayName: "Build and test on Linux"
-  pool:
-    name: 'Hosted Ubuntu 1604'
-  steps:
-  - task: DotNetCoreCLI@2
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifacts'
     inputs:
-      command: 'build'
-      projects: 'MSBuildPrediction.sln'
-# Test not passing on Linux
-#  - task: DotNetCoreCLI@2
-#    inputs:
-#      command: 'test'
-#      projects: 'MSBuildPrediction.sln'
+      PathtoPublish: '$(ArtifactsDirectoryName)'
+      ArtifactName: $(ArtifactsDirectoryName)
+    condition: always()

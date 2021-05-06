@@ -181,19 +181,19 @@ dotnet_naming_rule.camel_case_for_private_internal_fields.style = camel_case_und
 
 dotnet_naming_symbols.interface.applicable_kinds = interface
 dotnet_naming_symbols.interface.applicable_accessibilities = public, internal, private, protected, protected_internal
-dotnet_naming_symbols.interface.required_modifiers = 
+dotnet_naming_symbols.interface.required_modifiers =
 
 dotnet_naming_symbols.private_internal_fields.applicable_kinds = field
 dotnet_naming_symbols.private_internal_fields.applicable_accessibilities = private, internal
-dotnet_naming_symbols.private_internal_fields.required_modifiers = 
+dotnet_naming_symbols.private_internal_fields.required_modifiers =
 
 dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum
 dotnet_naming_symbols.types.applicable_accessibilities = public, internal, private, protected, protected_internal
-dotnet_naming_symbols.types.required_modifiers = 
+dotnet_naming_symbols.types.required_modifiers =
 
 dotnet_naming_symbols.non_field_members.applicable_kinds = property, event, method
 dotnet_naming_symbols.non_field_members.applicable_accessibilities = public, internal, private, protected, protected_internal
-dotnet_naming_symbols.non_field_members.required_modifiers = 
+dotnet_naming_symbols.non_field_members.required_modifiers =
 
 dotnet_naming_symbols.constant_fields.applicable_kinds = field
 dotnet_naming_symbols.constant_fields.applicable_accessibilities = *
@@ -201,29 +201,25 @@ dotnet_naming_symbols.constant_fields.required_modifiers = const
 
 # Naming styles
 
-dotnet_naming_style.pascal_case.required_prefix = 
-dotnet_naming_style.pascal_case.required_suffix = 
-dotnet_naming_style.pascal_case.word_separator = 
+dotnet_naming_style.pascal_case.required_prefix =
+dotnet_naming_style.pascal_case.required_suffix =
+dotnet_naming_style.pascal_case.word_separator =
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
 dotnet_naming_style.begins_with_i.required_prefix = I
-dotnet_naming_style.begins_with_i.required_suffix = 
-dotnet_naming_style.begins_with_i.word_separator = 
+dotnet_naming_style.begins_with_i.required_suffix =
+dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 dotnet_naming_style.camel_case_underscore.required_prefix = _
-dotnet_naming_style.camel_case_underscore.required_suffix = 
-dotnet_naming_style.camel_case_underscore.word_separator = 
-dotnet_naming_style.camel_case_underscore.capitalization = camel_case 
+dotnet_naming_style.camel_case_underscore.required_suffix =
+dotnet_naming_style.camel_case_underscore.word_separator =
+dotnet_naming_style.camel_case_underscore.capitalization = camel_case
 
-# Project files
-[*.csproj,props,targets]
-indent_size = 2
+#### Code analysis ####
 
-# Xml files
-[*.{xml,ruleset}]
-indent_size = 2
+# We don't prefer using "this."
+dotnet_diagnostic.SA1101.severity = none
 
-# Shell scripts
-[*.{cmd, bat}]
-end_of_line = crlf
+# We prefer underscore prefixes for private fields
+dotnet_diagnostic.SA1309.severity = none
