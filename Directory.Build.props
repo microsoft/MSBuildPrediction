@@ -8,6 +8,9 @@
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <LangVersion>latest</LangVersion>
 
+    <!-- Enabled the built-in analyzers -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+
     <!-- Strong naming -->
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\build\StrongNaming.snk</AssemblyOriginatorKeyFile>
@@ -26,9 +29,8 @@
     <PackageTags>msbuild</PackageTags>
   </PropertyGroup>
 
-  <!-- Analyzers -->
+  <!-- StyleCop -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2" IncludeAssets="Analyzers;Build" PrivateAssets="All" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" IncludeAssets="Analyzers;Build" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
@@ -37,9 +39,9 @@
     </AdditionalFiles>
   </ItemGroup>
 
-  <!-- Get the ref assemblies from a package to avoid depending on the rf assemblies being available on the machine -->
+  <!-- Get the ref assemblies from a package to avoid depending on the ref assemblies being available on the machine -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-preview.2" IncludeAssets="Build" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.1" IncludeAssets="Build" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Source Link (https://github.com/dotnet/sourcelink) -->
@@ -50,6 +52,6 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 </Project>
