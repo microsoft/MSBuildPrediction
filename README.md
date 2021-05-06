@@ -1,5 +1,5 @@
 # Microsoft.Build.Prediction
-[![Build Status](https://dev.azure.com/ms/BuildXL/_apis/build/status/microsoft.MSBuildPrediction-CI?branchName=master)](https://dev.azure.com/ms/BuildXL/_build/latest?definitionId=154&branchName=master)
+[![Build Status](https://dev.azure.com/ms/BuildXL/_apis/build/status/microsoft.MSBuildPrediction-CI?branchName=main)](https://dev.azure.com/ms/BuildXL/_build/latest?definitionId=154&branchName=main)
 
 This library runs predictors against evaluated MSBuild [ProjectInstance]([https://docs.microsoft.com/en-us/dotnet/api/microsoft.build.execution.projectinstance]) to predict file and directory inputs that will be read, and output directories that will be written, by the project.
 

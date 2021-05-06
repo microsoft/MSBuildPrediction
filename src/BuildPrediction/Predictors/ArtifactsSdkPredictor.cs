@@ -11,7 +11,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
     /// <summary>
     /// Predicts inputs and outputs for projects using the Microsoft.Build.Artifacts Sdk.
-    /// See: https://github.com/microsoft/MSBuildSdks/tree/master/src/Artifacts.
+    /// See: https://github.com/microsoft/MSBuildSdks/tree/main/src/Artifacts.
     /// </summary>
     public sealed class ArtifactsSdkPredictor : IProjectPredictor
     {
@@ -183,7 +183,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
         /// <summary>
         /// This is based on the logic in RobocopyMetadata.
-        /// See: https://github.com/microsoft/MSBuildSdks/blob/master/src/Artifacts/Tasks/RobocopyMetadata.cs.
+        /// See: https://github.com/microsoft/MSBuildSdks/blob/main/src/Artifacts/Tasks/RobocopyMetadata.cs.
         /// </summary>
         private ref struct Matcher
         {
