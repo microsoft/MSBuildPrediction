@@ -21,8 +21,14 @@
     <InternalsVisibleTo Include="Microsoft.Build.Prediction.Tests" />
   </ItemGroup>
 
+  <!-- Signing -->
   <ItemGroup>
     <FilesToSign Include="$(TargetPath)" Authenticode="Microsoft400" StrongName="StrongName" />
-    <SignNuGetPackFiles Include="$(PackageOutputPath)\$(AssemblyName).$(PackageVersion).snupkg" />
   </ItemGroup>
+  <!-- This needs to evaluate in a target since the package version is calculated dynamically in GetBuildVersion -->
+  <Target Name="GetSnupkgSignNuGetPackFiles" BeforeTargets="SignNuGetPackage" AfterTargets="GetBuildVersion">
+    <ItemGroup>
+      <SignNuGetPackFiles Include="$(PackageOutputPath)\$(AssemblyName).$(PackageVersion).snupkg" />
+    </ItemGroup>
+  </Target>
 </Project>
