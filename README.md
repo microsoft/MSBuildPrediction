@@ -1,4 +1,6 @@
 # Microsoft.Build.Prediction
+[![NuGet package](https://img.shields.io/nuget/v/Microsoft.Build.Prediction.svg)](https://nuget.org/packages/Microsoft.Build.Prediction)
+[![NuGet downloads](https://img.shields.io/nuget/dt/Microsoft.Build.Prediction.svg)](https://nuget.org/packages/Microsoft.Build.Prediction)
 [![Build Status](https://dev.azure.com/ms/BuildXL/_apis/build/status/microsoft.MSBuildPrediction-CI?branchName=main)](https://dev.azure.com/ms/BuildXL/_build/latest?definitionId=154&branchName=main)
 
 This library runs predictors against evaluated MSBuild [ProjectInstance]([https://docs.microsoft.com/en-us/dotnet/api/microsoft.build.execution.projectinstance]) to predict file and directory inputs that will be read, and output directories that will be written, by the project.
@@ -85,6 +87,3 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-## License
-Microsoft.Build.Prediction is licensed under the [MIT License](LICENSE).
