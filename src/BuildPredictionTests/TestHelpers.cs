@@ -20,8 +20,8 @@ namespace Microsoft.Build.Prediction.Tests
     {
         private static readonly Dictionary<string, string> _globalProperties = new Dictionary<string, string>
         {
-            { "Platform", "amd64" },
-            { "Configuration", "debug" },
+            { "Platform", "x64" },
+            { "Configuration", "Debug" },
         };
 
         public static void AssertNoPredictions(this ProjectPredictions predictions) => predictions.AssertPredictions(null, null, null, null);

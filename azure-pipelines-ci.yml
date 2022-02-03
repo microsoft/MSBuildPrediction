@@ -6,7 +6,10 @@ variables:
   ArtifactsDirectoryName: 'artifacts'
   BuildConfiguration: 'Debug'
   BuildPlatform: 'Any CPU'
-  DotNetCoreVersion: '5.x'
+  DotNet3Version: '3.x'
+  DotNet5Version: '5.x'
+  DotNet6Version: '6.x'
+  MSBuildArgs: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
   SignType: 'Test'
 
 trigger:
@@ -28,35 +31,160 @@ pr:
     - '*.md'
 
 jobs:
-- job: BuildAndTest
-  displayName: 'Build and Test'
+- job: WindowsBuild
+  displayName: 'Build and Test (Windows)'
   pool:
     vmImage: windows-latest
   steps:
+
   - task: UseDotNet@2
-    displayName: 'Install .NET Core $(DotNetCoreVersion)'
+    displayName: 'Install .NET Core $(DotNet3Version)'
     inputs:
-      version: '$(DotNetCoreVersion)'
+      version: '$(DotNet3Version)'
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet5Version)'
+    inputs:
+      version: '$(DotNet5Version)'
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet6Version)'
+    inputs:
+      version: '$(DotNet6Version)'
 
   - task: DotNetCoreCLI@2
     displayName: 'Build Solution'
     inputs:
       command: 'build'
       projects: '$(Solution)'
-      arguments: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
+      arguments: '$(MSBuildArgs)'
 
-  - task: VSTest@2
+  # UTs fail: The tools version "Current" is unrecognized. Available tools versions are "2.0", "3.5", "4.0".
+  #- task: DotNetCoreCLI@2
+  #  displayName: 'Run Unit Tests (.NET Framework)'
+  #  inputs:
+  #    command: 'test'
+  #    arguments: '--no-restore --no-build --framework net472 /noautorsp'
+  #    testRunTitle: 'Windows .NET Framework'
+  #  condition: succeededOrFailed()
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Unit Tests (.NET Core 3.1)'
     inputs:
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: |
-        **\*test*.dll
-        !**\*TestAdapter.dll
-        !**\obj\**
-      searchFolder: '$(System.DefaultWorkingDirectory)'
+      command: 'test'
+      arguments: '--no-restore --no-build --framework netcoreapp3.1 /noautorsp'
+      testRunTitle: 'Windows .NET Core 3.0'
+    condition: succeededOrFailed()
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Unit Tests (.NET 5.0)'
+    inputs:
+      command: 'test'
+      arguments: '--no-restore --no-build --framework net5.0 /noautorsp'
+      testRunTitle: 'Windows .NET 5.0'
+    condition: succeededOrFailed()
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Unit Tests (.NET 6.0)'
+    inputs:
+      command: 'test'
+      arguments: '--no-restore --no-build --framework net6.0 /noautorsp'
+      testRunTitle: 'Windows .NET 6.0'
+    condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifacts'
     inputs:
       PathtoPublish: '$(ArtifactsDirectoryName)'
       ArtifactName: $(ArtifactsDirectoryName)
+    condition: always()
+
+- job: LinuxBuild
+  displayName: 'Build and Test (Linux)'
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet5Version)'
+    inputs:
+      version: '$(DotNet5Version)'
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet6Version)'
+    inputs:
+      version: '$(DotNet6Version)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      command: 'build'
+      arguments: '$(MSBuildArgs)'
+
+  #- task: DotNetCoreCLI@2
+  #  displayName: 'Run Unit Tests (.NET 5.0)'
+  #  inputs:
+  #    command: 'test'
+  #    arguments: '--no-restore --no-build --framework net5.0 /noautorsp'
+  #    testRunTitle: 'Linux .NET 5.0'
+  #  condition: succeededOrFailed()
+
+  #- task: DotNetCoreCLI@2
+  #  displayName: 'Run Unit Tests (.NET 6.0)'
+  #  inputs:
+  #    command: 'test'
+  #    arguments: '--no-restore --no-build --framework net6.0 /noautorsp'
+  #    testRunTitle: 'Linux .NET 6.0'
+  #  condition: succeededOrFailed()
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifacts'
+    inputs:
+      PathtoPublish: '$(ArtifactsDirectoryName)'
+      ArtifactName: '$(ArtifactsDirectoryName)-linux'
+    condition: always()
+
+- job: MacOSBuild
+  displayName: 'Build and Test (Mac)'
+  pool:
+    vmImage: macOS-latest
+  steps:
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet5Version)'
+    inputs:
+      version: '$(DotNet5Version)'
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet6Version)'
+    inputs:
+      version: '$(DotNet6Version)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      command: 'build'
+      arguments: '$(MSBuildArgs)'
+
+  #- task: DotNetCoreCLI@2
+  #  displayName: 'Run Unit Tests (.NET 5.0)'
+  #  inputs:
+  #    command: 'test'
+  #    arguments: '--no-restore --no-build --framework net5.0 /noautorsp'
+  #    testRunTitle: 'MacOS .NET 5.0'
+  #  condition: succeededOrFailed()
+
+  #- task: DotNetCoreCLI@2
+  #  displayName: 'Run Unit Tests (.NET 6.0)'
+  #  inputs:
+  #    command: 'test'
+  #    arguments: '--no-restore --no-build --framework net6.0 /noautorsp'
+  #    testRunTitle: 'MacOS .NET 6.0'
+  #  condition: succeededOrFailed()
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifacts'
+    inputs:
+      PathtoPublish: '$(ArtifactsDirectoryName)'
+      ArtifactName: '$(ArtifactsDirectoryName)-macOS'
     condition: always()

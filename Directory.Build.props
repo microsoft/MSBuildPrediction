@@ -40,7 +40,7 @@
 
   <!-- Get the ref assemblies from a package to avoid depending on the ref assemblies being available on the machine -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.1" IncludeAssets="Build" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" IncludeAssets="Build" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Source Link (https://github.com/dotnet/sourcelink) -->
@@ -51,7 +51,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Artifacts -->
@@ -59,6 +59,6 @@
     <BaseArtifactsPath>$(MSBuildThisFileDirectory)artifacts</BaseArtifactsPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Artifacts" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Artifacts" Version="4.0.4" PrivateAssets="All" />
   </ItemGroup>
 </Project>

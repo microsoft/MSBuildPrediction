@@ -6,7 +6,8 @@ variables:
   ArtifactsDirectoryName: 'artifacts'
   BuildConfiguration: 'Release'
   BuildPlatform: 'Any CPU'
-  DotNetCoreVersion: '5.x'
+  DotNetVersion: '6.x'
+  MSBuildArgs: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
   SignType: 'Test'
   TeamName: 'MSBuild'
 
@@ -27,16 +28,16 @@ stages:
   - job: Build
     displayName: 'Build'
     pool:
-      name: VSEngSS-MicroBuild2019-1ES
+      name: VSEngSS-MicroBuild2022-1ES
     steps:
     - script: 'echo ##vso[task.setvariable variable=SignType;]Real'
       displayName: 'Set SignType to Real for tagged commits'
       condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
 
     - task: UseDotNet@2
-      displayName: 'Install .NET Core $(DotNetCoreVersion)'
+      displayName: 'Install .NET $(DotNetVersion)'
       inputs:
-        version: '$(DotNetCoreVersion)'
+        version: '$(DotNetVersion)'
 
     - task: MicroBuildSigningPlugin@1
       displayName: 'Install MicroBuild Signing Plugin'
@@ -49,7 +50,7 @@ stages:
       inputs:
         command: 'build'
         projects: '$(Solution)'
-        arguments: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
+        arguments: '$(MSBuildArgs)'
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Artifacts'

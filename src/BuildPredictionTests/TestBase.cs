@@ -33,8 +33,8 @@ namespace Microsoft.Build.Prediction.Tests
         {
             var globalProperties = new Dictionary<string, string>
             {
-                { "Platform", "amd64" },
-                { "Configuration", "debug" },
+                { "Platform", "x64" },
+                { "Configuration", "Debug" },
             };
             var projectCollection = new ProjectCollection();
 

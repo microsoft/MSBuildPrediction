@@ -27,8 +27,8 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             PredictedItem[] expectedOutputDirectories =
             {
-                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
-                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
@@ -46,8 +46,8 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             PredictedItem[] expectedOutputDirectories =
             {
-                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
-                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
@@ -69,7 +69,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             PredictedItem[] expectedOutputDirectories =
             {
-                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder1", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
@@ -94,9 +94,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             PredictedItem[] expectedOutputDirectories =
             {
-                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
-                new PredictedItem(@"target\debug\amd64\folder3", nameof(CopyTaskPredictor)),
-                new PredictedItem(@"target\debug\amd64\folder4", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder3", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder4", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
@@ -125,9 +125,9 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             PredictedItem[] expectedOutputDirectories =
             {
-                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
-                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
-                new PredictedItem(@"target\debug\amd64\folder3", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder2", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder3", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
@@ -150,7 +150,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             PredictedItem[] expectedOutputDirectories =
             {
                 // TODO: Note trailing backslash in test - add path normalization and canonicalization to input and output paths.
-                new PredictedItem(@"debug\amd64\", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"Debug\x64\", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
@@ -168,8 +168,8 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             PredictedItem[] expectedOutputDirectories =
             {
-                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
-                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
@@ -242,8 +242,8 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             PredictedItem[] expectedOutputDirectories =
             {
-                new PredictedItem(@"target\debug\amd64\folder1", nameof(CopyTaskPredictor)),
-                new PredictedItem(@"target\debug\amd64\folder2", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder1", nameof(CopyTaskPredictor)),
+                new PredictedItem(@"target\Debug\x64\folder2", nameof(CopyTaskPredictor)),
             };
 
             var predictor = new CopyTaskPredictor();
