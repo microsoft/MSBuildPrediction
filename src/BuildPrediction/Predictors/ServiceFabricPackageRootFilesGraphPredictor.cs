@@ -58,10 +58,13 @@ namespace Microsoft.Build.Prediction.Predictors
                 AddPackageRootFilesFromItems(projectReference.ProjectInstance.GetItems(ContentItemsPredictor.ContentItemName), projectFolder, fullPackageRootPath, predictionReporter);
 
                 // Add files under the package root path.
-                string[] packageRootFilesInFileSystem = Directory.GetFiles(fullPackageRootPath, "*", SearchOption.AllDirectories);
-                foreach (string packageRootFileInFileSystem in packageRootFilesInFileSystem)
+                if (Directory.Exists(fullPackageRootPath))
                 {
-                    predictionReporter.ReportInputFile(packageRootFileInFileSystem);
+                    string[] packageRootFilesInFileSystem = Directory.GetFiles(fullPackageRootPath, "*", SearchOption.AllDirectories);
+                    foreach (string packageRootFileInFileSystem in packageRootFilesInFileSystem)
+                    {
+                        predictionReporter.ReportInputFile(packageRootFileInFileSystem);
+                    }
                 }
             }
         }
