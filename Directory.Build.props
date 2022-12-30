@@ -10,6 +10,9 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
 
     <NoWarn>$(NoWarn);SA0001</NoWarn>
+
+    <!-- MSBuild 16.11 targets .NET 5, so we do too -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
   <!-- Packaging -->
