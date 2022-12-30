@@ -30,25 +30,23 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             projectRootElement.AddItem("ProjectReference", @"..\dep2\dep2.csproj");
             projectRootElement.AddItem("ProjectReference", @"..\dep3\dep3.csproj");
             projectRootElement.AddItem("ProjectReference", @"..\dep4\dep4.csproj");
+            projectRootElement.AddItem("ProjectReference", @"..\dep5\dep5.csproj");
 
             // Content package file
             string dependency1File = Path.Combine(_rootDir, @"dep1\dep1.csproj");
             ProjectRootElement dependency1RootElement = ProjectRootElement.Create(dependency1File);
             dependency1RootElement.AddItem(ContentItemsPredictor.ContentItemName, @"PackageRoot\Config\Settings.xml");
-            Directory.CreateDirectory(Path.Combine(_rootDir, @"dep1\PackageRoot"));
 
             // None package file
             string dependency2File = Path.Combine(_rootDir, @"dep2\dep2.csproj");
             ProjectRootElement dependency2RootElement = ProjectRootElement.Create(dependency2File);
             dependency2RootElement.AddItem(NoneItemsPredictor.NoneItemName, @"PackageRoot\Config\Settings.xml");
-            Directory.CreateDirectory(Path.Combine(_rootDir, @"dep2\PackageRoot"));
 
             // Linked package file
             string dependency3File = Path.Combine(_rootDir, @"dep3\dep3.csproj");
             ProjectRootElement dependency3RootElement = ProjectRootElement.Create(dependency3File);
             dependency3RootElement.AddItem(ContentItemsPredictor.ContentItemName, @"..\dep3_linked\PackageRoot\Config\Settings.xml")
                 .AddMetadata("Link", @"PackageRoot\Config\Settings.xml");
-            Directory.CreateDirectory(Path.Combine(_rootDir, @"dep3\PackageRoot"));
 
             // Package file on disk
             string dependency4File = Path.Combine(_rootDir, @"dep4\dep4.csproj");
@@ -56,11 +54,16 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             Directory.CreateDirectory(Path.Combine(_rootDir, @"dep4\PackageRoot\Config"));
             File.WriteAllText(Path.Combine(_rootDir, @"dep4\PackageRoot\Config\Settings.xml"), "dummy");
 
+            // No package file
+            string dependency5File = Path.Combine(_rootDir, @"dep5\dep5.csproj");
+            ProjectRootElement dependency5RootElement = ProjectRootElement.Create(dependency5File);
+
             projectRootElement.Save();
             dependency1RootElement.Save();
             dependency2RootElement.Save();
             dependency3RootElement.Save();
             dependency4RootElement.Save();
+            dependency5RootElement.Save();
 
             var expectedInputFiles = new[]
             {
