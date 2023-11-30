@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Microsoft.Build.Exceptions;
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.CompilerServices;
-    using Microsoft.Build.Exceptions;
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Helper methods for working with the MSBuild object model.
     /// </summary>

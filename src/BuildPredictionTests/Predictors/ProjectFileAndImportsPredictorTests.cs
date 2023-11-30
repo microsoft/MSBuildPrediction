@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.IO;
+using Microsoft.Build.Prediction;
+using Microsoft.Build.Prediction.Predictors;
+using Microsoft.Build.Prediction.Tests;
+using Xunit;
+
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
-    using System.IO;
-    using Microsoft.Build.Prediction;
-    using Microsoft.Build.Prediction.Predictors;
-    using Microsoft.Build.Prediction.Tests;
-    using Xunit;
-
     public class ProjectFileAndImportsPredictorTests : TestBase
     {
         private const string ImportTestsDirectoryPath = @"TestsData\Import";

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using Microsoft.Build.Graph;
+
 namespace Microsoft.Build.Prediction
 {
-    using System.Collections.Generic;
-    using Microsoft.Build.Graph;
-
     /// <summary>
     /// Predictions of build inputs and outputs per graph node provided by implementations of
     /// <see cref="IProjectGraphPredictor"/> and <see cref="IProjectPredictor"/>.

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.Build.Prediction.Predictors.CopyTask;
+using Xunit;
+
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
-    using Microsoft.Build.Prediction.Predictors.CopyTask;
-    using Xunit;
-
     public class CopyTaskPredictorTests : TestBase
     {
         private const string CopyTestsDirectoryPath = @"TestsData\Copy\";

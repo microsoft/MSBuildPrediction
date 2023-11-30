@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Build.Construction;
+using Microsoft.Build.Prediction.Predictors;
+using Xunit;
+
 #if !NETCOREAPP
 // These tests rely on VCTargetsPath, which isn't available in the netcoreapp flavor of MSBuild.
 // MASM files and C++ builds in general aren't available on netcoreapp, so skipping these tests is OK.
 namespace Microsoft.Build.Prediction.Tests.Predictors
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.Build.Construction;
-    using Microsoft.Build.Prediction.Predictors;
-    using Xunit;
-
     public class MasmItemsPredictorTests
     {
         private const string AsmFile = "Foo.asm";

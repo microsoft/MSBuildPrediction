@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.IO;
+using Microsoft.Build.Execution;
+using Microsoft.Build.Graph;
+
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System;
-    using System.IO;
-    using Microsoft.Build.Execution;
-    using Microsoft.Build.Graph;
-
     /// <summary>
     /// Predicts files copied from dependencies in the GetCopyToOutputDirectoryItems.
     /// </summary>

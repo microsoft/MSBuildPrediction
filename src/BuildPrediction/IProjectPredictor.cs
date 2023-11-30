@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction
 {
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Implementations of this interface may be run in parallel against a single evaluated MSBuild Project
     /// file to predict, prior to execution of a build, file, directory/folder, and glob patterns for

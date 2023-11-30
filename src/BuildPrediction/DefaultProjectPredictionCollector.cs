@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.IO;
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction
 {
-    using System.Collections.Generic;
-    using System.IO;
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// The default implementation which just aggregates all predictions into a <see cref="ProjectPredictions"/> object.
     /// </summary>

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System;
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Predicts inputs for Win32 manifest, ClickOnce application and deployment manifests, or a native manifest.
     /// </summary>
