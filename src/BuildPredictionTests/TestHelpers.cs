@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Xml;
+using Microsoft.Build.Construction;
+using Microsoft.Build.Definition;
+using Microsoft.Build.Evaluation;
+using Microsoft.Build.Execution;
+using Microsoft.Build.Graph;
+using Xunit;
+
 namespace Microsoft.Build.Prediction.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Xml;
-    using Microsoft.Build.Construction;
-    using Microsoft.Build.Definition;
-    using Microsoft.Build.Evaluation;
-    using Microsoft.Build.Execution;
-    using Microsoft.Build.Graph;
-    using Xunit;
-
     internal static class TestHelpers
     {
         private static readonly Dictionary<string, string> _globalProperties = new Dictionary<string, string>

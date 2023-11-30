@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.IO;
+using System.Xml;
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System;
-    using System.IO;
-    using System.Xml;
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Predicts inputs and outputs when using the StyleCop.MSBuild nuget package (https://www.nuget.org/packages/StyleCop.MSBuild/).
     /// </summary>

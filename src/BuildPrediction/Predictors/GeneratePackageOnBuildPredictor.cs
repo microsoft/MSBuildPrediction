@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.IO;
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System;
-    using System.IO;
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Predicts inputs and outputs when using the built-in feature of the Sdk to create a NuGet package during the build.
     /// </summary>

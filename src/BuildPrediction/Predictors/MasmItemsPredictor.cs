@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Predicts inputs for Assembler files built as MASM items.
     /// </summary>

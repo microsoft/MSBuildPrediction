@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+
 #if NET472
 namespace Microsoft.Build.Prediction
 {
-    using System;
-
     /// <summary>
     /// Contains extension methods for .NET Framework to match the (larger) .NET Core API.
     /// </summary>

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction
 {
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Implementations of this interface are used during project prediction to
     /// collect all predictions from predictors.

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.IO;
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System;
-    using System.IO;
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Predicts inputs for Azure Cloud Service projects for the worker project files to be copied to the CS package.
     /// </summary>

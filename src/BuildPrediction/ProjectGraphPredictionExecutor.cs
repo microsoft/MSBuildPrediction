@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Build.Definition;
+using Microsoft.Build.Evaluation;
+using Microsoft.Build.Evaluation.Context;
+using Microsoft.Build.Execution;
+using Microsoft.Build.Graph;
+
 namespace Microsoft.Build.Prediction
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.Build.Definition;
-    using Microsoft.Build.Evaluation;
-    using Microsoft.Build.Evaluation.Context;
-    using Microsoft.Build.Execution;
-    using Microsoft.Build.Graph;
-
     /// <summary>
     /// Executes a set of <see cref="IProjectPredictor"/> instances and <see cref="IProjectGraphPredictor"/>
     /// instances against a project graph aggregating the results.

@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+using Microsoft.Build.Execution;
+
 namespace Microsoft.Build.Prediction.Predictors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text.RegularExpressions;
-    using Microsoft.Build.Execution;
-
     /// <summary>
     /// Predicts inputs and outputs for projects using the Microsoft.Build.Artifacts Sdk.
     /// See: https://github.com/microsoft/MSBuildSdks/tree/main/src/Artifacts.
