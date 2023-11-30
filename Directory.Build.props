@@ -13,6 +13,10 @@
 
     <!-- MSBuild 16.11 targets .NET 5, so we do too -->
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
+
+    <!-- Use Directory.Packages.props to manage versions -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
 
   <!-- Packaging -->
@@ -35,15 +39,7 @@
 
   <!-- StyleCop -->
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" IncludeAssets="Analyzers;Build" PrivateAssets="All" />
-  </ItemGroup>
-  <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" Visible="false" />
-  </ItemGroup>
-
-  <!-- Get the ref assemblies from a package to avoid depending on the ref assemblies being available on the machine -->
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" IncludeAssets="Build" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Source Link (https://github.com/dotnet/sourcelink) -->
@@ -53,15 +49,9 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-  </ItemGroup>
 
   <!-- Artifacts -->
   <PropertyGroup>
     <BaseArtifactsPath>$(MSBuildThisFileDirectory)artifacts</BaseArtifactsPath>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Artifacts" Version="4.0.4" PrivateAssets="All" />
-  </ItemGroup>
 </Project>
