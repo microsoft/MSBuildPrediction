@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <PropertyGroup>
-    <MSBuildPackageVersion>17.4.0</MSBuildPackageVersion>
-    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net6.0'">17.0.0</MSBuildPackageVersion>
-    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net5.0'">16.11.0</MSBuildPackageVersion>
-    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'netcoreapp3.1'">16.9.0</MSBuildPackageVersion>
+    <!-- Use the highest version which supports a given target framework -->
+    <MSBuildPackageVersion>17.8.3</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net7.0'">17.7.2</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net6.0'">17.3.2</MSBuildPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.Build" Version="$(MSBuildPackageVersion)" />
     <PackageVersion Include="Microsoft.Build.Framework" Version="$(MSBuildPackageVersion)" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="$(MSBuildPackageVersion)" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
-    <PackageVersion Include="xunit" Version="2.4.2" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="xunit" Version="2.6.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.4" />
   </ItemGroup>
   <ItemGroup>
     <GlobalPackageReference Include="Microsoft.Build.Artifacts" Version="4.0.4" />
     <!-- Get the ref assemblies from a package to avoid depending on the ref assemblies being available on the machine -->
-    <GlobalPackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
-    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+    <GlobalPackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
     <GlobalPackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="1.0.0" />
     <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.6.133" />
     <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507" />

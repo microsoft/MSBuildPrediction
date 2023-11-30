@@ -11,9 +11,6 @@
 
     <NoWarn>$(NoWarn);SA0001</NoWarn>
 
-    <!-- MSBuild 16.11 targets .NET 5, so we do too -->
-    <CheckEolTargetFramework>false</CheckEolTargetFramework>
-
     <!-- Use Directory.Packages.props to manage versions -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
