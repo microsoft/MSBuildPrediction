@@ -6,10 +6,9 @@ variables:
   ArtifactsDirectoryName: 'artifacts'
   BuildConfiguration: 'Debug'
   BuildPlatform: 'Any CPU'
-  DotNet3Version: '3.x'
-  DotNet5Version: '5.x'
   DotNet6Version: '6.x'
   DotNet7Version: '7.x'
+  DotNet8Version: '8.x'
   MSBuildArgs: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
   SignType: 'Test'
 
@@ -39,16 +38,6 @@ jobs:
   steps:
 
   - task: UseDotNet@2
-    displayName: 'Install .NET Core $(DotNet3Version)'
-    inputs:
-      version: '$(DotNet3Version)'
-
-  - task: UseDotNet@2
-    displayName: 'Install .NET $(DotNet5Version)'
-    inputs:
-      version: '$(DotNet5Version)'
-
-  - task: UseDotNet@2
     displayName: 'Install .NET $(DotNet6Version)'
     inputs:
       version: '$(DotNet6Version)'
@@ -57,6 +46,11 @@ jobs:
     displayName: 'Install .NET $(DotNet7Version)'
     inputs:
       version: '$(DotNet7Version)'
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet8Version)'
+    inputs:
+      version: '$(DotNet8Version)'
 
   - task: DotNetCoreCLI@2
     displayName: 'Build Solution'
@@ -75,22 +69,6 @@ jobs:
   #  condition: succeededOrFailed()
 
   - task: DotNetCoreCLI@2
-    displayName: 'Run Unit Tests (.NET Core 3.1)'
-    inputs:
-      command: 'test'
-      arguments: '--no-restore --no-build --framework netcoreapp3.1 /noautorsp'
-      testRunTitle: 'Windows .NET Core 3.0'
-    condition: succeededOrFailed()
-
-  - task: DotNetCoreCLI@2
-    displayName: 'Run Unit Tests (.NET 5.0)'
-    inputs:
-      command: 'test'
-      arguments: '--no-restore --no-build --framework net5.0 /noautorsp'
-      testRunTitle: 'Windows .NET 5.0'
-    condition: succeededOrFailed()
-
-  - task: DotNetCoreCLI@2
     displayName: 'Run Unit Tests (.NET 6.0)'
     inputs:
       command: 'test'
@@ -104,6 +82,14 @@ jobs:
       command: 'test'
       arguments: '--no-restore --no-build --framework net7.0 /noautorsp'
       testRunTitle: 'Windows .NET 7.0'
+    condition: succeededOrFailed()
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Unit Tests (.NET 8.0)'
+    inputs:
+      command: 'test'
+      arguments: '--no-restore --no-build --framework net8.0 /noautorsp'
+      testRunTitle: 'Windows .NET 8.0'
     condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
@@ -120,11 +106,6 @@ jobs:
   steps:
 
   - task: UseDotNet@2
-    displayName: 'Install .NET $(DotNet5Version)'
-    inputs:
-      version: '$(DotNet5Version)'
-
-  - task: UseDotNet@2
     displayName: 'Install .NET $(DotNet6Version)'
     inputs:
       version: '$(DotNet6Version)'
@@ -134,19 +115,16 @@ jobs:
     inputs:
       version: '$(DotNet7Version)'
 
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet8Version)'
+    inputs:
+      version: '$(DotNet8Version)'
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
     inputs:
       command: 'build'
       arguments: '$(MSBuildArgs)'
-
-  #- task: DotNetCoreCLI@2
-  #  displayName: 'Run Unit Tests (.NET 5.0)'
-  #  inputs:
-  #    command: 'test'
-  #    arguments: '--no-restore --no-build --framework net5.0 /noautorsp'
-  #    testRunTitle: 'Linux .NET 5.0'
-  #  condition: succeededOrFailed()
 
   #- task: DotNetCoreCLI@2
   #  displayName: 'Run Unit Tests (.NET 6.0)'
@@ -164,6 +142,14 @@ jobs:
   #    testRunTitle: 'Linux .NET 7.0'
   #  condition: succeededOrFailed()
 
+  #- task: DotNetCoreCLI@2
+  #  displayName: 'Run Unit Tests (.NET 8.0)'
+  #  inputs:
+  #    command: 'test'
+  #    arguments: '--no-restore --no-build --framework net8.0 /noautorsp'
+  #    testRunTitle: 'Linux .NET 8.0'
+  #  condition: succeededOrFailed()
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifacts'
     inputs:
@@ -178,11 +164,6 @@ jobs:
   steps:
 
   - task: UseDotNet@2
-    displayName: 'Install .NET $(DotNet5Version)'
-    inputs:
-      version: '$(DotNet5Version)'
-
-  - task: UseDotNet@2
     displayName: 'Install .NET $(DotNet6Version)'
     inputs:
       version: '$(DotNet6Version)'
@@ -192,19 +173,16 @@ jobs:
     inputs:
       version: '$(DotNet7Version)'
 
+  - task: UseDotNet@2
+    displayName: 'Install .NET $(DotNet8Version)'
+    inputs:
+      version: '$(DotNet8Version)'
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
     inputs:
       command: 'build'
       arguments: '$(MSBuildArgs)'
-
-  #- task: DotNetCoreCLI@2
-  #  displayName: 'Run Unit Tests (.NET 5.0)'
-  #  inputs:
-  #    command: 'test'
-  #    arguments: '--no-restore --no-build --framework net5.0 /noautorsp'
-  #    testRunTitle: 'MacOS .NET 5.0'
-  #  condition: succeededOrFailed()
 
   #- task: DotNetCoreCLI@2
   #  displayName: 'Run Unit Tests (.NET 6.0)'
@@ -220,6 +198,14 @@ jobs:
   #    command: 'test'
   #    arguments: '--no-restore --no-build --framework net7.0 /noautorsp'
   #    testRunTitle: 'MacOS .NET 7.0'
+  #  condition: succeededOrFailed()
+
+  #- task: DotNetCoreCLI@2
+  #  displayName: 'Run Unit Tests (.NET 8.0)'
+  #  inputs:
+  #    command: 'test'
+  #    arguments: '--no-restore --no-build --framework net8.0 /noautorsp'
+  #    testRunTitle: 'MacOS .NET 8.0'
   #  condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1

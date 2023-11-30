@@ -26,10 +26,10 @@ namespace Microsoft.Build.Prediction.Tests
             var project = TestHelpers.CreateProjectInstanceFromRootElement(ProjectRootElement.Create());
             ProjectPredictions predictions = executor.PredictInputsAndOutputs(project);
             Assert.NotNull(predictions);
-            Assert.Equal(0, predictions.InputFiles.Count);
-            Assert.Equal(0, predictions.InputDirectories.Count);
-            Assert.Equal(0, predictions.OutputFiles.Count);
-            Assert.Equal(0, predictions.OutputDirectories.Count);
+            Assert.Empty(predictions.InputFiles);
+            Assert.Empty(predictions.InputDirectories);
+            Assert.Empty(predictions.OutputFiles);
+            Assert.Empty(predictions.OutputDirectories);
         }
 
         [Fact]

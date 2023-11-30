@@ -152,7 +152,7 @@ namespace Microsoft.Build.Prediction.Tests
 
             if (expectedInputFiles == null)
             {
-                Assert.Equal(0, predictions.InputFiles.Count);
+                Assert.Empty(predictions.InputFiles);
             }
             else
             {
@@ -161,7 +161,7 @@ namespace Microsoft.Build.Prediction.Tests
 
             if (expectedInputDirectories == null)
             {
-                Assert.Equal(0, predictions.InputDirectories.Count);
+                Assert.Empty(predictions.InputDirectories);
             }
             else
             {
@@ -170,7 +170,7 @@ namespace Microsoft.Build.Prediction.Tests
 
             if (expectedOutputFiles == null)
             {
-                Assert.Equal(0, predictions.OutputFiles.Count);
+                Assert.Empty(predictions.OutputFiles);
             }
             else
             {
@@ -179,7 +179,7 @@ namespace Microsoft.Build.Prediction.Tests
 
             if (expectedOutputDirectories == null)
             {
-                Assert.Equal(0, predictions.OutputDirectories.Count);
+                Assert.Empty(predictions.OutputDirectories);
             }
             else
             {
