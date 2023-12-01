@@ -1,6 +1,3 @@
-resources:
-- repo: self
-
 variables:
   Solution: 'MSBuildPrediction.sln'
   ArtifactsDirectoryName: 'artifacts'
@@ -12,20 +9,18 @@ variables:
   MSBuildArgs: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
   SignType: 'Test'
 
-trigger:
-  batch: 'true'
+schedules:
+- cron: '0 0 * * *'
+  displayName: Daily midnight build
   branches:
     include:
-    - 'main'
-  paths:
-    exclude:
-    - '*.md'
+    - main
 
-pr:
+trigger:
+  batch: true
   branches:
     include:
-    - 'main'
-    - 'rel/*'
+    - main
   paths:
     exclude:
     - '*.md'
