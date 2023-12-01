@@ -1,13 +1,11 @@
-resources:
-- repo: self
-
 variables:
   Solution: 'MSBuildPrediction.sln'
-  ArtifactsDirectoryName: 'artifacts'
+  LogDirectory: $(Build.ArtifactStagingDirectory)/logs
+  ArtifactsDirectory: artifacts
   BuildConfiguration: 'Release'
   BuildPlatform: 'Any CPU'
-  DotNetVersion: '7.x'
-  MSBuildArgs: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(Build.SourcesDirectory)\$(ArtifactsDirectoryName)\msbuild.binlog"'
+  DotNetVersion: '8.x'
+  MSBuildArgs: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(LogDirectory)/msbuild.binlog"'
   SignType: 'Test'
   TeamName: 'MSBuild'
 
@@ -17,9 +15,9 @@ trigger:
     include:
     - 'main'
     - 'refs/tags/*'
-  paths:
-    exclude:
-    - '*.md'
+
+# no PR triggers
+pr: none
 
 stages:
 - stage:
@@ -52,11 +50,14 @@ stages:
         projects: '$(Solution)'
         arguments: '$(MSBuildArgs)'
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifacts'
-      inputs:
-        PathtoPublish: '$(ArtifactsDirectoryName)'
-        ArtifactName: $(ArtifactsDirectoryName)
+    - publish: $(ArtifactsDirectory)
+      displayName: Publish Artifacts
+      artifact: 'artifacts'
+      condition: always()
+
+    - publish: $(LogDirectory)
+      displayName: Publish Logs
+      artifact: 'logs'
       condition: always()
 
 - stage:
@@ -76,6 +77,6 @@ stages:
             displayName: 'Push NuGet Packages to nuget.org'
             inputs:
               command: 'push'
-              packagesToPush: '$(Pipeline.Workspace)/$(ArtifactsDirectoryName)/**/Microsoft.Build.Prediction*.nupkg'
+              packagesToPush: '$(Pipeline.Workspace)/artifacts/**/Microsoft.Build.Prediction*.nupkg'
               nuGetFeedType: 'external'
               publishFeedCredentials: 'NuGet-1ES-Full'
