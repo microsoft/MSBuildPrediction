@@ -14,6 +14,9 @@
     <!-- Use Directory.Packages.props to manage versions -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+
+    <!-- Use artifacts output layout (https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output) -->
+    <UseArtifactsOutput>true</UseArtifactsOutput>
   </PropertyGroup>
 
   <!-- Packaging -->

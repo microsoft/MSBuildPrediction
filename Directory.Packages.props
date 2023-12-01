@@ -15,7 +15,6 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.4" />
   </ItemGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="Microsoft.Build.Artifacts" Version="4.0.4" />
     <!-- Get the ref assemblies from a package to avoid depending on the ref assemblies being available on the machine -->
     <GlobalPackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
     <GlobalPackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="1.0.0" />
