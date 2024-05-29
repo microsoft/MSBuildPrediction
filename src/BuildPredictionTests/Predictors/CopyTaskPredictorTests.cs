@@ -275,6 +275,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             PredictedItem[] expectedInputFiles =
             {
                 _copy1Dll,
+                new PredictedItem("copy1dependency.dll", nameof(CopyTaskPredictor)),
             };
 
             PredictedItem[] expectedOutputDirectories =

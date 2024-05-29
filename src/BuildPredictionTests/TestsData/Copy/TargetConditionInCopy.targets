@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <TargetCondition>Copy1</TargetCondition>
+    <Dest1>target\debug\amd64\folder1</Dest1>
+    <Dest2>target\debug\amd64\folder2</Dest2>
+  </PropertyGroup>
+  <ItemGroup>
+    <Copy1 Include="copy1.dll"/>
+    <Copy1Dependency Include="copy1dependency.dll"/>
+    <Copy2 Include="copy2.dll"/>
+    <Copy2Dependency Include="copy2dependency.dll"/>
+  </ItemGroup>
+  <Target Name="CopyFiles1" AfterTargets="Build" Condition="'$(TargetCondition)'=='Copy1'" DependsOnTargets="CopyFiles1Dependency">
+    <Copy SourceFiles="@(Copy1)" DestinationFolder="$(Dest1)" />
+   </Target>
+  <Target Name="CopyFiles1Dependency">
+    <Copy SourceFiles="@(Copy1Dependency)" DestinationFolder="$(Dest1)" />
+  </Target>
+  <Target Name="CopyFiles2" AfterTargets="Build" Condition="'$(TargetCondition)'=='Copy2'" DependsOnTargets="CopyFiles2Dependency">
+    <Copy SourceFiles="@(Copy2)" DestinationFolder="$(Dest2)" />
+  </Target>
+  <Target Name="CopyFiles2Dependency">
+    <Copy SourceFiles="@(Copy2Dependency)" DestinationFolder="$(Dest2)" />
+  </Target>
+</Project>
