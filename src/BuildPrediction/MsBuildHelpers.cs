@@ -90,7 +90,7 @@ namespace Microsoft.Build.Prediction
         /// <param name="projectInstance">An MSBuild Project instance to use for context.</param>
         /// <param name="evaluatedTargetName">Evaluated target name that we should analyze.</param>
         /// <param name="activeTargets">Collection into which targets should be added.</param>
-        public static void AddToActiveTargets(
+        public static bool AddToActiveTargets(
             this ProjectInstance projectInstance,
             string evaluatedTargetName,
             Dictionary<string, ProjectTargetInstance> activeTargets)
@@ -98,11 +98,12 @@ namespace Microsoft.Build.Prediction
             // Avoid circular dependencies
             if (activeTargets.ContainsKey(evaluatedTargetName))
             {
-                return;
+                return false;
             }
 
             // The Project or its includes might not actually include the target name.
-            if (projectInstance.Targets.TryGetValue(evaluatedTargetName, out ProjectTargetInstance target))
+            if (projectInstance.Targets.TryGetValue(evaluatedTargetName, out ProjectTargetInstance target)
+                && projectInstance.EvaluateConditionCarefully(target.Condition))
             {
                 activeTargets.Add(evaluatedTargetName, target);
 
@@ -112,7 +113,11 @@ namespace Microsoft.Build.Prediction
                 {
                     AddToActiveTargets(projectInstance, dependsOnTarget, activeTargets);
                 }
+
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
@@ -147,10 +152,7 @@ namespace Microsoft.Build.Prediction
                             if (activeTargets.ContainsKey(hookedTarget))
                             {
                                 // ... then add it to the list of running targets ...
-                                projectInstance.AddToActiveTargets(targetName, activeTargets);
-
-                                // ... and make a note to run again, since activeTargets has changed.
-                                newTargetsToConsider = true;
+                                newTargetsToConsider |= projectInstance.AddToActiveTargets(targetName, activeTargets);
                             }
                         }
                     }
