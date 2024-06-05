@@ -1,3 +1,9 @@
+resources:
+  repositories:
+  - repository: MicroBuildTemplate
+    type: git
+    name: 1ESPipelineTemplates/MicroBuildTemplate
+    ref: refs/tags/release
 variables:
   Solution: 'MSBuildPrediction.sln'
   LogDirectory: $(Build.ArtifactStagingDirectory)/logs
@@ -6,77 +12,87 @@ variables:
   BuildPlatform: 'Any CPU'
   DotNetVersion: '8.x'
   MSBuildArgs: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(LogDirectory)/msbuild.binlog"'
-  SignType: 'Test'
+  SignType: 'Real'
   TeamName: 'MSBuild'
-
 trigger:
   batch: true
   branches:
     include:
     - 'main'
+    - 'rel/*'
     - 'refs/tags/*'
-
-# no PR triggers
+  paths:
+    exclude:
+    - '*.md'
 pr: none
-
-stages:
-- stage:
-  displayName: 'Build'
-  jobs:
-  - job: Build
-    displayName: 'Build'
+extends:
+  template: azure-pipelines/MicroBuild.1ES.Official.yml@MicroBuildTemplate
+  parameters:
+    sdl:
+      sbom:
+        enabled: false
     pool:
       name: VSEngSS-MicroBuild2022-1ES
-    steps:
-    - script: 'echo ##vso[task.setvariable variable=SignType;]Real'
-      displayName: 'Set SignType to Real for tagged commits'
+      demands:
+      - msbuild
+      - visualstudio
+      os: windows
+    stages:
+    - stage: 
+      displayName: 'Build'
+      jobs:
+      - job: Build
+        displayName: 'Build'
+        pool:
+          name: VSEngSS-MicroBuild2022-1ES
+        templateContext:
+          mb:
+            signing:
+              enabled: true
+              signType: 'real'
+              zipSources: false
+          outputs:
+          - output: pipelineArtifact
+            displayName: 'Publish Artifacts'
+            condition: always()
+            targetPath: $(ArtifactsDirectory)
+            artifactName: 'artifacts'
+          - output: pipelineArtifact
+            displayName: 'Publish Logs'
+            condition: always()
+            targetPath: $(LogDirectory)
+            artifactName: 'logs'
+        steps:
+        - script: 'echo ##vso[task.setvariable variable=SignType;]Real'
+          displayName: 'Set SignType to Real for tagged commits'
+          condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+        - task: UseDotNet@2
+          displayName: 'Install .NET $(DotNetVersion)'
+          inputs:
+            version: '$(DotNetVersion)'
+        - task: DotNetCoreCLI@2
+          displayName: 'Build Solution'
+          inputs:
+            command: 'build'
+            projects: '$(Solution)'
+            arguments: '$(MSBuildArgs)'
+    - stage: 
+      displayName: 'Deploy'
       condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-
-    - task: UseDotNet@2
-      displayName: 'Install .NET $(DotNetVersion)'
-      inputs:
-        version: '$(DotNetVersion)'
-
-    - task: MicroBuildSigningPlugin@1
-      displayName: 'Install MicroBuild Signing Plugin'
-      inputs:
-        signType: '$(SignType)'
-        zipSources: false
-
-    - task: DotNetCoreCLI@2
-      displayName: 'Build Solution'
-      inputs:
-        command: 'build'
-        projects: '$(Solution)'
-        arguments: '$(MSBuildArgs)'
-
-    - publish: $(ArtifactsDirectory)
-      displayName: Publish Artifacts
-      artifact: 'artifacts'
-      condition: always()
-
-    - publish: $(LogDirectory)
-      displayName: Publish Logs
-      artifact: 'logs'
-      condition: always()
-
-- stage:
-  displayName: 'Deploy'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-  jobs:
-  - deployment: 'NuGet'
-    displayName: 'Publish NuGet Packages'
-    pool:
-      vmImage: 'windows-latest'
-    environment: 'MSBuildPrediction-NuGet'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: NuGetCommand@2
-            displayName: 'Push NuGet Packages to nuget.org'
-            inputs:
-              command: 'push'
-              packagesToPush: '$(Pipeline.Workspace)/artifacts/**/Microsoft.Build.Prediction*.nupkg'
-              nuGetFeedType: 'external'
-              publishFeedCredentials: 'NuGet-1ES-Full'
+      jobs:
+      - deployment: 'NuGet'
+        displayName: 'Publish NuGet Packages'
+        pool:
+          vmImage: 'windows-latest'
+        environment: 'MSBuildPrediction-NuGet'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - task: NuGetCommand@2
+                displayName: 'Push NuGet Packages to nuget.org'
+                inputs:
+                  command: 'push'
+                  packagesToPush: '$(Pipeline.Workspace)/artifacts/**/Microsoft.Build.Prediction*.nupkg'
+                  nuGetFeedType: 'external'
+                  publishFeedCredentials: 'NuGet-1ES-Full'
