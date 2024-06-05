@@ -1,9 +1,3 @@
-resources:
-  repositories:
-  - repository: MicroBuildTemplate
-    type: git
-    name: 1ESPipelineTemplates/MicroBuildTemplate
-    ref: refs/tags/release
 variables:
   Solution: 'MSBuildPrediction.sln'
   LogDirectory: $(Build.ArtifactStagingDirectory)/logs
@@ -25,6 +19,12 @@ trigger:
     exclude:
     - '*.md'
 pr: none
+resources:
+  repositories:
+  - repository: MicroBuildTemplate
+    type: git
+    name: 1ESPipelineTemplates/MicroBuildTemplate
+    ref: refs/tags/release
 extends:
   template: azure-pipelines/MicroBuild.1ES.Official.yml@MicroBuildTemplate
   parameters:
