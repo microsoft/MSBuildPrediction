@@ -38,13 +38,13 @@ extends:
       - visualstudio
       os: windows
     stages:
-    - stage: 
+    - stage: ''
       displayName: 'Build'
       jobs:
       - job: Build
         displayName: 'Build'
         pool:
-          name: VSEngSS-MicroBuild2022-1ES
+          name: 'VSEngSS-MicroBuild2022-1ES'
         templateContext:
           mb:
             signing:
@@ -76,23 +76,3 @@ extends:
             command: 'build'
             projects: '$(Solution)'
             arguments: '$(MSBuildArgs)'
-    - stage: 
-      displayName: 'Deploy'
-      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-      jobs:
-      - deployment: 'NuGet'
-        displayName: 'Publish NuGet Packages'
-        pool:
-          vmImage: 'windows-latest'
-        environment: 'MSBuildPrediction-NuGet'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-              - task: NuGetCommand@2
-                displayName: 'Push NuGet Packages to nuget.org'
-                inputs:
-                  command: 'push'
-                  packagesToPush: '$(Pipeline.Workspace)/artifacts/**/Microsoft.Build.Prediction*.nupkg'
-                  nuGetFeedType: 'external'
-                  publishFeedCredentials: 'NuGet-1ES-Full'
