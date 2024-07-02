@@ -73,6 +73,41 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
+        public void FindArtifactsForExistingFileMultipleDestinationDirs()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"src\project.csproj"));
+            projectRootElement.AddProperty(ArtifactsSdkPredictor.UsingMicrosoftArtifactsSdkPropertyName, "true");
+            projectRootElement.AddProperty("ArtifactsPath", Path.Combine(_rootDir, "out"));
+
+            var artifactItem = projectRootElement.AddItem(ArtifactsSdkPredictor.ArtifactsItemName, "Artifact.txt");
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.DestinationFolderMetadata, @"$(ArtifactsPath)\Project; $(ArtifactsPath)\Project2; \n\t$(ArtifactsPath)\Project3 ;");
+
+            Directory.CreateDirectory(Path.Combine(_rootDir, "src"));
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifact.txt"), "SomeContent");
+
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+
+            var expectedInputFiles = new[]
+            {
+                new PredictedItem(@"src\Artifact.txt", nameof(ArtifactsSdkPredictor)),
+            };
+            var expectedOutputFiles = new[]
+            {
+                new PredictedItem(@"out\Project\Artifact.txt", nameof(ArtifactsSdkPredictor)),
+                new PredictedItem(@"out\Project2\Artifact.txt", nameof(ArtifactsSdkPredictor)),
+                new PredictedItem(@"out\Project3\Artifact.txt", nameof(ArtifactsSdkPredictor)),
+            };
+            new ArtifactsSdkPredictor()
+                .GetProjectPredictions(projectInstance)
+                .AssertPredictions(
+                    projectInstance,
+                    expectedInputFiles.MakeAbsolute(_rootDir),
+                    null,
+                    expectedOutputFiles.MakeAbsolute(_rootDir),
+                    null);
+        }
+
+        [Fact]
         public void FindRobocopyForExistingFile()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"src\project.csproj"));
