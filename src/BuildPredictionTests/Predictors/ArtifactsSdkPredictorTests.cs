@@ -73,6 +73,41 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
+        public void FindArtifactsForExistingFileMultipleDestinationDirs()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"src\project.csproj"));
+            projectRootElement.AddProperty(ArtifactsSdkPredictor.UsingMicrosoftArtifactsSdkPropertyName, "true");
+            projectRootElement.AddProperty("ArtifactsPath", Path.Combine(_rootDir, "out"));
+
+            var artifactItem = projectRootElement.AddItem(ArtifactsSdkPredictor.ArtifactsItemName, "Artifact.txt");
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.DestinationFolderMetadata, "$(ArtifactsPath)\\Project; $(ArtifactsPath)\\Project2; \n\t$(ArtifactsPath)\\Project3 ;");
+
+            Directory.CreateDirectory(Path.Combine(_rootDir, "src"));
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifact.txt"), "SomeContent");
+
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+
+            var expectedInputFiles = new[]
+            {
+                new PredictedItem(@"src\Artifact.txt", nameof(ArtifactsSdkPredictor)),
+            };
+            var expectedOutputFiles = new[]
+            {
+                new PredictedItem(@"out\Project\Artifact.txt", nameof(ArtifactsSdkPredictor)),
+                new PredictedItem(@"out\Project2\Artifact.txt", nameof(ArtifactsSdkPredictor)),
+                new PredictedItem(@"out\Project3\Artifact.txt", nameof(ArtifactsSdkPredictor)),
+            };
+            new ArtifactsSdkPredictor()
+                .GetProjectPredictions(projectInstance)
+                .AssertPredictions(
+                    projectInstance,
+                    expectedInputFiles.MakeAbsolute(_rootDir),
+                    null,
+                    expectedOutputFiles.MakeAbsolute(_rootDir),
+                    null);
+        }
+
+        [Fact]
         public void FindRobocopyForExistingFile()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"src\project.csproj"));
@@ -105,8 +140,14 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     null);
         }
 
-        [Fact]
-        public void FindArtifactsForExistingDirectoryRecursive()
+        [Theory]
+        [InlineData(" ")]
+        [InlineData(",")]
+        [InlineData(";")]
+        [InlineData("\t")]
+        [InlineData("\r")]
+        [InlineData("\n")]
+        public void FindArtifactsForExistingDirectoryRecursive(string separator)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"src\project.csproj"));
             projectRootElement.AddProperty(ArtifactsSdkPredictor.UsingMicrosoftArtifactsSdkPropertyName, "true");
@@ -117,25 +158,28 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             // Recursive is the default. Also testing the file matching logic here.
             artifactItem.AddMetadata(ArtifactsSdkPredictor.FileMatchMetadata, "*.txt");
-            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileExcludeMetadata, "exclude.*");
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileExcludeMetadata, string.Join(separator, ["exclude.*", "dontwant.*"]));
             artifactItem.AddMetadata(ArtifactsSdkPredictor.DirExcludeMetadata, "excludeDir");
 
             Directory.CreateDirectory(Path.Combine(_rootDir, @"src\Artifacts"));
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\1.txt"), "SomeContent");
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\2.txt"), "SomeContent");
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\exclude.txt"), "SomeContent"); // excluded explicitly
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\dontwant.txt"), "SomeContent"); // excluded explicitly
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\something.jpg"), "SomeContent"); // excluded by not matching
 
             Directory.CreateDirectory(Path.Combine(_rootDir, @"src\Artifacts\a"));
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\a\3.txt"), "SomeContent");
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\a\4.txt"), "SomeContent");
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\a\exclude.txt"), "SomeContent"); // excluded explicitly
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\a\dontwant.txt"), "SomeContent"); // excluded explicitly
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\a\something.jpg"), "SomeContent"); // excluded by not matching
 
             Directory.CreateDirectory(Path.Combine(_rootDir, @"src\Artifacts\b"));
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\b\5.txt"), "SomeContent");
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\b\6.txt"), "SomeContent");
-            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\b\exclude.txt"), "SomeContent"); // excluded explicitly
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\b\exclude.txt"), "SomeContent"); // excluded
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\b\dontwant.txt"), "SomeContent"); // excluded explicitly
             File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\b\something.jpg"), "SomeContent"); // excluded by not matching
 
             // Whole dir is excluded
@@ -255,8 +299,14 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     null);
         }
 
-        [Fact]
-        public void FindArtifactsForGeneratedDirectory()
+        [Theory]
+        [InlineData(" ")]
+        [InlineData(",")]
+        [InlineData(";")]
+        [InlineData("\t")]
+        [InlineData("\r")]
+        [InlineData("\n")]
+        public void FindArtifactsForGeneratedDirectory(string separator)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"foo\foo.csproj"));
             projectRootElement.AddProperty(ArtifactsSdkPredictor.UsingMicrosoftArtifactsSdkPropertyName, "true");
@@ -266,7 +316,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             // Copying another project's output dir to this project's output dir
             var artifactItem = projectRootElement.AddItem(ArtifactsSdkPredictor.ArtifactsItemName, @"$(EnlistmentRoot)\bar\$(OutputPath)");
             artifactItem.AddMetadata(ArtifactsSdkPredictor.DestinationFolderMetadata, @"$(OutputPath)");
-            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileMatchMetadata, "*.dll *.pdb");
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileMatchMetadata, string.Join(separator, ["*.dll", "*.pdb"]));
 
             ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 
