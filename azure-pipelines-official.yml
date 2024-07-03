@@ -65,7 +65,8 @@ extends:
           - output: nuget
             displayName: 'Push NuGet Packages to nuget.org'
             condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-            packagesToPush: '$(Pipeline.Workspace)/artifacts/**/Microsoft.Build.Prediction*.nupkg'
+            packageParentPath: '$(ArtifactsDirectory)'
+            packagesToPush: '$(ArtifactsDirectory)/**/Microsoft.Build.Prediction*.nupkg'
             nuGetFeedType: 'external'
             publishFeedCredentials: 'NuGet-1ES-Full'
         steps:
