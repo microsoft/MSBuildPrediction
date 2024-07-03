@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Execution;
 
@@ -31,7 +32,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
         internal const string DirExcludeMetadata = "DirExclude";
 
-        private static readonly char[] MultiSplits = { '\t', ' ', '\n', '\r' };
+        private static readonly char[] MultiSplits = { '\t', ' ', '\n', '\r', ',', ';' };
 
         private static readonly char[] Wildcards = { '?', '*' };
 
@@ -59,7 +60,7 @@ namespace Microsoft.Build.Prediction.Predictors
             foreach (ProjectItemInstance item in items)
             {
                 string source = item.EvaluatedInclude;
-                string[] destinationFolders = item.GetMetadataValue(DestinationFolderMetadata).Split(DestinationFolderSeparator, StringSplitOptions.RemoveEmptyEntries);
+                string[] destinationFolders = item.GetMetadataValue(DestinationFolderMetadata).Split(DestinationFolderSeparator, StringSplitOptions.RemoveEmptyEntries).Select(d => d.Trim()).ToArray();
                 if (string.IsNullOrEmpty(source)
                     || destinationFolders.Length == 0)
                 {
