@@ -149,12 +149,26 @@ namespace Microsoft.Build.Prediction.Predictors
             string destinationSubDirectory,
             ProjectPredictionReporter predictionReporter)
         {
-            foreach (string sourceFile in Directory.EnumerateFiles(sourceDirectory, searchPattern))
+            // The search pattern may have a directory in it, so ensure that exists before trying to enumerate it.
+            bool enumerateFiles = true;
+            if (searchPattern.Contains(Path.DirectorySeparatorChar))
             {
-                string fileName = Path.GetFileName(sourceFile);
-                if (matcher.IsMatch(fileName, destinationSubDirectory, isFile: true))
+                string effectiveSourceDirectory = Path.GetDirectoryName(Path.Combine(sourceDirectory, searchPattern));
+                if (!Directory.Exists(effectiveSourceDirectory))
                 {
-                    ProcessFile(sourceFile, fileName, destinationFolders, destinationSubDirectory, predictionReporter);
+                    enumerateFiles = false;
+                }
+            }
+
+            if (enumerateFiles)
+            {
+                foreach (string sourceFile in Directory.EnumerateFiles(sourceDirectory, searchPattern))
+                {
+                    string fileName = sourceFile.Substring(sourceDirectory.Length + 1);
+                    if (matcher.IsMatch(fileName, destinationSubDirectory, isFile: true))
+                    {
+                        ProcessFile(sourceFile, fileName, destinationFolders, destinationSubDirectory, predictionReporter);
+                    }
                 }
             }
 
@@ -192,21 +206,21 @@ namespace Microsoft.Build.Prediction.Predictors
 
             private static readonly List<Regex> _emptyRegexList = new List<Regex>(0);
 
-            private string _sourceFolder;
+            private readonly string _sourceFolder;
 
-            private bool _doMatchAll;
+            private readonly bool _doMatchAll;
 
-            private List<string> _fileMatches;
+            private readonly List<string> _fileMatches;
 
-            private List<Regex> _fileRegexMatches;
+            private readonly List<Regex> _fileRegexMatches;
 
-            private List<string> _fileExcludes;
+            private readonly List<string> _fileExcludes;
 
-            private List<Regex> _fileRegexExcludes;
+            private readonly List<Regex> _fileRegexExcludes;
 
-            private List<string> _dirExcludes;
+            private readonly List<string> _dirExcludes;
 
-            private List<Regex> _dirRegexExcludes;
+            private readonly List<Regex> _dirRegexExcludes;
 
             public Matcher(ProjectItemInstance item, string source)
             {
