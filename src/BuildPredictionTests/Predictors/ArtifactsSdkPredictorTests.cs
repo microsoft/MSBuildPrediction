@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Execution;
@@ -336,6 +337,72 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     expectedInputDirectories.MakeAbsolute(_rootDir),
                     null,
                     expectedOutputDirectories.MakeAbsolute(_rootDir));
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void FindArtifactsForFileMatchWithDirectory(bool subdirExists)
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"src\project.csproj"));
+            projectRootElement.AddProperty(ArtifactsSdkPredictor.UsingMicrosoftArtifactsSdkPropertyName, "true");
+            projectRootElement.AddProperty("ArtifactsPath", Path.Combine(_rootDir, "out"));
+
+            var artifactItem = projectRootElement.AddItem(ArtifactsSdkPredictor.ArtifactsItemName, "Artifacts");
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.DestinationFolderMetadata, @"$(ArtifactsPath)\Project");
+
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileMatchMetadata, @"someSubdir\*.txt");
+
+            Directory.CreateDirectory(Path.Combine(_rootDir, @"src\Artifacts"));
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\1.txt"), "SomeContent");
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\2.txt"), "SomeContent");
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\3.txt"), "SomeContent");
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\image.jpg"), "SomeContent"); // excluded by not matching
+
+            if (subdirExists)
+            {
+                Directory.CreateDirectory(Path.Combine(_rootDir, @"src\Artifacts\someSubdir"));
+                File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\someSubdir\4.txt"), "SomeContent");
+                File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\someSubdir\5.txt"), "SomeContent");
+                File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\someSubdir\6.txt"), "SomeContent");
+                File.WriteAllText(Path.Combine(_rootDir, @"src\Artifacts\image2.jpg"), "SomeContent"); // excluded by not matching
+            }
+
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+
+            List<PredictedItem> expectedInputFiles = [];
+            List<PredictedItem> expectedOutputFiles = [];
+
+            if (subdirExists)
+            {
+                expectedInputFiles =
+                [
+                    new PredictedItem(@"src\Artifacts\someSubdir\4.txt", nameof(ArtifactsSdkPredictor)),
+                    new PredictedItem(@"src\Artifacts\someSubdir\5.txt", nameof(ArtifactsSdkPredictor)),
+                    new PredictedItem(@"src\Artifacts\someSubdir\6.txt", nameof(ArtifactsSdkPredictor)),
+                ];
+
+                expectedOutputFiles =
+                [
+                    new PredictedItem(@"out\Project\someSubdir\4.txt", nameof(ArtifactsSdkPredictor)),
+                    new PredictedItem(@"out\Project\someSubdir\5.txt", nameof(ArtifactsSdkPredictor)),
+                    new PredictedItem(@"out\Project\someSubdir\6.txt", nameof(ArtifactsSdkPredictor)),
+                ];
+            }
+            else
+            {
+                expectedInputFiles = [];
+                expectedOutputFiles = [];
+            }
+
+            new ArtifactsSdkPredictor()
+                .GetProjectPredictions(projectInstance)
+                .AssertPredictions(
+                    projectInstance,
+                    expectedInputFiles.MakeAbsolute(_rootDir),
+                    null,
+                    expectedOutputFiles.MakeAbsolute(_rootDir),
+                    null);
         }
     }
 }
