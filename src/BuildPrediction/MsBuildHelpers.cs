@@ -202,7 +202,17 @@ namespace Microsoft.Build.Prediction
                 return false;
             }
 
-            return projectInstance.EvaluateCondition(condition);
+            try
+            {
+                return projectInstance.EvaluateCondition(condition);
+            }
+            catch (InvalidProjectFileException)
+            {
+                // In some cases, the condition may not evaluate properly until targets have actually been executed.
+                // For example, the condition `Condition="$(Foo)"` where the property Foo is not defined except inside a target which runs before the target with the condition.
+                // To be conservative, assume these conditions evaluate to true.
+                return true;
+            }
         }
 
         /// <summary>

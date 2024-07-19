@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <Dest>target\debug\amd64\folder</Dest>
+  </PropertyGroup>
+  <ItemGroup>
+    <FilesToCopy Include="copy1.dll" />
+    <FilesToCopy Include="copy2.dll" />
+  </ItemGroup>
+  <Target Name="CopyFiles" AfterTargets="Build" Condition="$(CopyFilesCondition)" DependsOnTargets="CopyFilesDependency">
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(Dest)" />
+  </Target>
+  <Target Name="CopyFilesDependency" BeforeTargets="Build">
+    <PropertyGroup>
+      <CopyFilesCondition>true</CopyFilesCondition>
+    </PropertyGroup>
+  </Target>
+</Project>

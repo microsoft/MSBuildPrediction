@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{0000000A-0000-00AA-AA00-0AA00A00A00A}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <OutDir>objd\amd64</OutDir>
+    <RootNamespace>SomeNamespace</RootNamespace>
+    <AssemblyName>SomeName</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SomeFile.cs" />
+  </ItemGroup>
+  <!-- The targets need to be in a targets file since all targets directly in the project are considered -->
+  <Import Project="TargetUnevaluatableConditionInCopy.targets" />
+  <Target Name="Build" />
+</Project>
