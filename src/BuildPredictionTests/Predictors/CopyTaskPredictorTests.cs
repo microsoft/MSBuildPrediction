@@ -321,5 +321,22 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             var predictor = new CopyTaskPredictor();
             ParseAndVerifyProject("TargetUnevaluatableConditionInCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
+
+        [Fact]
+        public void SourceFolders()
+        {
+            PredictedItem[] expectedInputDirectories =
+            {
+                new PredictedItem(@"Copy", nameof(CopyTaskPredictor)),
+            };
+
+            PredictedItem[] expectedOutputDirectories =
+            {
+                new PredictedItem(@"target\Debug\x64\folder", nameof(CopyTaskPredictor)),
+            };
+
+            var predictor = new CopyTaskPredictor();
+            ParseAndVerifyProject("SourceFolders.csproj", predictor, null, expectedInputDirectories, null, expectedOutputDirectories);
+        }
     }
 }
