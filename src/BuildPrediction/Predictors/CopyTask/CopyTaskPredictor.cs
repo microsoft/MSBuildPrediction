@@ -22,6 +22,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
     {
         private const string CopyTaskName = "Copy";
         private const string CopyTaskSourceFiles = "SourceFiles";
+        private const string CopyTaskSourceFolders = "SourceFolders";
         private const string CopyTaskDestinationFiles = "DestinationFiles";
         private const string CopyTaskDestinationFolder = "DestinationFolder";
 
@@ -81,55 +82,70 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                 {
                     if (projectInstance.EvaluateConditionCarefully(task.Condition))
                     {
-                        var inputs = new FileExpressionList(
-                            task.Parameters[CopyTaskSourceFiles],
-                            projectInstance,
-                            task);
+                        bool hasSourceFiles = task.Parameters.TryGetValue(CopyTaskSourceFiles, out string sourceFiles) && !string.IsNullOrEmpty(sourceFiles);
+                        bool hasSourceFolders = task.Parameters.TryGetValue(CopyTaskSourceFolders, out string sourceFolders) && !string.IsNullOrEmpty(sourceFolders);
+                        bool hasDestinationFiles = task.Parameters.TryGetValue(CopyTaskDestinationFiles, out string destinationFiles) && !string.IsNullOrEmpty(destinationFiles);
+                        bool hasDestinationFolder = task.Parameters.TryGetValue(CopyTaskDestinationFolder, out string destinationFolder) && !string.IsNullOrEmpty(destinationFolder);
+
+                        // The task will nop if there are no sources.
+                        if (!hasSourceFiles && !hasSourceFolders)
+                        {
+                            continue;
+                        }
+
+                        // The task will error if there is no destination
+                        if (!hasDestinationFiles && !hasDestinationFolder)
+                        {
+                            continue;
+                        }
+
+                        // The task will error if both destination types are used.
+                        if (hasDestinationFolder && hasDestinationFiles)
+                        {
+                            continue;
+                        }
+
+                        // SourceFolders and DestinationFiles can't be used together.
+                        if (hasSourceFolders && hasDestinationFiles)
+                        {
+                            continue;
+                        }
+
+                        var inputs = EvaluateExpression(hasSourceFolders ? sourceFolders : sourceFiles, projectInstance, task);
                         if (inputs.NumExpressions == 0)
                         {
                             continue;
                         }
 
-                        foreach (var file in inputs.DedupedFiles)
+                        foreach (string file in inputs.Paths)
                         {
-                            predictionReporter.ReportInputFile(file);
-                        }
-
-                        bool hasDestinationFolder = task.Parameters.TryGetValue(
-                            CopyTaskDestinationFolder,
-                            out string destinationFolder);
-                        bool hasDestinationFiles = task.Parameters.TryGetValue(
-                            CopyTaskDestinationFiles,
-                            out string destinationFiles);
-
-                        if (hasDestinationFiles || hasDestinationFolder)
-                        {
-                            // Having both is an MSBuild violation, which it will complain about.
-                            if (hasDestinationFolder && hasDestinationFiles)
+                            if (hasSourceFolders)
                             {
-                                continue;
-                            }
-
-                            string destination = destinationFolder ?? destinationFiles;
-
-                            var outputs = new FileExpressionList(destination, projectInstance, task);
-
-                            // When using batch tokens, the user should specify exactly one total token, and it must appear in both the input and output.
-                            // Doing otherwise should be a BuildCop error. If not using batch tokens, then any number of other tokens is fine.
-                            if ((outputs.NumBatchExpressions == 1 && outputs.NumExpressions == 1 &&
-                                 inputs.NumBatchExpressions == 1 && inputs.NumExpressions == 1) ||
-                                (outputs.NumBatchExpressions == 0 && inputs.NumBatchExpressions == 0))
-                            {
-                                ProcessOutputs(inputs, outputs, hasDestinationFolder, predictionReporter);
+                                predictionReporter.ReportInputDirectory(file);
                             }
                             else
                             {
-                                // Ignore case we cannot handle.
+                                predictionReporter.ReportInputFile(file);
                             }
+                        }
+
+                        var outputs = EvaluateExpression(hasDestinationFolder ? destinationFolder : destinationFiles, projectInstance, task);
+                        if (outputs.NumExpressions == 0)
+                        {
+                            continue;
+                        }
+
+                        // When using batch tokens, the user should specify exactly one total token, and it must appear in both the input and output.
+                        // If not using batch tokens, then any number of other tokens is fine.
+                        if ((outputs.NumBatchExpressions == 1 && outputs.NumExpressions == 1 &&
+                             inputs.NumBatchExpressions == 1 && inputs.NumExpressions == 1) ||
+                            (outputs.NumBatchExpressions == 0 && inputs.NumBatchExpressions == 0))
+                        {
+                            ProcessOutputs(inputs.Paths, outputs.Paths, hasDestinationFolder, predictionReporter);
                         }
                         else
                         {
-                            // Ignore malformed case.
+                            // Ignore case we cannot handle.
                         }
                     }
                 }
@@ -146,12 +162,12 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         /// <param name="copyTaskSpecifiesDestinationFolder">True if the user has specified DestinationFolder.</param>
         /// <param name="predictionReporter">A reporter to report predictions to.</param>
         private static void ProcessOutputs(
-            FileExpressionList inputs,
-            FileExpressionList outputs,
+            List<string> inputs,
+            List<string> outputs,
             bool copyTaskSpecifiesDestinationFolder,
             ProjectPredictionReporter predictionReporter)
         {
-            for (int i = 0; i < inputs.DedupedFiles.Count; i++)
+            for (int i = 0; i < inputs.Count; i++)
             {
                 string predictedOutputDirectory;
 
@@ -159,33 +175,65 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                 // either exactly one or N folders. We need to handle each case.
                 if (copyTaskSpecifiesDestinationFolder)
                 {
-                    if (outputs.DedupedFiles.Count == 0)
+                    if (outputs.Count == 0)
                     {
                         // Output files couldn't be parsed, bail out.
                         break;
                     }
 
                     // If output directories isn't 1 or N, bail out.
-                    if (inputs.DedupedFiles.Count != outputs.DedupedFiles.Count && outputs.DedupedFiles.Count > 1)
+                    if (inputs.Count != outputs.Count && outputs.Count > 1)
                     {
                         break;
                     }
 
-                    predictedOutputDirectory = outputs.DedupedFiles.Count == 1 ? outputs.DedupedFiles[0] : outputs.DedupedFiles[i];
+                    predictedOutputDirectory = outputs.Count == 1 ? outputs[0] : outputs[i];
                 }
                 else
                 {
-                    if (i >= outputs.DedupedFiles.Count)
+                    if (i >= outputs.Count)
                     {
                         break;
                     }
 
                     // The output list is a set of files. Predict their directories.
-                    predictedOutputDirectory = Path.GetDirectoryName(outputs.DedupedFiles[i]);
+                    predictedOutputDirectory = Path.GetDirectoryName(outputs[i]);
                 }
 
                 predictionReporter.ReportOutputDirectory(predictedOutputDirectory);
             }
+        }
+
+        private static (List<string> Paths, int NumExpressions, int NumBatchExpressions) EvaluateExpression(string rawFileListString, ProjectInstance project, ProjectTaskInstance task)
+        {
+            List<string> expressions = rawFileListString.SplitStringList();
+            int numBatchExpressions = 0;
+
+            List<string> paths = new();
+            HashSet<string> seenPaths = new(PathComparer.Instance);
+            foreach (string expression in expressions)
+            {
+                List<string> evaluatedFiles = FileExpression.EvaluateExpression(expression, project, task, out bool isBatched);
+                if (isBatched)
+                {
+                    numBatchExpressions++;
+                }
+
+                foreach (string file in evaluatedFiles)
+                {
+                    if (string.IsNullOrWhiteSpace(file))
+                    {
+                        continue;
+                    }
+
+                    if (seenPaths.Add(file))
+                    {
+                        paths.Add(file);
+                    }
+                }
+            }
+
+            return (paths, expressions.Count, numBatchExpressions);
         }
     }
 }
