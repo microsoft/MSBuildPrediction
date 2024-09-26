@@ -41,6 +41,26 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
+        public void SkipWhenDisabled()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"src\project.csproj"));
+            projectRootElement.AddProperty(ArtifactsSdkPredictor.UsingMicrosoftArtifactsSdkPropertyName, "true");
+            projectRootElement.AddProperty(ArtifactsSdkPredictor.EnableArtifactsPropertyName, "false");
+            projectRootElement.AddProperty("ArtifactsPath", Path.Combine(_rootDir, "out"));
+
+            var artifactItem = projectRootElement.AddItem(ArtifactsSdkPredictor.ArtifactsItemName, "Artifact.txt");
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.DestinationFolderMetadata, @"$(ArtifactsPath)\Project");
+
+            Directory.CreateDirectory(Path.Combine(_rootDir, "src"));
+            File.WriteAllText(Path.Combine(_rootDir, @"src\Artifact.txt"), "SomeContent");
+
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+            new ArtifactsSdkPredictor()
+                .GetProjectPredictions(projectInstance)
+                .AssertNoPredictions();
+        }
+
+        [Fact]
         public void FindArtifactsForExistingFile()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, @"src\project.csproj"));

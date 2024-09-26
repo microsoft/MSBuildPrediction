@@ -18,6 +18,8 @@ namespace Microsoft.Build.Prediction.Predictors
     {
         internal const string UsingMicrosoftArtifactsSdkPropertyName = "UsingMicrosoftArtifactsSdk";
 
+        internal const string EnableArtifactsPropertyName = "EnableArtifacts";
+
         internal const string ArtifactsItemName = "Artifact";
 
         internal const string RobocopyItemName = "Robocopy";
@@ -46,6 +48,13 @@ namespace Microsoft.Build.Prediction.Predictors
             // This predictor only applies to projects using the Microsoft.Build.Artifacts Sdk.
             var usingMicrosoftArtifactsSdk = projectInstance.GetPropertyValue(UsingMicrosoftArtifactsSdkPropertyName);
             if (!usingMicrosoftArtifactsSdk.Equals("true", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            // Check property which disables the functionality.
+            var enableArtifacts = projectInstance.GetPropertyValue(EnableArtifactsPropertyName);
+            if (enableArtifacts.Equals("false", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
