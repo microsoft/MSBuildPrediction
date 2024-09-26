@@ -18,7 +18,7 @@ namespace Microsoft.Build.Prediction.Predictors
     {
         internal const string UsingMicrosoftArtifactsSdkPropertyName = "UsingMicrosoftArtifactsSdk";
 
-        internal const string ArtifactsItemName = "Artifacts";
+        internal const string ArtifactsItemName = "Artifact";
 
         internal const string RobocopyItemName = "Robocopy";
 
