@@ -2,9 +2,7 @@
 <Project>
   <PropertyGroup>
     <!-- Use the highest version which supports a given target framework -->
-    <MSBuildPackageVersion>17.8.3</MSBuildPackageVersion>
-    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net7.0'">17.7.2</MSBuildPackageVersion>
-    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net6.0'">17.3.2</MSBuildPackageVersion>
+    <MSBuildPackageVersion>17.11.4</MSBuildPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.Build" Version="$(MSBuildPackageVersion)" />
