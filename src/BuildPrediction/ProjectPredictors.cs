@@ -60,6 +60,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="ModuleDefinitionFilePredictor"/></item>
         /// <item><see cref="CppContentFilesProjectOutputGroupPredictor"/></item>
         /// <item><see cref="LinkItemsPredictor"/></item>
+        /// <item><see cref="DotnetSdkPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -106,6 +107,7 @@ namespace Microsoft.Build.Prediction
             new ModuleDefinitionFilePredictor(),
             new CppContentFilesProjectOutputGroupPredictor(),
             new LinkItemsPredictor(),
+            new DotnetSdkPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
