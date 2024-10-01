@@ -179,7 +179,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             // Recursive is the default. Also testing the file matching logic here.
             artifactItem.AddMetadata(ArtifactsSdkPredictor.FileMatchMetadata, "*.txt");
-            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileExcludeMetadata, string.Join(separator, ["exclude.*", "dontwant.*"]));
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileExcludeMetadata, string.Join(separator, new string[] { "exclude.*", "dontwant.*" }));
             artifactItem.AddMetadata(ArtifactsSdkPredictor.DirExcludeMetadata, "excludeDir");
 
             Directory.CreateDirectory(Path.Combine(_rootDir, @"src\Artifacts"));
@@ -337,7 +337,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             // Copying another project's output dir to this project's output dir
             var artifactItem = projectRootElement.AddItem(ArtifactsSdkPredictor.ArtifactsItemName, @"$(EnlistmentRoot)\bar\$(OutputPath)");
             artifactItem.AddMetadata(ArtifactsSdkPredictor.DestinationFolderMetadata, @"$(OutputPath)");
-            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileMatchMetadata, string.Join(separator, ["*.dll", "*.pdb"]));
+            artifactItem.AddMetadata(ArtifactsSdkPredictor.FileMatchMetadata, string.Join(separator, new string[] { "*.dll", "*.pdb" }));
 
             ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
 

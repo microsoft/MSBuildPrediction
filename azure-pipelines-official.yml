@@ -4,7 +4,6 @@ variables:
   ArtifactsDirectory: artifacts
   BuildConfiguration: 'Release'
   BuildPlatform: 'Any CPU'
-  DotNetVersion: '8.x'
   MSBuildArgs: '"/p:Platform=$(BuildPlatform)" "/p:Configuration=$(BuildConfiguration)" "/BinaryLogger:$(LogDirectory)/msbuild.binlog"'
   SignType: 'Real'
   TeamName: 'MSBuild'
@@ -74,9 +73,9 @@ extends:
           displayName: 'Set SignType to Real for tagged commits'
           condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
         - task: UseDotNet@2
-          displayName: 'Install .NET $(DotNetVersion)'
+          displayName: 'Install .NET'
           inputs:
-            version: '$(DotNetVersion)'
+            version: '9.x'
         - task: DotNetCoreCLI@2
           displayName: 'Build Solution'
           inputs:

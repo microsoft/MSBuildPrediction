@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 
   <PropertyGroup>
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
@@ -17,6 +17,12 @@
 
     <!-- Use artifacts output layout (https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output) -->
     <UseArtifactsOutput>true</UseArtifactsOutput>
+
+    <!--
+      This all runs in the context of the MSBuild, so we don't have control of the dependencies.
+      Furthermore, we intentionally target lower versions of MSBuild for best compatibility.
+    -->
+    <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
 
   <!-- Packaging -->
