@@ -76,6 +76,7 @@ extends:
           displayName: 'Install .NET'
           inputs:
             version: '9.x'
+            includePreviewVersions: true
         - task: DotNetCoreCLI@2
           displayName: 'Build Solution'
           inputs:
