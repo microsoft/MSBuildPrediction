@@ -51,19 +51,7 @@ namespace Microsoft.Build.Prediction
                 path = Path.GetFullPath(Path.Combine(projectInstance.Directory, path));
             }
 
-            // Get the existing item, or add a new one if needed.
-            lock (items)
-            {
-                if (!items.TryGetValue(path, out PredictedItem item))
-                {
-                    item = new PredictedItem(path, predictorName);
-                    items.Add(path, item);
-                }
-                else
-                {
-                    item.AddPredictedBy(predictorName);
-                }
-            }
+            AddPredictedDependency(items, path, projectInstance, predictorName);
         }
 
         private static void AddPredictedDependency(Dictionary<string, PredictedItem> items, string path, ProjectInstance projectInstance, string predictorName)

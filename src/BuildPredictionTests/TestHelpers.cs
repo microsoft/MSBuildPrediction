@@ -195,7 +195,7 @@ namespace Microsoft.Build.Prediction.Tests
 
             if (expectedDependencies == null)
             {
-                Assert.Empty(predictions.OutputDirectories);
+                Assert.Empty(predictions.Dependencies);
             }
             else
             {
