@@ -24,7 +24,7 @@ namespace Microsoft.Build.Prediction.Tests
             { "Configuration", "Debug" },
         };
 
-        public static void AssertNoPredictions(this ProjectPredictions predictions) => predictions.AssertPredictions(null, null, null, null);
+        public static void AssertNoPredictions(this ProjectPredictions predictions) => predictions.AssertPredictions(null, null, null, null, null);
 
         public static void AssertNoPredictions<TPredictor>(
             this ProjectRootElement rootElement)
@@ -42,14 +42,16 @@ namespace Microsoft.Build.Prediction.Tests
             IReadOnlyCollection<PredictedItem> expectedInputFiles,
             IReadOnlyCollection<PredictedItem> expectedInputDirectories,
             IReadOnlyCollection<PredictedItem> expectedOutputFiles,
-            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedDependencies = null)
             => AssertPredictions(
                 predictions,
                 projectInstance.Directory,
                 expectedInputFiles,
                 expectedInputDirectories,
                 expectedOutputFiles,
-                expectedOutputDirectories);
+                expectedOutputDirectories,
+                expectedDependencies);
 
         public static void AssertPredictions(
             this ProjectPredictions predictions,
@@ -57,20 +59,23 @@ namespace Microsoft.Build.Prediction.Tests
             IReadOnlyCollection<PredictedItem> expectedInputFiles,
             IReadOnlyCollection<PredictedItem> expectedInputDirectories,
             IReadOnlyCollection<PredictedItem> expectedOutputFiles,
-            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedDependencies = null)
             => AssertPredictions(
                 predictions,
                 expectedInputFiles.MakeAbsolute(rootDir),
                 expectedInputDirectories.MakeAbsolute(rootDir),
                 expectedOutputFiles.MakeAbsolute(rootDir),
-                expectedOutputDirectories.MakeAbsolute(rootDir));
+                expectedOutputDirectories.MakeAbsolute(rootDir),
+                expectedDependencies.MakeAbsolute(rootDir));
 
         public static void AssertPredictions<TPredictor>(
             this ProjectRootElement rootElement,
             IReadOnlyCollection<PredictedItem> expectedInputFiles,
             IReadOnlyCollection<PredictedItem> expectedInputDirectories,
             IReadOnlyCollection<PredictedItem> expectedOutputFiles,
-            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedDependencies = null)
              where TPredictor : IProjectPredictor, new()
          {
             ProjectInstance instance = CreateProjectInstanceFromRootElement(rootElement);
@@ -81,7 +86,8 @@ namespace Microsoft.Build.Prediction.Tests
                     expectedInputFiles,
                     expectedInputDirectories,
                     expectedOutputFiles,
-                    expectedOutputDirectories);
+                    expectedOutputDirectories,
+                    expectedDependencies);
         }
 
         public static ProjectInstance ProjectInstanceFromXml(string xml)
@@ -146,7 +152,8 @@ namespace Microsoft.Build.Prediction.Tests
             IReadOnlyCollection<PredictedItem> expectedInputFiles,
             IReadOnlyCollection<PredictedItem> expectedInputDirectories,
             IReadOnlyCollection<PredictedItem> expectedOutputFiles,
-            IReadOnlyCollection<PredictedItem> expectedOutputDirectories)
+            IReadOnlyCollection<PredictedItem> expectedOutputDirectories,
+            IReadOnlyCollection<PredictedItem> expectedDependencies)
         {
             Assert.NotNull(predictions);
 
@@ -184,6 +191,15 @@ namespace Microsoft.Build.Prediction.Tests
             else
             {
                 CheckCollection(expectedOutputDirectories, predictions.OutputDirectories, PredictedItemComparer.Instance, "output directories");
+            }
+
+            if (expectedDependencies == null)
+            {
+                Assert.Empty(predictions.OutputDirectories);
+            }
+            else
+            {
+                CheckCollection(expectedDependencies, predictions.Dependencies, PredictedItemComparer.Instance, "dependencies");
             }
         }
 

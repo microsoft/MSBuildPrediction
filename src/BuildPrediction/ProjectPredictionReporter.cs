@@ -60,5 +60,11 @@ namespace Microsoft.Build.Prediction
         /// </summary>
         /// <param name="path">The path of the directory output.</param>
         public void ReportOutputDirectory(string path) => _predictionCollector.AddOutputDirectory(path, _projectInstance, _predictorName);
+
+        /// <summary>
+        /// Report a prediction for a dependency.
+        /// </summary>
+        /// <param name="path">The path of the dependency.</param>
+        public void ReportDependency(string path) => _predictionCollector.AddDependency(path, _projectInstance, _predictorName);
     }
 }

@@ -44,6 +44,8 @@ namespace Microsoft.Build.Prediction
 
         public void AddOutputDirectory(string path, ProjectInstance projectInstance, string predictorName) => GetProjectCollector(projectInstance).AddOutputDirectory(path, projectInstance, predictorName);
 
+        public void AddDependency(string path, ProjectInstance projectInstance, string predictorName) => GetProjectCollector(projectInstance).AddDependency(path, projectInstance, predictorName);
+
         private DefaultProjectPredictionCollector GetProjectCollector(ProjectInstance projectInstance)
         {
             if (!_collectorByProjectInstance.TryGetValue(projectInstance, out DefaultProjectPredictionCollector collector))

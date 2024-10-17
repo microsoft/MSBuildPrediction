@@ -56,6 +56,7 @@ namespace Microsoft.Build.Prediction.Predictors
                 {
                     // The item will be relative to the project instance passed in, not the current project instance, so make the path absolute.
                     predictionReporter.ReportInputFile(Path.Combine(projectInstance.Directory, item.EvaluatedInclude));
+                    predictionReporter.ReportDependency(projectInstance.FullPath);
 
                     if (!string.IsNullOrEmpty(outDir))
                     {

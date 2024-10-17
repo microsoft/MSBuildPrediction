@@ -128,6 +128,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"src\bin\dep2.xaml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
             };
 
+            var expectedDependencies = new[]
+            {
+                new PredictedItem(@"dep1\dep1.proj", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                new PredictedItem(@"dep2\dep2.proj", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+            };
+
             new GetCopyToOutputDirectoryItemsGraphPredictor()
                 .GetProjectPredictions(projectFile)
                 .AssertPredictions(
@@ -135,7 +141,8 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     expectedInputFiles,
                     null,
                     expectedOutputFiles,
-                    null);
+                    null,
+                    expectedDependencies);
         }
 
         private ProjectRootElement CreateDependencyProject(string projectName, bool shouldCopy)

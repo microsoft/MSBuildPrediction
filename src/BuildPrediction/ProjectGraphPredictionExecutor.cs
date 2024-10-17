@@ -4,9 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Build.Definition;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Evaluation.Context;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Graph;
 

@@ -42,5 +42,13 @@ namespace Microsoft.Build.Prediction
         /// <param name="projectInstance">The associated project instance for the prediction.</param>
         /// <param name="predictorName">The name of the predictor which made the prediction, used for debugging purposes.</param>
         void AddOutputDirectory(string path, ProjectInstance projectInstance, string predictorName);
+
+        /// <summary>
+        /// Add a prediction for a dependency.
+        /// </summary>
+        /// <param name="path">The path of the dependency.</param>
+        /// <param name="projectInstance">The associated project instance for the prediction.</param>
+        /// <param name="predictorName">The name of the predictor which made the prediction, used for debugging purposes.</param>
+        void AddDependency(string path, ProjectInstance projectInstance, string predictorName);
     }
 }

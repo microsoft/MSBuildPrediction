@@ -16,6 +16,7 @@ namespace Microsoft.Build.Prediction
         private readonly Dictionary<string, PredictedItem> _inputsDirectoriesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
         private readonly Dictionary<string, PredictedItem> _outputFilesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
         private readonly Dictionary<string, PredictedItem> _outputDirectoriesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
+        private readonly Dictionary<string, PredictedItem> _dependenciesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
 
         public DefaultProjectPredictionCollector()
         {
@@ -23,7 +24,8 @@ namespace Microsoft.Build.Prediction
                 _inputsFilesByPath.Values,
                 _inputsDirectoriesByPath.Values,
                 _outputFilesByPath.Values,
-                _outputDirectoriesByPath.Values);
+                _outputDirectoriesByPath.Values,
+                _dependenciesByPath.Values);
         }
 
         /// <summary>
@@ -39,6 +41,8 @@ namespace Microsoft.Build.Prediction
 
         public void AddOutputDirectory(string path, ProjectInstance projectInstance, string predictorName) => AddPredictedItem(_outputDirectoriesByPath, path, projectInstance, predictorName);
 
+        public void AddDependency(string path, ProjectInstance projectInstance, string predictorName) => AddPredictedDependency(_dependenciesByPath, path, projectInstance, predictorName);
+
         private static void AddPredictedItem(Dictionary<string, PredictedItem> items, string path, ProjectInstance projectInstance, string predictorName)
         {
             // Make the path absolute if needed.
@@ -48,20 +52,34 @@ namespace Microsoft.Build.Prediction
             }
 
             // Get the existing item, or add a new one if needed.
-            PredictedItem item;
             lock (items)
             {
-                if (!items.TryGetValue(path, out item))
+                if (!items.TryGetValue(path, out PredictedItem item))
                 {
-                    item = new PredictedItem(path);
+                    item = new PredictedItem(path, predictorName);
                     items.Add(path, item);
                 }
+                else
+                {
+                    item.AddPredictedBy(predictorName);
+                }
             }
+        }
 
-            // Add the predictor
+        private static void AddPredictedDependency(Dictionary<string, PredictedItem> items, string path, ProjectInstance projectInstance, string predictorName)
+        {
+            // Get the existing item, or add a new one if needed.
             lock (items)
             {
-                item.AddPredictedBy(predictorName);
+                if (!items.TryGetValue(path, out PredictedItem item))
+                {
+                    item = new PredictedItem(path, predictorName);
+                    items.Add(path, item);
+                }
+                else
+                {
+                    item.AddPredictedBy(predictorName);
+                }
             }
         }
     }
