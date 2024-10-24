@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Prediction.Predictors;
@@ -77,8 +78,10 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 .AssertNoPredictions();
         }
 
-        [Fact]
-        public void WithCopy()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void WithCopy(bool copyContentTransitively)
         {
             string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
             ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
@@ -89,7 +92,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement dep2 = CreateDependencyProject("dep2", shouldCopy);
             ProjectRootElement dep3 = CreateDependencyProject("dep3", shouldCopy);
 
-            // The main project depends on 1 and 2; 2 depends on 3; 3 depends on 1. Note that this should *not* be transitive
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
+            dep1.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
+            dep2.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
+            dep3.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
+
+            // The main project depends on 1 and 2; 2 depends on 3; 3 depends on 1.
             projectRootElement.AddItem("ProjectReference", @"..\dep1\dep1.proj");
             projectRootElement.AddItem("ProjectReference", @"..\dep2\dep2.proj");
             dep2.AddItem("ProjectReference", @"..\dep3\dep3.proj");
@@ -100,8 +108,8 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             dep2.Save();
             dep3.Save();
 
-            var expectedInputFiles = new[]
-            {
+            List<PredictedItem> expectedInputFiles =
+            [
                 new PredictedItem(@"dep1\dep1.xml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                 new PredictedItem(@"dep1\dep1.resx", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                 new PredictedItem(@"dep1\dep1.cs", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
@@ -112,10 +120,10 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"dep2\dep2.cs", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                 new PredictedItem(@"dep2\dep2.txt", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                 new PredictedItem(@"dep2\dep2.xaml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
-            };
+            ];
 
-            var expectedOutputFiles = new[]
-            {
+            List<PredictedItem> expectedOutputFiles =
+            [
                 new PredictedItem(@"src\bin\dep1.xml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                 new PredictedItem(@"src\bin\dep1.resx", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                 new PredictedItem(@"src\bin\dep1.cs", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
@@ -126,7 +134,28 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"src\bin\dep2.cs", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                 new PredictedItem(@"src\bin\dep2.txt", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                 new PredictedItem(@"src\bin\dep2.xaml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
-            };
+            ];
+
+            if (copyContentTransitively)
+            {
+                expectedInputFiles.AddRange(
+                    [
+                        new PredictedItem(@"dep3\dep3.xml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep3\dep3.resx", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep3\dep3.cs", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep3\dep3.txt", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep3\dep3.xaml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ]);
+
+                expectedOutputFiles.AddRange(
+                    [
+                        new PredictedItem(@"src\bin\dep3.xml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep3.resx", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep3.cs", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep3.txt", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep3.xaml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ]);
+            }
 
             new GetCopyToOutputDirectoryItemsGraphPredictor()
                 .GetProjectPredictions(projectFile)
