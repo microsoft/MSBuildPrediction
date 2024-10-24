@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Graph;
@@ -15,9 +16,21 @@ namespace Microsoft.Build.Prediction.Predictors
     {
         internal const string UseCommonOutputDirectoryPropertyName = "UseCommonOutputDirectory";
         internal const string OutDirPropertyName = "OutDir";
+        internal const string MSBuildCopyContentTransitivelyPropertyName = "MSBuildCopyContentTransitively";
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(ProjectGraphNode projectGraphNode, ProjectPredictionReporter predictionReporter)
+        {
+            string outDir = projectGraphNode.ProjectInstance.GetPropertyValue(OutDirPropertyName);
+            HashSet<ProjectGraphNode> visitedNodes = new();
+            PredictInputsAndOutputs(projectGraphNode, outDir, predictionReporter, visitedNodes);
+        }
+
+        private static void PredictInputsAndOutputs(
+            ProjectGraphNode projectGraphNode,
+            string outDir,
+            ProjectPredictionReporter predictionReporter,
+            HashSet<ProjectGraphNode> visitedNodes)
         {
             ProjectInstance projectInstance = projectGraphNode.ProjectInstance;
 
@@ -25,13 +38,22 @@ namespace Microsoft.Build.Prediction.Predictors
             var useCommonOutputDirectory = projectInstance.GetPropertyValue(UseCommonOutputDirectoryPropertyName);
             if (!useCommonOutputDirectory.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
-                string outDir = projectInstance.GetPropertyValue(OutDirPropertyName);
+                bool copyContentTransitively = projectInstance.GetPropertyValue(MSBuildCopyContentTransitivelyPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase);
 
-                // Note that GetCopyToOutputDirectoryItems effectively only is able to go one project reference deep despite being recursive as
-                // it uses @(_MSBuildProjectReferenceExistent) to recurse, which is not set in the recursive calls.
-                // See: https://github.com/microsoft/msbuild/blob/master/src/Tasks/Microsoft.Common.CurrentVersion.targets
                 foreach (ProjectGraphNode dependency in projectGraphNode.ProjectReferences)
                 {
+                    if (!visitedNodes.Add(dependency))
+                    {
+                        // Avoid duplicate predictions
+                        continue;
+                    }
+
+                    // If transitive, recurse
+                    if (copyContentTransitively)
+                    {
+                        PredictInputsAndOutputs(dependency, outDir, predictionReporter, visitedNodes);
+                    }
+
                     // Process each item type considered in GetCopyToOutputDirectoryItems. Yes, Compile is considered.
                     ReportCopyToOutputDirectoryItemsAsInputs(dependency.ProjectInstance, ContentItemsPredictor.ContentItemName, outDir, predictionReporter);
                     ReportCopyToOutputDirectoryItemsAsInputs(dependency.ProjectInstance, EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, outDir, predictionReporter);
