@@ -33,7 +33,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement dep2 = CreateDependencyProject("dep2", shouldCopy);
             ProjectRootElement dep3 = CreateDependencyProject("dep3", shouldCopy);
 
-            // The main project depends on 1 and 2; 2 depends on 3; 3 depends on 1. Note that this predictor should *not* be transitive
+            // The main project depends on 1 and 2; 2 depends on 3; 3 depends on 1.
             projectRootElement.AddItem("ProjectReference", @"..\dep1\dep1.proj");
             projectRootElement.AddItem("ProjectReference", @"..\dep2\dep2.proj");
             dep2.AddItem("ProjectReference", @"..\dep3\dep3.proj");
@@ -62,7 +62,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement dep2 = CreateDependencyProject("dep2", shouldCopy);
             ProjectRootElement dep3 = CreateDependencyProject("dep3", shouldCopy);
 
-            // The main project depends on 1 and 2; 2 depends on 3; 3 depends on 1. Note that this predictor should *not* be transitive
+            // The main project depends on 1 and 2; 2 depends on 3; 3 depends on 1.
             projectRootElement.AddItem("ProjectReference", @"..\dep1\dep1.proj");
             projectRootElement.AddItem("ProjectReference", @"..\dep2\dep2.proj");
             dep2.AddItem("ProjectReference", @"..\dep3\dep3.proj");
@@ -79,9 +79,11 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void WithCopy(bool copyContentTransitively)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void WithCopy(bool copyContentTransitively, bool hasRuntimeOutput)
         {
             string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
             ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
@@ -92,10 +94,18 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement dep2 = CreateDependencyProject("dep2", shouldCopy);
             ProjectRootElement dep3 = CreateDependencyProject("dep3", shouldCopy);
 
-            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
-            dep1.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
-            dep2.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
-            dep3.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
+            AddPropertyToAllProjects(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, copyContentTransitively.ToString());
+
+            AddPropertyToAllProjects(GenerateBuildDependencyFilePredictor.ProjectDepsFilePathPropertyName, @"$(MSBuildProjectDirectory)\bin\$(MSBuildProjectName).deps.json");
+            AddPropertyToAllProjects(GenerateRuntimeConfigurationFilesPredictor.ProjectRuntimeConfigFilePathPropertyName, @"$(MSBuildProjectDirectory)\bin\$(MSBuildProjectName).runtimeconfig.json");
+            AddPropertyToAllProjects(GenerateRuntimeConfigurationFilesPredictor.ProjectRuntimeConfigDevFilePathPropertyName, @"$(MSBuildProjectDirectory)\bin\$(MSBuildProjectName).runtimeconfig.dev.json");
+
+            if (hasRuntimeOutput)
+            {
+                AddPropertyToAllProjects(GetCopyToOutputDirectoryItemsGraphPredictor.HasRuntimeOutputPropertyName, "true");
+                AddPropertyToAllProjects(GenerateBuildDependencyFilePredictor.GenerateDependencyFilePropertyName, "true");
+                AddPropertyToAllProjects(GenerateRuntimeConfigurationFilesPredictor.GenerateRuntimeConfigurationFilesPropertyName, "true");
+            }
 
             // The main project depends on 1 and 2; 2 depends on 3; 3 depends on 1.
             projectRootElement.AddItem("ProjectReference", @"..\dep1\dep1.proj");
@@ -136,6 +146,29 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                 new PredictedItem(@"src\bin\dep2.xaml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
             ];
 
+            if (hasRuntimeOutput)
+            {
+                expectedInputFiles.AddRange(
+                    [
+                        new PredictedItem(@"dep1\bin\dep1.deps.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep1\bin\dep1.runtimeconfig.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep1\bin\dep1.runtimeconfig.dev.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep2\bin\dep2.deps.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep2\bin\dep2.runtimeconfig.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep2\bin\dep2.runtimeconfig.dev.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ]);
+
+                expectedOutputFiles.AddRange(
+                    [
+                        new PredictedItem(@"src\bin\dep1.deps.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep1.runtimeconfig.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep1.runtimeconfig.dev.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep2.deps.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep2.runtimeconfig.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep2.runtimeconfig.dev.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ]);
+            }
+
             if (copyContentTransitively)
             {
                 expectedInputFiles.AddRange(
@@ -155,6 +188,23 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                         new PredictedItem(@"src\bin\dep3.txt", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                         new PredictedItem(@"src\bin\dep3.xaml", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
                     ]);
+
+                if (hasRuntimeOutput)
+                {
+                    expectedInputFiles.AddRange(
+                        [
+                            new PredictedItem(@"dep3\bin\dep3.deps.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                            new PredictedItem(@"dep3\bin\dep3.runtimeconfig.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                            new PredictedItem(@"dep3\bin\dep3.runtimeconfig.dev.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        ]);
+
+                    expectedOutputFiles.AddRange(
+                        [
+                            new PredictedItem(@"src\bin\dep3.deps.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                            new PredictedItem(@"src\bin\dep3.runtimeconfig.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                            new PredictedItem(@"src\bin\dep3.runtimeconfig.dev.json", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        ]);
+                    }
             }
 
             new GetCopyToOutputDirectoryItemsGraphPredictor()
@@ -165,6 +215,14 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     null,
                     expectedOutputFiles,
                     null);
+
+            void AddPropertyToAllProjects(string propertyName, string propertyValue)
+            {
+                projectRootElement.AddProperty(propertyName, propertyValue);
+                dep1.AddProperty(propertyName, propertyValue);
+                dep2.AddProperty(propertyName, propertyValue);
+                dep3.AddProperty(propertyName, propertyValue);
+            }
         }
 
         private ProjectRootElement CreateDependencyProject(string projectName, bool shouldCopy)

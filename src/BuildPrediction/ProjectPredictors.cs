@@ -61,6 +61,9 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="CppContentFilesProjectOutputGroupPredictor"/></item>
         /// <item><see cref="LinkItemsPredictor"/></item>
         /// <item><see cref="DotnetSdkPredictor"/></item>
+        /// <item><see cref="GenerateBuildDependencyFilePredictor"/></item>
+        /// <item><see cref="GeneratePublishDependencyFilePredictor"/></item>
+        /// <item><see cref="GenerateRuntimeConfigurationFilesPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -108,6 +111,9 @@ namespace Microsoft.Build.Prediction
             new CppContentFilesProjectOutputGroupPredictor(),
             new LinkItemsPredictor(),
             new DotnetSdkPredictor(),
+            new GenerateBuildDependencyFilePredictor(),
+            new GeneratePublishDependencyFilePredictor(),
+            new GenerateRuntimeConfigurationFilesPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 

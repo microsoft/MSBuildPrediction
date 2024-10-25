@@ -79,6 +79,37 @@ namespace Microsoft.Build.Prediction.Predictors
             ReportCopyToPublishDirectoryItems(projectInstance, EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, publishDir, predictionReporter);
             ReportCopyToPublishDirectoryItems(projectInstance, CompileItemsPredictor.CompileItemName, publishDir, predictionReporter);
             ReportCopyToPublishDirectoryItems(projectInstance, NoneItemsPredictor.NoneItemName, publishDir, predictionReporter);
+
+            // Process items added by AddDepsJsonAndRuntimeConfigToPublishItemsForReferencingProjects
+            bool hasRuntimeOutput = projectInstance.GetPropertyValue(GetCopyToOutputDirectoryItemsGraphPredictor.HasRuntimeOutputPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase);
+            if (hasRuntimeOutput)
+            {
+                if (projectInstance.GetPropertyValue(GenerateBuildDependencyFilePredictor.GenerateDependencyFilePropertyName).Equals("true", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (GeneratePublishDependencyFilePredictor.ShouldUseBuildDependencyFile(projectInstance))
+                    {
+                        string projectDepsFilePath = projectInstance.GetPropertyValue(GenerateBuildDependencyFilePredictor.ProjectDepsFilePathPropertyName);
+                        predictionReporter.ReportInputFile(projectDepsFilePath);
+                        predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectDepsFilePath)));
+                    }
+                    else
+                    {
+                        string publishDepsFilePath = GeneratePublishDependencyFilePredictor.GetEffectivePublishDepsFilePath(projectInstance);
+                        if (publishDepsFilePath is not null)
+                        {
+                            predictionReporter.ReportInputFile(publishDepsFilePath);
+                            predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(publishDepsFilePath)));
+                        }
+                    }
+                }
+
+                if (projectInstance.GetPropertyValue(GenerateRuntimeConfigurationFilesPredictor.GenerateRuntimeConfigurationFilesPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase))
+                {
+                    string projectRuntimeConfigFilePath = projectInstance.GetPropertyValue(GenerateRuntimeConfigurationFilesPredictor.ProjectRuntimeConfigFilePathPropertyName);
+                    predictionReporter.ReportInputFile(projectRuntimeConfigFilePath);
+                    predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectRuntimeConfigFilePath)));
+                }
+            }
         }
 
         private static void ReportCopyToPublishDirectoryItems(

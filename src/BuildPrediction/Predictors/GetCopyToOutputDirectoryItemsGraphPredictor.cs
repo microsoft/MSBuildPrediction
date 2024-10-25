@@ -17,6 +17,7 @@ namespace Microsoft.Build.Prediction.Predictors
         internal const string UseCommonOutputDirectoryPropertyName = "UseCommonOutputDirectory";
         internal const string OutDirPropertyName = "OutDir";
         internal const string MSBuildCopyContentTransitivelyPropertyName = "MSBuildCopyContentTransitively";
+        internal const string HasRuntimeOutputPropertyName = "HasRuntimeOutput";
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(ProjectGraphNode projectGraphNode, ProjectPredictionReporter predictionReporter)
@@ -62,6 +63,29 @@ namespace Microsoft.Build.Prediction.Predictors
 
                     // Process each item type considered in GetCopyToOutputDirectoryXamlAppDefs
                     ReportCopyToOutputDirectoryItemsAsInputs(dependency.ProjectInstance, XamlAppDefPredictor.XamlAppDefItemName, outDir, predictionReporter);
+
+                    // Process items added by AddDepsJsonAndRuntimeConfigToCopyItemsForReferencingProjects
+                    bool hasRuntimeOutput = dependency.ProjectInstance.GetPropertyValue(HasRuntimeOutputPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase);
+                    if (hasRuntimeOutput)
+                    {
+                        if (dependency.ProjectInstance.GetPropertyValue(GenerateBuildDependencyFilePredictor.GenerateDependencyFilePropertyName).Equals("true", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string projectDepsFilePath = dependency.ProjectInstance.GetPropertyValue(GenerateBuildDependencyFilePredictor.ProjectDepsFilePathPropertyName);
+                            predictionReporter.ReportInputFile(projectDepsFilePath);
+                            predictionReporter.ReportOutputFile(Path.Combine(outDir, Path.GetFileName(projectDepsFilePath)));
+                        }
+
+                        if (dependency.ProjectInstance.GetPropertyValue(GenerateRuntimeConfigurationFilesPredictor.GenerateRuntimeConfigurationFilesPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string projectRuntimeConfigFilePath = dependency.ProjectInstance.GetPropertyValue(GenerateRuntimeConfigurationFilesPredictor.ProjectRuntimeConfigFilePathPropertyName);
+                            predictionReporter.ReportInputFile(projectRuntimeConfigFilePath);
+                            predictionReporter.ReportOutputFile(Path.Combine(outDir, Path.GetFileName(projectRuntimeConfigFilePath)));
+
+                            string projectRuntimeConfigDevFilePath = dependency.ProjectInstance.GetPropertyValue(GenerateRuntimeConfigurationFilesPredictor.ProjectRuntimeConfigDevFilePathPropertyName);
+                            predictionReporter.ReportInputFile(projectRuntimeConfigDevFilePath);
+                            predictionReporter.ReportOutputFile(Path.Combine(outDir, Path.GetFileName(projectRuntimeConfigDevFilePath)));
+                        }
+                    }
                 }
             }
         }
