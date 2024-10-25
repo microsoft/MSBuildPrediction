@@ -89,13 +89,16 @@ namespace Microsoft.Build.Prediction.Predictors
                     if (GeneratePublishDependencyFilePredictor.ShouldUseBuildDependencyFile(projectInstance))
                     {
                         string projectDepsFilePath = projectInstance.GetPropertyValue(GenerateBuildDependencyFilePredictor.ProjectDepsFilePathPropertyName);
-                        predictionReporter.ReportInputFile(projectDepsFilePath);
-                        predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectDepsFilePath)));
+                        if (!string.IsNullOrEmpty(projectDepsFilePath))
+                        {
+                            predictionReporter.ReportInputFile(projectDepsFilePath);
+                            predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectDepsFilePath)));
+                        }
                     }
                     else
                     {
                         string publishDepsFilePath = GeneratePublishDependencyFilePredictor.GetEffectivePublishDepsFilePath(projectInstance);
-                        if (publishDepsFilePath is not null)
+                        if (!string.IsNullOrEmpty(publishDepsFilePath))
                         {
                             predictionReporter.ReportInputFile(publishDepsFilePath);
                             predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(publishDepsFilePath)));
@@ -106,8 +109,11 @@ namespace Microsoft.Build.Prediction.Predictors
                 if (projectInstance.GetPropertyValue(GenerateRuntimeConfigurationFilesPredictor.GenerateRuntimeConfigurationFilesPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase))
                 {
                     string projectRuntimeConfigFilePath = projectInstance.GetPropertyValue(GenerateRuntimeConfigurationFilesPredictor.ProjectRuntimeConfigFilePathPropertyName);
-                    predictionReporter.ReportInputFile(projectRuntimeConfigFilePath);
-                    predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectRuntimeConfigFilePath)));
+                    if (!string.IsNullOrEmpty(projectRuntimeConfigFilePath))
+                    {
+                        predictionReporter.ReportInputFile(projectRuntimeConfigFilePath);
+                        predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectRuntimeConfigFilePath)));
+                    }
                 }
             }
         }
