@@ -37,13 +37,20 @@ public sealed class GeneratePublishDependencyFilePredictor : IProjectPredictor
             return;
         }
 
-        predictionReporter.ReportInputFile(projectInstance.GetPropertyValue(GenerateBuildDependencyFilePredictor.ProjectAssetsFilePropertyName));
+        string projectAssetsFilePropertyName = projectInstance.GetPropertyValue(GenerateBuildDependencyFilePredictor.ProjectAssetsFilePropertyName);
+        if (!string.IsNullOrEmpty(projectAssetsFilePropertyName))
+        {
+            predictionReporter.ReportInputFile(projectAssetsFilePropertyName);
+        }
 
         string publishDepsFilePath = GetEffectivePublishDepsFilePath(projectInstance);
-        string intermediateDepsFilePath = publishDepsFilePath is not null
+        string intermediateDepsFilePath = !string.IsNullOrEmpty(publishDepsFilePath)
             ? publishDepsFilePath
             : projectInstance.GetPropertyValue(IntermediateOutputPathPropertyName) + projectInstance.GetPropertyValue(ProjectDepsFileNamePropertyName);
-        predictionReporter.ReportOutputFile(intermediateDepsFilePath);
+        if (!string.IsNullOrEmpty(intermediateDepsFilePath))
+        {
+            predictionReporter.ReportOutputFile(intermediateDepsFilePath);
+        }
 
         // Note: GetCopyToPublishDirectoryItemsGraphPredictor will predict the final (published) location for the publish deps file since that's the target which does that copy.
     }

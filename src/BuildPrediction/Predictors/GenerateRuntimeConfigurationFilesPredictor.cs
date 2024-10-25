@@ -28,13 +28,25 @@ public sealed class GenerateRuntimeConfigurationFilesPredictor : IProjectPredict
         }
 
         string userRuntimeConfig = projectInstance.GetPropertyValue(UserRuntimeConfigPropertyName);
-        string userRuntimeConfigFullPath = Path.Combine(projectInstance.Directory, userRuntimeConfig);
-        if (File.Exists(userRuntimeConfigFullPath))
+        if (!string.IsNullOrEmpty(userRuntimeConfig))
         {
-            predictionReporter.ReportInputFile(userRuntimeConfigFullPath);
+            string userRuntimeConfigFullPath = Path.Combine(projectInstance.Directory, userRuntimeConfig);
+            if (File.Exists(userRuntimeConfigFullPath))
+            {
+                predictionReporter.ReportInputFile(userRuntimeConfigFullPath);
+            }
         }
 
-        predictionReporter.ReportOutputFile(projectInstance.GetPropertyValue(ProjectRuntimeConfigFilePathPropertyName));
-        predictionReporter.ReportOutputFile(projectInstance.GetPropertyValue(ProjectRuntimeConfigDevFilePathPropertyName));
+        string projectRuntimeConfigFilePath = projectInstance.GetPropertyValue(ProjectRuntimeConfigFilePathPropertyName);
+        if (!string.IsNullOrEmpty(projectRuntimeConfigFilePath))
+        {
+            predictionReporter.ReportOutputFile(projectRuntimeConfigFilePath);
+        }
+
+        string projectRuntimeConfigDevFilePath = projectInstance.GetPropertyValue(ProjectRuntimeConfigDevFilePathPropertyName);
+        if (!string.IsNullOrEmpty(projectRuntimeConfigDevFilePath))
+        {
+            predictionReporter.ReportOutputFile(projectRuntimeConfigDevFilePath);
+        }
     }
 }

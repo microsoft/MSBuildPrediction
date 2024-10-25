@@ -25,7 +25,16 @@ public sealed class GenerateBuildDependencyFilePredictor : IProjectPredictor
             return;
         }
 
-        predictionReporter.ReportInputFile(projectInstance.GetPropertyValue(ProjectAssetsFilePropertyName));
-        predictionReporter.ReportOutputFile(projectInstance.GetPropertyValue(ProjectDepsFilePathPropertyName));
+        string projectAssetsFilePropertyName = projectInstance.GetPropertyValue(ProjectAssetsFilePropertyName);
+        if (!string.IsNullOrEmpty(projectAssetsFilePropertyName))
+        {
+            predictionReporter.ReportInputFile(projectAssetsFilePropertyName);
+        }
+
+        string projectDepsFilePath = projectInstance.GetPropertyValue(ProjectDepsFilePathPropertyName);
+        if (!string.IsNullOrEmpty(projectDepsFilePath))
+        {
+            predictionReporter.ReportOutputFile(projectDepsFilePath);
+        }
     }
 }
