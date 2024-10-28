@@ -92,7 +92,11 @@ namespace Microsoft.Build.Prediction.Predictors
                         if (!string.IsNullOrEmpty(projectDepsFilePath))
                         {
                             predictionReporter.ReportInputFile(projectDepsFilePath);
-                            predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectDepsFilePath)));
+
+                            if (!string.IsNullOrEmpty(publishDir))
+                            {
+                                predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectDepsFilePath)));
+                            }
                         }
                     }
                     else
@@ -101,7 +105,11 @@ namespace Microsoft.Build.Prediction.Predictors
                         if (!string.IsNullOrEmpty(publishDepsFilePath))
                         {
                             predictionReporter.ReportInputFile(publishDepsFilePath);
-                            predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(publishDepsFilePath)));
+
+                            if (!string.IsNullOrEmpty(publishDir))
+                            {
+                                predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(publishDepsFilePath)));
+                            }
                         }
                     }
                 }
@@ -112,7 +120,11 @@ namespace Microsoft.Build.Prediction.Predictors
                     if (!string.IsNullOrEmpty(projectRuntimeConfigFilePath))
                     {
                         predictionReporter.ReportInputFile(projectRuntimeConfigFilePath);
-                        predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectRuntimeConfigFilePath)));
+
+                        if (!string.IsNullOrEmpty(publishDir))
+                        {
+                            predictionReporter.ReportOutputFile(Path.Combine(publishDir, Path.GetFileName(projectRuntimeConfigFilePath)));
+                        }
                     }
                 }
             }
