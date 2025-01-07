@@ -13,6 +13,7 @@ namespace Microsoft.Build.Prediction.Predictors
     {
         internal const string OutDirPropertyName = "OutDir";
         internal const string ContentItemName = "Content";
+        internal const string ContentWithTargetPathItemName = "ContentWithTargetPath";
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
@@ -28,6 +29,21 @@ namespace Microsoft.Build.Prediction.Predictors
                 if (!string.IsNullOrEmpty(outDir) && item.ShouldCopyToOutputDirectory())
                 {
                     string targetPath = item.GetTargetPath();
+                    if (!string.IsNullOrEmpty(targetPath))
+                    {
+                        predictionReporter.ReportOutputFile(Path.Combine(outDir, targetPath));
+                    }
+                }
+            }
+
+            foreach (ProjectItemInstance item in projectInstance.GetItems(ContentWithTargetPathItemName))
+            {
+                predictionReporter.ReportInputFile(item.EvaluatedInclude);
+
+                if (!string.IsNullOrEmpty(outDir) && item.ShouldCopyToOutputDirectory())
+                {
+                    // Note: Using TargetPath directly instead of GetTargetPath since ContentWithTargetPath items don't have AssignTargetPath called on them.
+                    string targetPath = item.GetMetadataValue("TargetPath");
                     if (!string.IsNullOrEmpty(targetPath))
                     {
                         predictionReporter.ReportOutputFile(Path.Combine(outDir, targetPath));

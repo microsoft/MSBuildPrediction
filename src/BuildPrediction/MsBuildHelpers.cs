@@ -235,16 +235,22 @@ namespace Microsoft.Build.Prediction
         }
 
         /// <summary>
-        /// Determins what the TargetPath metadata would be set to after calling the AssignTargetPath task.
+        /// Determines what the TargetPath metadata would be set to after calling the AssignTargetPath task.
         /// </summary>
         /// <remarks>
         /// See: https://github.com/microsoft/msbuild/blob/master/src/Tasks/AssignTargetPath.cs.
         /// </remarks>
         public static string GetTargetPath(this ProjectItemInstance item)
         {
-            string link = item.GetMetadataValue("Link");
+            // If TargetPath is already set, it takes priority.
+            string targetPath = item.GetMetadataValue("TargetPath");
+            if (!string.IsNullOrEmpty(targetPath))
+            {
+                return targetPath;
+            }
 
             // If file has a link, use that.
+            string link = item.GetMetadataValue("Link");
             if (!string.IsNullOrEmpty(link))
             {
                 return link;
