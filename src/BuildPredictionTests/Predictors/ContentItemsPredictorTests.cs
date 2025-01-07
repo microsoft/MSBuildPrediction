@@ -15,15 +15,25 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(ContentItemsPredictor.OutDirPropertyName, @"bin\");
-            projectRootElement.AddItem(ContentItemsPredictor.ContentItemName, "Foo.xml");
+
+            ProjectItemElement item1 = projectRootElement.AddItem(ContentItemsPredictor.ContentItemName, "Foo.xml");
+
+            ProjectItemElement item2 = projectRootElement.AddItem(ContentItemsPredictor.ContentWithTargetPathItemName, "Bar.xml");
+            item2.AddMetadata("TargetPath", @"bin\Bar.xml");
 
             ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+
+            PredictedItem[] expectedInputFiles =
+            [
+                new PredictedItem("Foo.xml", nameof(ContentItemsPredictor)),
+                new PredictedItem("Bar.xml", nameof(ContentItemsPredictor)),
+            ];
 
             new ContentItemsPredictor()
                 .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
                     projectInstance,
-                    new[] { new PredictedItem("Foo.xml", nameof(ContentItemsPredictor)) },
+                    expectedInputFiles,
                     null,
                     null,
                     null);
@@ -35,18 +45,34 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(ContentItemsPredictor.OutDirPropertyName, @"bin\");
 
-            ProjectItemElement item = projectRootElement.AddItem(ContentItemsPredictor.ContentItemName, "Foo.xml");
-            item.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+            ProjectItemElement item1 = projectRootElement.AddItem(ContentItemsPredictor.ContentItemName, "Foo.xml");
+            item1.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            ProjectItemElement item2 = projectRootElement.AddItem(ContentItemsPredictor.ContentWithTargetPathItemName, "Bar.xml");
+            item2.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+            item2.AddMetadata("TargetPath", @"Bar\Bar.xml");
 
             ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+
+            PredictedItem[] expectedInputFiles =
+            [
+                new PredictedItem("Foo.xml", nameof(ContentItemsPredictor)),
+                new PredictedItem("Bar.xml", nameof(ContentItemsPredictor)),
+            ];
+
+            PredictedItem[] expectedOutputFiles =
+            [
+                new PredictedItem(@"bin\Foo.xml", nameof(ContentItemsPredictor)),
+                new PredictedItem(@"bin\Bar\Bar.xml", nameof(ContentItemsPredictor)),
+            ];
 
             new ContentItemsPredictor()
                 .GetProjectPredictions(projectInstance)
                 .AssertPredictions(
                     projectInstance,
-                    new[] { new PredictedItem("Foo.xml", nameof(ContentItemsPredictor)) },
+                    expectedInputFiles,
                     null,
-                    new[] { new PredictedItem(@"bin\Foo.xml", nameof(ContentItemsPredictor)) },
+                    expectedOutputFiles,
                     null);
         }
     }

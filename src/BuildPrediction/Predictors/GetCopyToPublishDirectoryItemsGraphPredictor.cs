@@ -76,6 +76,7 @@ namespace Microsoft.Build.Prediction.Predictors
         {
             // Process each item type considered in GetCopyToPublishDirectoryItems. Yes, Compile is considered.
             ReportCopyToPublishDirectoryItems(projectInstance, ContentItemsPredictor.ContentItemName, publishDir, predictionReporter);
+            ReportCopyToPublishDirectoryItems(projectInstance, ContentItemsPredictor.ContentWithTargetPathItemName, publishDir, predictionReporter);
             ReportCopyToPublishDirectoryItems(projectInstance, EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, publishDir, predictionReporter);
             ReportCopyToPublishDirectoryItems(projectInstance, CompileItemsPredictor.CompileItemName, publishDir, predictionReporter);
             ReportCopyToPublishDirectoryItems(projectInstance, NoneItemsPredictor.NoneItemName, publishDir, predictionReporter);
