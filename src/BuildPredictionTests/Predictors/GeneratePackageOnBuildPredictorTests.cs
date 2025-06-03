@@ -14,9 +14,28 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         public void Disabled()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageOutputPathPropertyName, "bin");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+
+            new GeneratePackageOnBuildPredictor()
+                .GetProjectPredictions(projectInstance)
+                .AssertNoPredictions();
+        }
+
+        [Fact]
+        public void NotPackable()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "false");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.OutputPathPropertyName, "bin");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecOutputPathPropertyName, "obj");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.SymbolPackageFormatPropertyName, "symbols.nupkg");
             ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
@@ -31,6 +50,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.OutputPathPropertyName, "bin");
@@ -59,6 +79,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.OutputPathPropertyName, "bin");
@@ -86,6 +107,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageOutputPathPropertyName, "bin");
@@ -113,6 +135,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.NuspecFilePropertyName, "SomePackage.nuspec");
@@ -144,6 +167,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IncludeSourcePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
@@ -174,6 +198,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IncludeSymbolsPropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
@@ -204,6 +229,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.GeneratePackageOnBuildPropertyName, "true");
+            projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IsPackablePropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.IncludeSymbolsPropertyName, "true");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageIdPropertyName, "SomePackage");
             projectRootElement.AddProperty(GeneratePackageOnBuildPredictor.PackageVersionPropertyName, "1.2.3");
