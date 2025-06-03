@@ -14,6 +14,8 @@ namespace Microsoft.Build.Prediction.Predictors
     {
         internal const string GeneratePackageOnBuildPropertyName = "GeneratePackageOnBuild";
 
+        internal const string IsPackablePropertyName = "IsPackable";
+
         internal const string PackageIdPropertyName = "PackageId";
 
         internal const string PackageVersionPropertyName = "PackageVersion";
@@ -44,6 +46,12 @@ namespace Microsoft.Build.Prediction.Predictors
             // See: https://github.com/NuGet/NuGet.Client/blob/dev/src/NuGet.Core/NuGet.Build.Tasks.Pack/GetPackOutputItemsTask.cs
             var generatePackageOnBuild = projectInstance.GetPropertyValue(GeneratePackageOnBuildPropertyName);
             if (!generatePackageOnBuild.Equals("true", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var isPackable = projectInstance.GetPropertyValue(IsPackablePropertyName);
+            if (!isPackable.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
