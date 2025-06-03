@@ -60,11 +60,4 @@
   <PropertyGroup>
     <BaseArtifactsPath>$(MSBuildThisFileDirectory)artifacts</BaseArtifactsPath>
   </PropertyGroup>
-
-  <!-- Strong Name Signing -->
-  <PropertyGroup Condition="'$(MicroBuild_SigningEnabled)' != 'true'">
-    <PublicSign>true</PublicSign>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\MicrosoftCorporation.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
 </Project>

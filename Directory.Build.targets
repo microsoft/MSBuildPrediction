@@ -1,5 +1,11 @@
 <Project>
   <!-- Strong-naming -->
+  <PropertyGroup Condition="'$(MicroBuild_SigningEnabled)' != 'true'">
+    <PublicSign>true</PublicSign>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\MicrosoftCorporation.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(SignType)' == 'Test'">
     <SignAssembly>true</SignAssembly>
     <DelaySign Condition="'$(MicroBuild_SigningTargetsImported)' == 'true'">true</DelaySign>
