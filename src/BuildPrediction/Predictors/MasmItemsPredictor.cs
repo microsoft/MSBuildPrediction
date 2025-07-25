@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using Microsoft.Build.Execution;
 
 namespace Microsoft.Build.Prediction.Predictors
@@ -17,7 +15,7 @@ namespace Microsoft.Build.Prediction.Predictors
     ///
     /// While not as widely used, the masm.props/masm.targets are distributed with Visual Studio C/C++ SDK:
     /// - $(VCTargetsPath)\BuildCustomizations\masm.props
-    /// - $(VCTargetsPath)\BuildCustomizations\masm.targets
+    /// - $(VCTargetsPath)\BuildCustomizations\masm.targets.
     /// </remarks>
     /// <seealso cref="Microsoft.Build.Prediction.IProjectPredictor" />
     public class MasmItemsPredictor : IProjectPredictor
@@ -28,7 +26,7 @@ namespace Microsoft.Build.Prediction.Predictors
         internal const string MasmItemName = "MASM";
 
         /// <summary>
-        /// Property name declared in masm.targets
+        /// Property name declared in masm.targets.
         /// </summary>
         internal const string MasmBeforeTargetsPropertyName = "MASMBeforeTargets";
 
@@ -61,7 +59,7 @@ namespace Microsoft.Build.Prediction.Predictors
         /// <summary>
         /// Character separator for values specified in %(MASM.IncludePaths).
         /// </summary>
-        private static readonly char[] IncludePathsSeparator = { ';' };
+        private static readonly char[] _includePathsSeparator = { ';' };
 
         /// <inheritdoc />
         public void PredictInputsAndOutputs(ProjectInstance project, ProjectPredictionReporter reporter)
@@ -101,7 +99,7 @@ namespace Microsoft.Build.Prediction.Predictors
             reporter.ReportInputFile(masmItem.EvaluatedInclude);
 
             string[] includePaths = masmItem.GetMetadataValue(IncludePathsMetadata)
-                .Split(IncludePathsSeparator, StringSplitOptions.RemoveEmptyEntries);
+                .Split(_includePathsSeparator, StringSplitOptions.RemoveEmptyEntries);
 
             // Avoid reporting paths that we've already reported for this project.
             foreach (string includePath in includePaths)

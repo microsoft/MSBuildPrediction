@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net472;net8.0;net9.0</TargetFrameworks>
     <!-- Documentation rules aren't needed for the test project -->
-    <NoWarn>$(NoWarn);SA1600;SA1611;SA1615</NoWarn>
+    <NoWarn>$(NoWarn);SA1600;SA1611;SA1615;CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\BuildPrediction\Microsoft.Build.Prediction.csproj" />
