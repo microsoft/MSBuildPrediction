@@ -19,9 +19,11 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         /// <summary>
         /// Evaluates file expressions, which are MSBuild expressions that
         /// evaluate to a list of files (e.g. @(Compile -> '%(filename)') or %(None.filename)).
+        /// </summary>
         /// <param name="expression">An unprocessed string for a single expression.</param>
         /// <param name="project">The project where the expression exists.</param>
         /// <param name="task">The task where the expression exists.</param>
+        /// <param name="isBatched">Indicates whether the expression is batched.</param>
         /// <returns>the set of all files in the evaluated expression.</returns>
         public static List<string> EvaluateExpression(
             string expression,

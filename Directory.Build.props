@@ -8,6 +8,8 @@
 
     <!-- Enabled the built-in analyzers -->
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <NoWarn>$(NoWarn);SA0001</NoWarn>
 

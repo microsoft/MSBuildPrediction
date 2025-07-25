@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Execution;
-using Microsoft.Build.Prediction;
 using Xunit;
 
 namespace Microsoft.Build.Prediction.Tests

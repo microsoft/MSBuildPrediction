@@ -57,7 +57,7 @@ public sealed class GeneratePublishDependencyFilePredictor : IProjectPredictor
 
     /// <summary>
     /// Determines the value of _UseBuildDependencyFile by emulating the behavior from the _ComputeUseBuildDependencyFile target (and the _ComputePackageReferencePublish target).
-    /// </remarks>
+    /// </summary>
     internal static bool ShouldUseBuildDependencyFile(ProjectInstance projectInstance)
     {
         bool hasExcludeFromPublishPackageReference = false;

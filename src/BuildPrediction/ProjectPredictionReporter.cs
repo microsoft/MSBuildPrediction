@@ -10,7 +10,7 @@ namespace Microsoft.Build.Prediction
     /// </summary>
     /// <remarks>
     /// This struct is used internally by the prediction library and is not intended to be created externally.
-    /// <see cref="IProjectPredictor"/> instances recieve this in their <see cref="IProjectPredictor.TryPredictInputsAndOutputs(Execution.ProjectInstance, out ProjectPredictions)"/>
+    /// <see cref="IProjectPredictor"/> instances recieve this in their <see cref="IProjectPredictor.PredictInputsAndOutputs(ProjectInstance, ProjectPredictionReporter)"/>
     /// methods as a means to report predictions to the <see cref="IProjectPredictionCollector"/>. Generally the methods on this struct should mirror those on <see cref="IProjectPredictionCollector"/>.
     /// </remarks>
 #pragma warning disable CA1815 // Override equals and operator equals on value types. Justification: This struct is never compared or equated.

@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
-using Microsoft.Build.Prediction;
 using Microsoft.Build.Prediction.Predictors;
-using Microsoft.Build.Prediction.Tests;
 using Xunit;
 
 namespace Microsoft.Build.Prediction.Tests.Predictors

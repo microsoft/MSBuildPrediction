@@ -223,3 +223,6 @@ dotnet_diagnostic.SA1101.severity = none
 
 # We prefer underscore prefixes for private fields
 dotnet_diagnostic.SA1309.severity = none
+
+# Code Style rules (IDE*)
+dotnet_diagnostic.IDE0005.severity = warning      # Remove unnecessary import
