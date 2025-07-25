@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFrameworks>net472;net8.0;net9.0</TargetFrameworks>
     <!-- Documentation rules aren't needed for the test project -->
     <NoWarn>$(NoWarn);SA1600;SA1611;SA1615;CS1591</NoWarn>
@@ -9,7 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.analyzers" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
