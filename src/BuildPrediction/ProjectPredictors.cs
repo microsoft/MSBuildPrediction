@@ -64,6 +64,7 @@ namespace Microsoft.Build.Prediction
         /// <item><see cref="GenerateBuildDependencyFilePredictor"/></item>
         /// <item><see cref="GeneratePublishDependencyFilePredictor"/></item>
         /// <item><see cref="GenerateRuntimeConfigurationFilesPredictor"/></item>
+        /// <item><see cref="FakesOutputPathPredictor"/></item>
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
@@ -114,6 +115,7 @@ namespace Microsoft.Build.Prediction
             new GenerateBuildDependencyFilePredictor(),
             new GeneratePublishDependencyFilePredictor(),
             new GenerateRuntimeConfigurationFilesPredictor(),
+            new FakesOutputPathPredictor(),
             //// NOTE! When adding a new predictor here, be sure to update the doc comment above.
         };
 
