@@ -96,6 +96,29 @@ namespace Microsoft.Build.Prediction.Predictors
                             }
                         }
                     }
+
+                    // FakesV2 projects add Fakes assemblies as content which are transitively copied to referencing projects. See CopyFakesAssembliesToOutputDir target.
+                    if (dependency.ProjectInstance.GetPropertyValue(FakesPredictor.FakesImportedPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase)
+                        && dependency.ProjectInstance.GetPropertyValue(FakesPredictor.FakesUseV2GenerationPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string fakesOutputPath = dependency.ProjectInstance.GetPropertyValue(FakesPredictor.FakesOutputPathPropertyName);
+                        if (!string.IsNullOrWhiteSpace(fakesOutputPath))
+                        {
+                            // Make it absolute since it may be relative to the dependency project
+                            fakesOutputPath = Path.Combine(dependency.ProjectInstance.Directory, fakesOutputPath);
+
+                            foreach (ProjectItemInstance item in dependency.ProjectInstance.GetItems(FakesPredictor.FakesItemName))
+                            {
+                                string fakesAssemblyFileName = $"{Path.GetFileNameWithoutExtension(item.EvaluatedInclude)}.Fakes.dll";
+                                predictionReporter.ReportInputFile(Path.Combine(fakesOutputPath, fakesAssemblyFileName));
+
+                                if (!string.IsNullOrEmpty(outDir))
+                                {
+                                    predictionReporter.ReportOutputFile(Path.Combine(outDir, fakesAssemblyFileName));
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

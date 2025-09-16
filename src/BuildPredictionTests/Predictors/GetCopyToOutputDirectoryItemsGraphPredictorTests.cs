@@ -225,6 +225,51 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             }
         }
 
+        [Fact]
+        public void DependencyWithFakesAssemblies()
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+
+            string dependencyProjectFile = Path.Combine(_rootDir, @"dep\dep.csproj");
+            ProjectRootElement dependencyProjectRootElement = ProjectRootElement.Create(dependencyProjectFile);
+            dependencyProjectRootElement.AddProperty(FakesPredictor.FakesImportedPropertyName, "true");
+            dependencyProjectRootElement.AddProperty(FakesPredictor.FakesUseV2GenerationPropertyName, "true");
+            dependencyProjectRootElement.AddProperty(FakesPredictor.FakesOutputPathPropertyName, @"bin\FakesAssemblies");
+            dependencyProjectRootElement.AddItem(FakesPredictor.FakesItemName, "A.fakes");
+            dependencyProjectRootElement.AddItem(FakesPredictor.FakesItemName, "B.fakes");
+            dependencyProjectRootElement.AddItem(FakesPredictor.FakesItemName, "C.fakes");
+
+            projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+
+            projectRootElement.Save();
+            dependencyProjectRootElement.Save();
+
+            var expectedInputFiles = new[]
+            {
+                new PredictedItem(@"dep\bin\FakesAssemblies\A.Fakes.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                new PredictedItem(@"dep\bin\FakesAssemblies\B.Fakes.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                new PredictedItem(@"dep\bin\FakesAssemblies\C.Fakes.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+            };
+
+            var expectedOutputFiles = new[]
+            {
+                new PredictedItem(@"src\bin\A.Fakes.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                new PredictedItem(@"src\bin\B.Fakes.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                new PredictedItem(@"src\bin\C.Fakes.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+            };
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    expectedInputFiles,
+                    null,
+                    expectedOutputFiles,
+                    null);
+        }
+
         private ProjectRootElement CreateDependencyProject(string projectName, bool shouldCopy)
         {
             string projectDir = Path.Combine(_rootDir, projectName);
