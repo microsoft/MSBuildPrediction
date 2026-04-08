@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -260,14 +259,12 @@ namespace Microsoft.Build.Prediction.Predictors
             public RuleSetCacheKey(string ruleSetPath, IReadOnlyList<string> ruleSetDirectories)
             {
                 RuleSetPath = ruleSetPath;
-                RuleSetDirectories = ruleSetDirectories.Count == 0
-                    ? []
-                    : ruleSetDirectories.ToImmutableArray();
+                RuleSetDirectories = new List<string>(ruleSetDirectories);
             }
 
             public string RuleSetPath { get; }
 
-            public IReadOnlyList<string> RuleSetDirectories { get; }
+            public List<string> RuleSetDirectories { get; }
 
             public bool Equals(RuleSetCacheKey other)
             {
