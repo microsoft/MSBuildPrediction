@@ -295,10 +295,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
                 foreach (string directory in RuleSetDirectories)
                 {
-                    unchecked
-                    {
-                        hash = (hash * 397) ^ PathComparer.Instance.GetHashCode(directory);
-                    }
+                    hash = HashCode.Combine(hash, PathComparer.Instance.GetHashCode(directory));
                 }
 
                 return hash;
