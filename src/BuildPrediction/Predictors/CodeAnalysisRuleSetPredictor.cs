@@ -254,7 +254,7 @@ namespace Microsoft.Build.Prediction.Predictors
             }
         }
 
-        private sealed record RuleSetCacheKey
+        private readonly record struct RuleSetCacheKey
         {
             public RuleSetCacheKey(string ruleSetPath, IReadOnlyList<string> ruleSetDirectories)
             {
@@ -268,12 +268,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
             public bool Equals(RuleSetCacheKey other)
             {
-                if (ReferenceEquals(this, other))
-                {
-                    return true;
-                }
-
-                if (other is null || !PathComparer.Instance.Equals(RuleSetPath, other.RuleSetPath))
+                if (!PathComparer.Instance.Equals(RuleSetPath, other.RuleSetPath))
                 {
                     return false;
                 }
