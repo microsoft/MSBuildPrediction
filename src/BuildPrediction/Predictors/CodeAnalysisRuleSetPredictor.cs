@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -256,10 +256,10 @@ namespace Microsoft.Build.Prediction.Predictors
 
         private readonly record struct RuleSetCacheKey
         {
-            public RuleSetCacheKey(string ruleSetPath, IReadOnlyList<string> ruleSetDirectories)
+            public RuleSetCacheKey(string ruleSetPath, List<string> ruleSetDirectories)
             {
                 RuleSetPath = ruleSetPath;
-                RuleSetDirectories = new List<string>(ruleSetDirectories);
+                RuleSetDirectories = ruleSetDirectories;
             }
 
             public string RuleSetPath { get; }
