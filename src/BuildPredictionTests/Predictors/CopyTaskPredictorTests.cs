@@ -323,6 +323,84 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
+        public void TestTargetPropertyGroupBeforeCopy()
+        {
+            PredictedItem[] expectedInputFiles =
+            {
+                _copy1Dll,
+                _copy2Dll,
+            };
+
+            PredictedItem[] expectedOutputDirectories =
+            {
+                new PredictedItem(@"target\Debug\x64\targetprops", nameof(CopyTaskPredictor)),
+            };
+
+            var predictor = new CopyTaskPredictor();
+            ParseAndVerifyProject("TargetPropertyGroupBeforeCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
+        }
+
+        /// <summary>
+        /// Tests that a property defined AFTER the Copy task in the same target is NOT available.
+        /// The DestinationFolder uses a property that hasn't been set yet, so it should expand to empty.
+        /// </summary>
+        [Fact]
+        public void TestTargetPropertyGroupAfterCopy()
+        {
+            PredictedItem[] expectedInputFiles =
+            {
+                _copy1Dll,
+            };
+
+            // The destination folder is $(LateDefinedDestination) which is not yet defined when
+            // the Copy task is encountered. The property expands to empty string, so no output is predicted.
+            var predictor = new CopyTaskPredictor();
+            ParseAndVerifyProject("TargetPropertyGroupAfterCopy.csproj", predictor, expectedInputFiles, null, null, null);
+        }
+
+        /// <summary>
+        /// Tests chained properties inside a target where the second property depends on the first.
+        /// </summary>
+        [Fact]
+        public void TestTargetPropertyGroupChained()
+        {
+            PredictedItem[] expectedInputFiles =
+            {
+                _copy1Dll,
+                _copy2Dll,
+            };
+
+            PredictedItem[] expectedOutputDirectories =
+            {
+                new PredictedItem(@"target\Debug\x64\chained", nameof(CopyTaskPredictor)),
+            };
+
+            var predictor = new CopyTaskPredictor();
+            ParseAndVerifyProject("TargetPropertyGroupChained.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
+        }
+
+        /// <summary>
+        /// Tests that both PropertyGroup and ItemGroup defined inside a target are properly evaluated.
+        /// </summary>
+        [Fact]
+        public void TestTargetItemGroupBeforeCopy()
+        {
+            PredictedItem[] expectedInputFiles =
+            {
+                _copy1Dll,
+                _copy2Dll,
+            };
+
+            PredictedItem[] expectedOutputDirectories =
+            {
+                new PredictedItem(@"target\Debug\x64\itemgroup", nameof(CopyTaskPredictor)),
+            };
+
+            var predictor = new CopyTaskPredictor();
+            ParseAndVerifyProject("TargetItemGroupBeforeCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
+        }
+
+        [Fact]
         public void SourceFolders()
         {
             PredictedItem[] expectedInputDirectories =
