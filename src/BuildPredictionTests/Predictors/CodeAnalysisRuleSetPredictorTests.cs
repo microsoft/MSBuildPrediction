@@ -85,6 +85,28 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
+        public void RuleSetIsCacheMissOnDifferentCodeAnalysisDirectories()
+        {
+            var rulesetA = CreateRuleSetFile("a.ruleset")
+                .WithInclude("b.ruleset")
+                .WriteToDisk();
+            var rulesetB = CreateRuleSetFile("foo\\b.ruleset")
+                .WriteToDisk();
+
+            var expectedInputs = new[]
+            {
+                rulesetA.FullPath,
+            };
+            AssertInputs("a.ruleset", expectedInputs);
+
+            expectedInputs = [
+                rulesetA.FullPath,
+                rulesetB.FullPath,
+            ];
+            AssertInputs("a.ruleset", expectedInputs, [Path.GetDirectoryName(rulesetB.FullPath)]);
+        }
+
+        [Fact]
         public void RuleSetWithRuleHintPaths()
         {
             var rulesetA = CreateRuleSetFile("a.ruleset")
@@ -296,13 +318,18 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             AssertInputs("a2.ruleset", expectedResultsInCycleBCD.Union(new[] { rulesetA2.FullPath }).ToList());
         }
 
-        private void AssertInputs(string ruleSetPath, IList<string> expectedInputs)
+        private void AssertInputs(string ruleSetPath, IList<string> expectedInputs, IList<string> codeAnalysisRuleSetDirectories = null)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create(Path.Combine(_rootDir, "project.proj"));
             if (ruleSetPath != null)
             {
                 ProjectPropertyGroupElement propertyGroup = projectRootElement.AddPropertyGroup();
                 projectRootElement.AddProperty(CodeAnalysisRuleSetPredictor.CodeAnalysisRuleSetPropertyName, ruleSetPath);
+            }
+
+            if (codeAnalysisRuleSetDirectories != null)
+            {
+                projectRootElement.AddProperty(CodeAnalysisRuleSetPredictor.CodeAnalysisRuleSetDirectoriesPropertyName, string.Join(";", codeAnalysisRuleSetDirectories));
             }
 
             var projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);

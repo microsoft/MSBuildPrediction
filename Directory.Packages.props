@@ -5,6 +5,7 @@
     <MSBuildPackageVersion>17.11.4</MSBuildPackageVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
     <PackageVersion Include="Microsoft.Build" Version="$(MSBuildPackageVersion)" />
     <PackageVersion Include="Microsoft.Build.Framework" Version="$(MSBuildPackageVersion)" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="$(MSBuildPackageVersion)" />

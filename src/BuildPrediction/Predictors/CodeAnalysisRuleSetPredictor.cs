@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -29,7 +29,7 @@ namespace Microsoft.Build.Prediction.Predictors
         private readonly List<string> _emptyList = new List<string>(0);
 
         // Often rulesets are reused across projects, so keep a cache to avoid parsing the same ruleset over and over.
-        private readonly ConcurrentDictionary<string, HashSet<string>> _cachedInputs = new ConcurrentDictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<RuleSetCacheKey, HashSet<string>> _cachedInputs = new ConcurrentDictionary<RuleSetCacheKey, HashSet<string>>();
 
         /// <inheritdoc/>
         public void PredictInputsAndOutputs(
@@ -60,7 +60,7 @@ namespace Microsoft.Build.Prediction.Predictors
             }
         }
 
-        // Based on resolution logic from: https://github.com/Microsoft/msbuild/blob/master/src/Tasks/ResolveCodeAnalysisRuleSet.cs
+        // Based on resolution logic from: https://github.com/Microsoft/msbuild/blob/main/src/Tasks/ResolveCodeAnalysisRuleSet.cs
         private static string GetResolvedRuleSetPath(
             string ruleSet,
             List<string> ruleSetDirectories,
@@ -148,7 +148,8 @@ namespace Microsoft.Build.Prediction.Predictors
                 return _emptySet;
             }
 
-            if (_cachedInputs.TryGetValue(ruleSetPath, out HashSet<string> cachedResults))
+            RuleSetCacheKey cacheKey = new RuleSetCacheKey(ruleSetPath, ruleSetDirectories);
+            if (_cachedInputs.TryGetValue(cacheKey, out HashSet<string> cachedResults))
             {
                 return cachedResults;
             }
@@ -241,7 +242,7 @@ namespace Microsoft.Build.Prediction.Predictors
                 // As described above, do not cache intermediate results inside a cycle.
                 if (!isInCycle)
                 {
-                    _cachedInputs.TryAdd(ruleSetPath, results);
+                    _cachedInputs.TryAdd(cacheKey, results);
                 }
 
                 return results;
@@ -250,6 +251,54 @@ namespace Microsoft.Build.Prediction.Predictors
             {
                 // Error case. Bail out gracefully.
                 return _emptySet;
+            }
+        }
+
+        private readonly record struct RuleSetCacheKey
+        {
+            public RuleSetCacheKey(string ruleSetPath, List<string> ruleSetDirectories)
+            {
+                RuleSetPath = ruleSetPath;
+                RuleSetDirectories = ruleSetDirectories;
+            }
+
+            public string RuleSetPath { get; }
+
+            public List<string> RuleSetDirectories { get; }
+
+            public bool Equals(RuleSetCacheKey other)
+            {
+                if (!PathComparer.Instance.Equals(RuleSetPath, other.RuleSetPath))
+                {
+                    return false;
+                }
+
+                if (RuleSetDirectories.Count != other.RuleSetDirectories.Count)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < RuleSetDirectories.Count; i++)
+                {
+                    if (!PathComparer.Instance.Equals(RuleSetDirectories[i], other.RuleSetDirectories[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public override int GetHashCode()
+            {
+                int hash = PathComparer.Instance.GetHashCode(RuleSetPath);
+
+                foreach (string directory in RuleSetDirectories)
+                {
+                    hash = HashCode.Combine(hash, PathComparer.Instance.GetHashCode(directory));
+                }
+
+                return hash;
             }
         }
     }

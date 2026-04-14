@@ -9,6 +9,7 @@
     <Description>A library to predict inputs and outputs of MSBuild projects</Description>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.HashCode" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
     <PackageReference Include="Microsoft.Build" />
     <PackageReference Include="Microsoft.Build.Framework" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" />
