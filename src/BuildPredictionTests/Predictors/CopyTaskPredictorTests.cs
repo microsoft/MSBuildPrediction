@@ -400,6 +400,23 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             ParseAndVerifyProject("TargetItemGroupBeforeCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
         }
 
+        /// <summary>
+        /// Tests that a Copy task with a completely unresolvable property in DestinationFolder
+        /// does not produce incorrect output predictions, but inputs are still reported.
+        /// </summary>
+        [Fact]
+        public void TestUnresolvablePropertyInDestination()
+        {
+            PredictedItem[] expectedInputFiles =
+            {
+                _copy1Dll,
+            };
+
+            // $(NeverDefinedProperty) is never defined, so output prediction should be skipped.
+            var predictor = new CopyTaskPredictor();
+            ParseAndVerifyProject("UnresolvablePropertyInCopy.csproj", predictor, expectedInputFiles, null, null, null);
+        }
+
         [Fact]
         public void SourceFolders()
         {

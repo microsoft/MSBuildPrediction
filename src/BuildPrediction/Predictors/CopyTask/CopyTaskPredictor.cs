@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Execution;
 
 namespace Microsoft.Build.Prediction.Predictors.CopyTask
@@ -25,6 +26,10 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         private const string CopyTaskSourceFolders = "SourceFolders";
         private const string CopyTaskDestinationFiles = "DestinationFiles";
         private const string CopyTaskDestinationFolder = "DestinationFolder";
+
+        // Matches simple MSBuild property references like $(PropertyName), excluding complex
+        // expressions with dots (e.g., $(Foo.Bar)), nested references, or function calls.
+        private static readonly Regex SimplePropertyReferenceRegex = new Regex(@"\$\(([A-Za-z_][A-Za-z0-9_]*)\)", RegexOptions.Compiled);
 
         /// <inheritdoc />
         public void PredictInputsAndOutputs(
@@ -274,7 +279,16 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                 }
             }
 
-            var outputs = EvaluateExpression(hasDestinationFolder ? destinationFolder : destinationFiles, projectInstance, task);
+            // Skip output prediction if the destination expression references properties that
+            // cannot be resolved (e.g., properties set only at build time by task outputs).
+            // Predicting with unresolved properties would produce incorrect paths.
+            string rawDestinationExpression = hasDestinationFolder ? destinationFolder : destinationFiles;
+            if (HasUnresolvableProperties(rawDestinationExpression, projectInstance))
+            {
+                return;
+            }
+
+            var outputs = EvaluateExpression(rawDestinationExpression, projectInstance, task);
             if (outputs.NumExpressions == 0)
             {
                 return;
@@ -376,6 +390,25 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
             }
 
             return (paths, expressions.Count, numBatchExpressions);
+        }
+
+        /// <summary>
+        /// Checks whether an expression contains simple MSBuild property references $(PropertyName)
+        /// that cannot be resolved to a non-empty value. Properties that remain unresolved would
+        /// produce incorrect path predictions (e.g., $(Undefined)\folder expands to \folder).
+        /// </summary>
+        private static bool HasUnresolvableProperties(string expression, ProjectInstance projectInstance)
+        {
+            foreach (Match match in SimplePropertyReferenceRegex.Matches(expression))
+            {
+                string propertyName = match.Groups[1].Value;
+                if (string.IsNullOrEmpty(projectInstance.GetPropertyValue(propertyName)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
