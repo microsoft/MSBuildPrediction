@@ -61,10 +61,14 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
 
             projectInstance.AddBeforeAndAfterTargets(activeTargets);
 
+            // Create a deep copy so that target-local property/item evaluation does not
+            // mutate the shared ProjectInstance. Predictors may run in parallel.
+            ProjectInstance evaluationInstance = projectInstance.DeepCopy();
+
             // Then parse copy tasks for these targets.
             foreach (KeyValuePair<string, ProjectTargetInstance> target in activeTargets)
             {
-                ParseCopyTask(target.Value, projectInstance, predictionReporter);
+                ParseCopyTask(target.Value, evaluationInstance, predictionReporter);
             }
         }
 
@@ -100,51 +104,23 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                 return;
             }
 
-            // Track properties and items modified inside this target so they can be restored
-            // after processing. Properties set inside targets are not evaluated during static
-            // analysis, so we replay them here to make them available to Copy task expressions.
-            var originalProperties = new Dictionary<string, (bool Existed, string Value)>(StringComparer.OrdinalIgnoreCase);
-            var addedItems = new List<(string ItemType, ProjectItemInstance Item)>();
-
-            try
+            // Iterate through children in order. Properties and items set inside the target
+            // are replayed on the (deep-copied) project instance so that subsequent Copy task
+            // expressions can reference them.
+            foreach (ProjectTargetInstanceChild child in target.Children)
             {
-                foreach (ProjectTargetInstanceChild child in target.Children)
+                if (child is ProjectPropertyGroupTaskInstance propertyGroup)
                 {
-                    if (child is ProjectPropertyGroupTaskInstance propertyGroup)
-                    {
-                        EvaluatePropertyGroup(propertyGroup, projectInstance, originalProperties);
-                    }
-                    else if (child is ProjectItemGroupTaskInstance itemGroup)
-                    {
-                        EvaluateItemGroup(itemGroup, projectInstance, addedItems);
-                    }
-                    else if (child is ProjectTaskInstance task
-                        && string.Equals(task.Name, CopyTaskName, StringComparison.Ordinal))
-                    {
-                        ProcessCopyTask(task, projectInstance, predictionReporter);
-                    }
+                    EvaluatePropertyGroup(propertyGroup, projectInstance);
                 }
-            }
-            finally
-            {
-                // Restore modified properties to avoid affecting evaluation of other targets,
-                // since targets are not necessarily traversed in execution order.
-                foreach (KeyValuePair<string, (bool Existed, string Value)> kvp in originalProperties)
+                else if (child is ProjectItemGroupTaskInstance itemGroup)
                 {
-                    if (kvp.Value.Existed)
-                    {
-                        projectInstance.SetProperty(kvp.Key, kvp.Value.Value);
-                    }
-                    else
-                    {
-                        projectInstance.RemoveProperty(kvp.Key);
-                    }
+                    EvaluateItemGroup(itemGroup, projectInstance);
                 }
-
-                // Restore modified items
-                foreach ((string itemType, ProjectItemInstance item) in addedItems)
+                else if (child is ProjectTaskInstance task
+                    && string.Equals(task.Name, CopyTaskName, StringComparison.Ordinal))
                 {
-                    projectInstance.RemoveItem(item);
+                    ProcessCopyTask(task, projectInstance, predictionReporter);
                 }
             }
         }
@@ -155,8 +131,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         /// </summary>
         private static void EvaluatePropertyGroup(
             ProjectPropertyGroupTaskInstance propertyGroup,
-            ProjectInstance projectInstance,
-            Dictionary<string, (bool Existed, string Value)> originalProperties)
+            ProjectInstance projectInstance)
         {
             if (!projectInstance.EvaluateConditionCarefully(propertyGroup.Condition))
             {
@@ -170,15 +145,6 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
                     continue;
                 }
 
-                // Snapshot the original value before modification (only on first encounter)
-                if (!originalProperties.ContainsKey(property.Name))
-                {
-                    ProjectPropertyInstance existing = projectInstance.GetProperty(property.Name);
-                    originalProperties[property.Name] = existing != null
-                        ? (true, existing.EvaluatedValue)
-                        : (false, null);
-                }
-
                 string evaluatedValue = projectInstance.ExpandString(property.Value);
                 projectInstance.SetProperty(property.Name, evaluatedValue);
             }
@@ -190,8 +156,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         /// </summary>
         private static void EvaluateItemGroup(
             ProjectItemGroupTaskInstance itemGroup,
-            ProjectInstance projectInstance,
-            List<(string ItemType, ProjectItemInstance Item)> addedItems)
+            ProjectInstance projectInstance)
         {
             if (!projectInstance.EvaluateConditionCarefully(itemGroup.Condition))
             {
@@ -213,8 +178,7 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
 
                 foreach (string includePart in evaluatedInclude.SplitStringList())
                 {
-                    ProjectItemInstance addedItem = projectInstance.AddItem(item.ItemType, includePart);
-                    addedItems.Add((item.ItemType, addedItem));
+                    projectInstance.AddItem(item.ItemType, includePart);
                 }
             }
         }
