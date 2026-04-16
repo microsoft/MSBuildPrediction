@@ -31,7 +31,7 @@ extends:
       sbom:
         enabled: false
     pool:
-      name: VSEngSS-MicroBuild2022-1ES
+      name: VSEng-MicroBuildVSStable
       demands:
       - msbuild
       - visualstudio
@@ -43,7 +43,7 @@ extends:
       - job: Build
         displayName: 'Build'
         pool:
-          name: 'VSEngSS-MicroBuild2022-1ES'
+          name: 'VSEng-MicroBuildVSStable'
         templateContext:
           mb:
             signing:
@@ -76,7 +76,7 @@ extends:
         - task: UseDotNet@2
           displayName: 'Install .NET'
           inputs:
-            version: '9.x'
+            version: '10.x'
             includePreviewVersions: true
         - task: DotNetCoreCLI@2
           displayName: 'Build Solution'
