@@ -68,7 +68,7 @@ namespace Microsoft.Build.Prediction
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectPredictor"/>.</returns>
-        public static IReadOnlyCollection<IProjectPredictor> AllProjectPredictors { get; } = new IProjectPredictor[]
+        public static IReadOnlyCollection<IProjectPredictor> AllProjectPredictors => new IProjectPredictor[]
         {
             new AvailableItemNameItemsPredictor(),
             new ContentItemsPredictor(),
@@ -134,7 +134,7 @@ namespace Microsoft.Build.Prediction
         /// </list>
         /// </remarks>
         /// <returns>A collection of <see cref="IProjectGraphPredictor"/>.</returns>
-        public static IReadOnlyCollection<IProjectGraphPredictor> AllProjectGraphPredictors { get; } = new IProjectGraphPredictor[]
+        public static IReadOnlyCollection<IProjectGraphPredictor> AllProjectGraphPredictors => new IProjectGraphPredictor[]
         {
             new ProjectFileAndImportsGraphPredictor(),
             new GetCopyToOutputDirectoryItemsGraphPredictor(),

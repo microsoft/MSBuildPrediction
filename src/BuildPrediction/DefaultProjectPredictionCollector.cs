@@ -18,8 +18,8 @@ namespace Microsoft.Build.Prediction
         private readonly Dictionary<string, PredictedItem> _outputFilesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
         private readonly Dictionary<string, PredictedItem> _outputDirectoriesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
 
-        // Cache for Path.GetFullPath results to avoid redundant filesystem calls for repeated relative paths.
-        private readonly ConcurrentDictionary<string, string> _absolutePathCache = new ConcurrentDictionary<string, string>(PathComparer.Instance);
+        // Cache for Path.GetFullPath results to avoid repeated string allocations for the same relative paths.
+        private readonly ConcurrentDictionary<(string Directory, string Path), string> _absolutePathCache = new ConcurrentDictionary<(string, string), string>();
 
         public DefaultProjectPredictionCollector()
         {
@@ -45,11 +45,11 @@ namespace Microsoft.Build.Prediction
 
         private void AddPredictedItem(Dictionary<string, PredictedItem> items, string path, ProjectInstance projectInstance, string predictorName)
         {
-            // Make the path absolute if needed, using a cache to avoid redundant Path.GetFullPath calls.
+            // Make the path absolute if needed, using a cache to avoid repeated string allocations.
             if (!Path.IsPathRooted(path))
             {
-                string cacheKey = string.Concat(projectInstance.Directory, "|", path);
-                path = _absolutePathCache.GetOrAdd(cacheKey, _ => Path.GetFullPath(Path.Combine(projectInstance.Directory, path)));
+                var cacheKey = (projectInstance.Directory, path);
+                path = _absolutePathCache.GetOrAdd(cacheKey, static k => Path.GetFullPath(Path.Combine(k.Directory, k.Path)));
             }
 
             // Get or add the item and record the predictor in a single lock acquisition.
