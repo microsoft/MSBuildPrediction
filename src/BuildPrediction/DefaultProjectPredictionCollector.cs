@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Execution;
@@ -16,6 +17,9 @@ namespace Microsoft.Build.Prediction
         private readonly Dictionary<string, PredictedItem> _inputsDirectoriesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
         private readonly Dictionary<string, PredictedItem> _outputFilesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
         private readonly Dictionary<string, PredictedItem> _outputDirectoriesByPath = new Dictionary<string, PredictedItem>(PathComparer.Instance);
+
+        // Cache for Path.GetFullPath results to avoid redundant filesystem calls for repeated relative paths.
+        private readonly ConcurrentDictionary<string, string> _absolutePathCache = new ConcurrentDictionary<string, string>(PathComparer.Instance);
 
         public DefaultProjectPredictionCollector()
         {
@@ -39,28 +43,24 @@ namespace Microsoft.Build.Prediction
 
         public void AddOutputDirectory(string path, ProjectInstance projectInstance, string predictorName) => AddPredictedItem(_outputDirectoriesByPath, path, projectInstance, predictorName);
 
-        private static void AddPredictedItem(Dictionary<string, PredictedItem> items, string path, ProjectInstance projectInstance, string predictorName)
+        private void AddPredictedItem(Dictionary<string, PredictedItem> items, string path, ProjectInstance projectInstance, string predictorName)
         {
-            // Make the path absolute if needed.
+            // Make the path absolute if needed, using a cache to avoid redundant Path.GetFullPath calls.
             if (!Path.IsPathRooted(path))
             {
-                path = Path.GetFullPath(Path.Combine(projectInstance.Directory, path));
+                string cacheKey = string.Concat(projectInstance.Directory, "|", path);
+                path = _absolutePathCache.GetOrAdd(cacheKey, _ => Path.GetFullPath(Path.Combine(projectInstance.Directory, path)));
             }
 
-            // Get the existing item, or add a new one if needed.
-            PredictedItem item;
+            // Get or add the item and record the predictor in a single lock acquisition.
             lock (items)
             {
-                if (!items.TryGetValue(path, out item))
+                if (!items.TryGetValue(path, out PredictedItem item))
                 {
                     item = new PredictedItem(path);
                     items.Add(path, item);
                 }
-            }
 
-            // Add the predictor
-            lock (items)
-            {
                 item.AddPredictedBy(predictorName);
             }
         }
