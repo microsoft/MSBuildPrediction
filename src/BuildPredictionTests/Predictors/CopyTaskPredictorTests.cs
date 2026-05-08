@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.Build.Construction;
 using Microsoft.Build.Prediction.Predictors.CopyTask;
 using Xunit;
 
@@ -320,6 +321,166 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             var predictor = new CopyTaskPredictor();
             ParseAndVerifyProject("TargetUnevaluatableConditionInCopy.csproj", predictor, expectedInputFiles, null, null, expectedOutputDirectories);
+        }
+
+        [Fact]
+        public void TestTargetPropertyGroupBeforeCopy()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.DefaultTargets = "CopyWithTargetProps";
+            projectRootElement.AddItem("FilesToCopy", "copy1.dll");
+            projectRootElement.AddItem("FilesToCopy", "copy2.dll");
+
+            ProjectTargetElement target = projectRootElement.AddTarget("CopyWithTargetProps");
+            ProjectPropertyGroupElement propGroup = target.AddPropertyGroup();
+            propGroup.AddProperty("TargetCopyDestination", @"target\$(Configuration)\$(Platform)\targetprops");
+
+            ProjectTaskElement copyTask = target.AddTask("Copy");
+            copyTask.SetParameter("SourceFiles", "@(FilesToCopy)");
+            copyTask.SetParameter("DestinationFolder", "$(TargetCopyDestination)");
+
+            projectRootElement.AssertPredictions<CopyTaskPredictor>(
+                new[]
+                {
+                    new PredictedItem("copy1.dll", nameof(CopyTaskPredictor)),
+                    new PredictedItem("copy2.dll", nameof(CopyTaskPredictor)),
+                },
+                null,
+                null,
+                new[]
+                {
+                    new PredictedItem(@"target\Debug\x64\targetprops", nameof(CopyTaskPredictor)),
+                });
+        }
+
+        /// <summary>
+        /// Tests that a property defined AFTER the Copy task in the same target is NOT available.
+        /// The DestinationFolder uses a property that hasn't been set yet, so output is not predicted.
+        /// </summary>
+        [Fact]
+        public void TestTargetPropertyGroupAfterCopy()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.DefaultTargets = "CopyBeforeProps";
+            projectRootElement.AddItem("FilesToCopy", "copy1.dll");
+
+            ProjectTargetElement target = projectRootElement.AddTarget("CopyBeforeProps");
+
+            // Copy task BEFORE the PropertyGroup — property should not be available
+            ProjectTaskElement copyTask = target.AddTask("Copy");
+            copyTask.SetParameter("SourceFiles", "@(FilesToCopy)");
+            copyTask.SetParameter("DestinationFolder", "$(LateDefinedDestination)");
+
+            ProjectPropertyGroupElement propGroup = target.AddPropertyGroup();
+            propGroup.AddProperty("LateDefinedDestination", @"target\late");
+
+            projectRootElement.AssertPredictions<CopyTaskPredictor>(
+                new[]
+                {
+                    new PredictedItem("copy1.dll", nameof(CopyTaskPredictor)),
+                },
+                null,
+                null,
+                null);
+        }
+
+        /// <summary>
+        /// Tests chained properties inside a target where the second property depends on the first.
+        /// </summary>
+        [Fact]
+        public void TestTargetPropertyGroupChained()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.DefaultTargets = "CopyWithChainedProps";
+            projectRootElement.AddItem("FilesToCopy", "copy1.dll");
+            projectRootElement.AddItem("FilesToCopy", "copy2.dll");
+
+            ProjectTargetElement target = projectRootElement.AddTarget("CopyWithChainedProps");
+            ProjectPropertyGroupElement propGroup = target.AddPropertyGroup();
+            propGroup.AddProperty("BaseTargetDir", @"target\$(Configuration)\$(Platform)");
+            propGroup.AddProperty("FullTargetDir", @"$(BaseTargetDir)\chained");
+
+            ProjectTaskElement copyTask = target.AddTask("Copy");
+            copyTask.SetParameter("SourceFiles", "@(FilesToCopy)");
+            copyTask.SetParameter("DestinationFolder", "$(FullTargetDir)");
+
+            projectRootElement.AssertPredictions<CopyTaskPredictor>(
+                new[]
+                {
+                    new PredictedItem("copy1.dll", nameof(CopyTaskPredictor)),
+                    new PredictedItem("copy2.dll", nameof(CopyTaskPredictor)),
+                },
+                null,
+                null,
+                new[]
+                {
+                    new PredictedItem(@"target\Debug\x64\chained", nameof(CopyTaskPredictor)),
+                });
+        }
+
+        /// <summary>
+        /// Tests that both PropertyGroup and ItemGroup defined inside a target are properly evaluated.
+        /// </summary>
+        [Fact]
+        public void TestTargetItemGroupBeforeCopy()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.DefaultTargets = "CopyWithTargetItems";
+            projectRootElement.AddItem("FilesToCopy", "copy1.dll");
+            projectRootElement.AddItem("FilesToCopy", "copy2.dll");
+
+            ProjectTargetElement target = projectRootElement.AddTarget("CopyWithTargetItems");
+
+            ProjectPropertyGroupElement propGroup = target.AddPropertyGroup();
+            propGroup.AddProperty("CopyDestDir", @"target\$(Configuration)\$(Platform)\itemgroup");
+
+            ProjectItemGroupElement itemGroup = target.AddItemGroup();
+            itemGroup.AddItem("DestFiles", @"$(CopyDestDir)\copy1.dll");
+            itemGroup.AddItem("DestFiles", @"$(CopyDestDir)\copy2.dll");
+
+            ProjectTaskElement copyTask = target.AddTask("Copy");
+            copyTask.SetParameter("SourceFiles", "@(FilesToCopy)");
+            copyTask.SetParameter("DestinationFiles", "@(DestFiles)");
+
+            projectRootElement.AssertPredictions<CopyTaskPredictor>(
+                new[]
+                {
+                    new PredictedItem("copy1.dll", nameof(CopyTaskPredictor)),
+                    new PredictedItem("copy2.dll", nameof(CopyTaskPredictor)),
+                },
+                null,
+                null,
+                new[]
+                {
+                    new PredictedItem(@"target\Debug\x64\itemgroup", nameof(CopyTaskPredictor)),
+                });
+        }
+
+        /// <summary>
+        /// Tests that a Copy task with a completely unresolvable property in DestinationFolder
+        /// does not produce incorrect output predictions, but inputs are still reported.
+        /// </summary>
+        [Fact]
+        public void TestUnresolvablePropertyInDestination()
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            projectRootElement.DefaultTargets = "CopyWithUnresolved";
+            projectRootElement.AddItem("FilesToCopy", "copy1.dll");
+
+            ProjectTargetElement target = projectRootElement.AddTarget("CopyWithUnresolved");
+            ProjectTaskElement copyTask = target.AddTask("Copy");
+            copyTask.SetParameter("SourceFiles", "@(FilesToCopy)");
+            copyTask.SetParameter("DestinationFolder", @"$(NeverDefinedProperty)\subfolder");
+
+            // $(NeverDefinedProperty) is never defined, so output prediction should be skipped.
+            projectRootElement.AssertPredictions<CopyTaskPredictor>(
+                new[]
+                {
+                    new PredictedItem("copy1.dll", nameof(CopyTaskPredictor)),
+                },
+                null,
+                null,
+                null);
         }
 
         [Fact]
