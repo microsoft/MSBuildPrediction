@@ -39,11 +39,17 @@ namespace Microsoft.Build.Prediction.Predictors
             var useCommonOutputDirectory = projectInstance.GetPropertyValue(UseCommonOutputDirectoryPropertyName);
             if (!useCommonOutputDirectory.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
-                bool copyContentTransitively = !projectInstance.GetPropertyValue(MSBuildCopyContentTransitivelyPropertyName).Equals("false", StringComparison.OrdinalIgnoreCase);
+                bool copyContentTransitively = projectInstance.GetPropertyValue(MSBuildCopyContentTransitivelyPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase);
+                Dictionary<string, ProjectReferenceContentInfo> projectReferenceContentByPath =
+                    GetProjectReferenceContentByPath(projectInstance);
 
                 foreach (ProjectGraphNode dependency in projectGraphNode.ProjectReferences)
                 {
-                    ReportProjectReferenceOutput(projectInstance, dependency.ProjectInstance, outDir, predictionReporter);
+                    ReportProjectReferenceOutput(
+                        dependency.ProjectInstance,
+                        outDir,
+                        predictionReporter,
+                        projectReferenceContentByPath);
 
                     if (!visitedNodes.Add(dependency))
                     {
@@ -126,11 +132,17 @@ namespace Microsoft.Build.Prediction.Predictors
         }
 
         private static void ReportProjectReferenceOutput(
-            ProjectInstance projectInstance,
             ProjectInstance dependency,
             string outDir,
-            ProjectPredictionReporter predictionReporter)
+            ProjectPredictionReporter predictionReporter,
+            Dictionary<string, ProjectReferenceContentInfo> projectReferenceContentByPath)
         {
+            if (!projectReferenceContentByPath.TryGetValue(dependency.FullPath, out ProjectReferenceContentInfo contentInfo)
+                || !contentInfo.CopiesContent)
+            {
+                return;
+            }
+
             string targetPath = dependency.GetPropertyValue("TargetPath");
             if (string.IsNullOrEmpty(targetPath))
             {
@@ -140,8 +152,44 @@ namespace Microsoft.Build.Prediction.Predictors
             string absoluteTargetPath = Path.IsPathRooted(targetPath)
                 ? targetPath
                 : Path.Combine(dependency.Directory, targetPath);
-            bool? copiedContent = null;
-            var outputTargetPaths = new HashSet<string>(PathComparer.Instance);
+            predictionReporter.ReportInputFile(absoluteTargetPath);
+
+            if (string.IsNullOrEmpty(outDir))
+            {
+                return;
+            }
+
+            string outputTargetPath = null;
+            foreach (string explicitTargetPath in contentInfo.ExplicitTargetPaths)
+            {
+                if (outputTargetPath != null && !PathComparer.Instance.Equals(outputTargetPath, explicitTargetPath))
+                {
+                    return;
+                }
+
+                outputTargetPath = explicitTargetPath;
+            }
+
+            if (contentInfo.UsesDefaultTargetPath)
+            {
+                string defaultTargetPath = Path.GetFileName(absoluteTargetPath);
+                if (outputTargetPath != null && !PathComparer.Instance.Equals(outputTargetPath, defaultTargetPath))
+                {
+                    return;
+                }
+
+                outputTargetPath = defaultTargetPath;
+            }
+
+            if (outputTargetPath != null)
+            {
+                predictionReporter.ReportOutputFile(Path.Combine(outDir, outputTargetPath));
+            }
+        }
+
+        private static Dictionary<string, ProjectReferenceContentInfo> GetProjectReferenceContentByPath(ProjectInstance projectInstance)
+        {
+            var projectReferenceContentByPath = new Dictionary<string, ProjectReferenceContentInfo>(PathComparer.Instance);
             foreach (ProjectItemInstance projectReferenceItem in projectInstance.GetItems("ProjectReference"))
             {
                 string projectReferencePath = projectReferenceItem.EvaluatedInclude;
@@ -150,52 +198,17 @@ namespace Microsoft.Build.Prediction.Predictors
                     projectReferencePath = Path.Combine(projectInstance.Directory, projectReferencePath);
                 }
 
-                if (!Path.GetFullPath(projectReferencePath).Equals(dependency.FullPath, PathComparer.Comparison))
+                projectReferencePath = Path.GetFullPath(projectReferencePath);
+                if (!projectReferenceContentByPath.TryGetValue(projectReferencePath, out ProjectReferenceContentInfo contentInfo))
                 {
-                    continue;
+                    contentInfo = new ProjectReferenceContentInfo();
+                    projectReferenceContentByPath.Add(projectReferencePath, contentInfo);
                 }
 
-                bool itemCopiesContent =
-                    projectReferenceItem.GetMetadataValue("OutputItemType").Equals("Content", StringComparison.OrdinalIgnoreCase)
-                    && ShouldCopyProjectReferenceOutput(projectReferenceItem);
-                if (copiedContent.HasValue && copiedContent.Value != itemCopiesContent)
-                {
-                    return;
-                }
-
-                copiedContent = itemCopiesContent;
-                if (itemCopiesContent)
-                {
-                    outputTargetPaths.Add(GetProjectReferenceOutputTargetPath(projectReferenceItem, absoluteTargetPath));
-                }
+                contentInfo.Add(projectReferenceItem);
             }
 
-            if (copiedContent != true)
-            {
-                return;
-            }
-
-            predictionReporter.ReportInputFile(absoluteTargetPath);
-
-            if (!string.IsNullOrEmpty(outDir) && outputTargetPaths.Count == 1)
-            {
-                foreach (string outputTargetPath in outputTargetPaths)
-                {
-                    predictionReporter.ReportOutputFile(Path.Combine(outDir, outputTargetPath));
-                }
-            }
-        }
-
-        private static string GetProjectReferenceOutputTargetPath(ProjectItemInstance item, string absoluteTargetPath)
-        {
-            string targetPath = item.GetMetadataValue("TargetPath");
-            if (!string.IsNullOrEmpty(targetPath))
-            {
-                return targetPath;
-            }
-
-            string link = item.GetMetadataValue("Link");
-            return !string.IsNullOrEmpty(link) ? link : Path.GetFileName(absoluteTargetPath);
+            return projectReferenceContentByPath;
         }
 
         private static bool ShouldCopyProjectReferenceOutput(ProjectItemInstance item)
@@ -228,6 +241,53 @@ namespace Microsoft.Build.Prediction.Predictors
                         }
                     }
                 }
+            }
+        }
+
+        private sealed class ProjectReferenceContentInfo
+        {
+            private bool? _copiesContent;
+
+            public bool CopiesContent => !IsAmbiguous && _copiesContent == true;
+
+            public bool IsAmbiguous { get; private set; }
+
+            public bool UsesDefaultTargetPath { get; private set; }
+
+            public HashSet<string> ExplicitTargetPaths { get; } = new(PathComparer.Instance);
+
+            public void Add(ProjectItemInstance item)
+            {
+                bool copiesContent =
+                    item.GetMetadataValue("OutputItemType").Equals("Content", StringComparison.OrdinalIgnoreCase)
+                    && ShouldCopyProjectReferenceOutput(item);
+                if (_copiesContent.HasValue && _copiesContent.Value != copiesContent)
+                {
+                    IsAmbiguous = true;
+                    return;
+                }
+
+                _copiesContent = copiesContent;
+                if (!copiesContent)
+                {
+                    return;
+                }
+
+                string targetPath = item.GetMetadataValue("TargetPath");
+                if (!string.IsNullOrEmpty(targetPath))
+                {
+                    ExplicitTargetPaths.Add(targetPath);
+                    return;
+                }
+
+                string link = item.GetMetadataValue("Link");
+                if (!string.IsNullOrEmpty(link))
+                {
+                    ExplicitTargetPaths.Add(link);
+                    return;
+                }
+
+                UsesDefaultTargetPath = true;
             }
         }
     }

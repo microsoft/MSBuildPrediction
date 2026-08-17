@@ -279,9 +279,11 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
             ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
             projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
 
             string directDependencyFile = Path.Combine(_rootDir, @"direct\direct.csproj");
             ProjectRootElement directDependency = ProjectRootElement.Create(directDependencyFile);
+            directDependency.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
 
             string contentDependencyFile = Path.Combine(_rootDir, @"content\content.csproj");
             ProjectRootElement contentDependency = ProjectRootElement.Create(contentDependencyFile);
@@ -312,10 +314,13 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
             ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
             projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
 
             ProjectRootElement ordinaryDependency = ProjectRootElement.Create(Path.Combine(_rootDir, @"aaa\aaa.csproj"));
             ProjectRootElement contentDependency = ProjectRootElement.Create(Path.Combine(_rootDir, @"bbb\bbb.csproj"));
             ProjectRootElement sharedDependency = ProjectRootElement.Create(Path.Combine(_rootDir, @"zzz\zzz.csproj"));
+            ordinaryDependency.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
+            contentDependency.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
             sharedDependency.AddProperty("TargetPath", @"bin\content.dll");
 
             projectRootElement.AddItem("ProjectReference", @"..\aaa\aaa.csproj");
@@ -338,6 +343,34 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     null,
                     [new PredictedItem(@"src\bin\content.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
                     null);
+        }
+
+        [Fact]
+        public void UnsetMSBuildCopyContentTransitivelyUsesLegacyOneLevelBehavior()
+        {
+            string projectFile = Path.Combine(_rootDir, "src", "project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, "bin");
+
+            string directDependencyFile = Path.Combine(_rootDir, "direct", "direct.csproj");
+            ProjectRootElement directDependency = ProjectRootElement.Create(directDependencyFile);
+
+            string contentDependencyFile = Path.Combine(_rootDir, "content", "content.csproj");
+            ProjectRootElement contentDependency = ProjectRootElement.Create(contentDependencyFile);
+            contentDependency.AddProperty("TargetPath", Path.Combine("bin", "content.dll"));
+
+            projectRootElement.AddItem("ProjectReference", Path.Combine("..", "direct", "direct.csproj"));
+            ProjectItemElement contentReference = directDependency.AddItem("ProjectReference", Path.Combine("..", "content", "content.csproj"));
+            contentReference.AddMetadata("OutputItemType", "Content");
+            contentReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            projectRootElement.Save();
+            directDependency.Save();
+            contentDependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertNoPredictions();
         }
 
         [Theory]
