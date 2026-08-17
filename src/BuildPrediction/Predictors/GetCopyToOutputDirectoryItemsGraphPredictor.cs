@@ -137,7 +137,7 @@ namespace Microsoft.Build.Prediction.Predictors
             Dictionary<string, ProjectReferenceContentInfo> projectReferenceContentByPath)
         {
             if (!projectReferenceContentByPath.TryGetValue(dependency.FullPath, out ProjectReferenceContentInfo contentInfo)
-                || !contentInfo.CopiesContent)
+                || !contentInfo.HasCopiedContent)
             {
                 return;
             }
@@ -158,31 +158,18 @@ namespace Microsoft.Build.Prediction.Predictors
                 return;
             }
 
-            string outputTargetPath = null;
             foreach (string explicitTargetPath in contentInfo.ExplicitTargetPaths)
             {
-                if (outputTargetPath != null && !PathComparer.Instance.Equals(outputTargetPath, explicitTargetPath))
-                {
-                    return;
-                }
-
-                outputTargetPath = explicitTargetPath;
+                predictionReporter.ReportOutputFile(Path.Combine(outDir, explicitTargetPath));
             }
 
             if (contentInfo.UsesDefaultTargetPath)
             {
                 string defaultTargetPath = Path.GetFileName(absoluteTargetPath);
-                if (outputTargetPath != null && !PathComparer.Instance.Equals(outputTargetPath, defaultTargetPath))
+                if (!contentInfo.ExplicitTargetPaths.Contains(defaultTargetPath))
                 {
-                    return;
+                    predictionReporter.ReportOutputFile(Path.Combine(outDir, defaultTargetPath));
                 }
-
-                outputTargetPath = defaultTargetPath;
-            }
-
-            if (outputTargetPath != null)
-            {
-                predictionReporter.ReportOutputFile(Path.Combine(outDir, outputTargetPath));
             }
         }
 
@@ -245,11 +232,7 @@ namespace Microsoft.Build.Prediction.Predictors
 
         private sealed class ProjectReferenceContentInfo
         {
-            private bool? _copiesContent;
-
-            public bool CopiesContent => !IsAmbiguous && _copiesContent == true;
-
-            public bool IsAmbiguous { get; private set; }
+            public bool HasCopiedContent { get; private set; }
 
             public bool UsesDefaultTargetPath { get; private set; }
 
@@ -260,18 +243,12 @@ namespace Microsoft.Build.Prediction.Predictors
                 bool copiesContent =
                     item.GetMetadataValue("OutputItemType").Equals("Content", StringComparison.OrdinalIgnoreCase)
                     && ShouldCopyProjectReferenceOutput(item);
-                if (_copiesContent.HasValue && _copiesContent.Value != copiesContent)
-                {
-                    IsAmbiguous = true;
-                    return;
-                }
-
-                _copiesContent = copiesContent;
                 if (!copiesContent)
                 {
                     return;
                 }
 
+                HasCopiedContent = true;
                 string targetPath = item.GetMetadataValue("TargetPath");
                 if (!string.IsNullOrEmpty(targetPath))
                 {

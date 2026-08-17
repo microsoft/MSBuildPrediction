@@ -406,7 +406,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
-        public void AmbiguousProjectReferenceOutputDestinationsAreNotPredicted()
+        public void MultipleProjectReferenceOutputDestinationsArePredicted()
         {
             string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
             ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
@@ -435,7 +435,10 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     _rootDir,
                     [new PredictedItem(@"dep\bin\dep.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
                     null,
-                    null,
+                    [
+                        new PredictedItem(@"src\bin\nested\renamed.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\linked\linked.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ],
                     null);
         }
 
@@ -469,7 +472,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
-        public void AmbiguousProjectReferenceOutputIsNotPredicted()
+        public void AnySameConfigurationProjectReferenceOutputIsPredicted()
         {
             string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
             ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
@@ -489,7 +492,50 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             new GetCopyToOutputDirectoryItemsGraphPredictor()
                 .GetProjectPredictions(projectFile)
-                .AssertNoPredictions();
+                .AssertPredictions(
+                    _rootDir,
+                    [new PredictedItem(@"dep\bin\dep.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null,
+                    [new PredictedItem(@"src\bin\dep.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null);
+        }
+
+        [Fact]
+        public void MixedConfiguredProjectReferenceOutputIsConservativelyPredicted()
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+
+            string dependencyFile = Path.Combine(_rootDir, @"dep\dep.csproj");
+            ProjectRootElement dependency = ProjectRootElement.Create(dependencyFile);
+            dependency.AddProperty("TargetPath", @"bin\dep.$(Flavor).dll");
+
+            ProjectItemElement copiedReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            copiedReference.AddMetadata("AdditionalProperties", "Flavor=A");
+            copiedReference.AddMetadata("OutputItemType", "Content");
+            copiedReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            ProjectItemElement ordinaryReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            ordinaryReference.AddMetadata("AdditionalProperties", "Flavor=B");
+
+            projectRootElement.Save();
+            dependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    [
+                        new PredictedItem(@"dep\bin\dep.A.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep\bin\dep.B.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ],
+                    null,
+                    [
+                        new PredictedItem(@"src\bin\dep.A.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep.B.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ],
+                    null);
         }
 
         [Fact]
