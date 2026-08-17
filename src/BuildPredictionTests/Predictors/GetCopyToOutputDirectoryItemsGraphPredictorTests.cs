@@ -501,6 +501,31 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         }
 
         [Fact]
+        public void BuildReferenceFalseDoesNotContributeProjectReferenceOutput()
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+
+            string dependencyFile = Path.Combine(_rootDir, @"dep\dep.csproj");
+            ProjectRootElement dependency = ProjectRootElement.Create(dependencyFile);
+            dependency.AddProperty("TargetPath", @"bin\dep.dll");
+
+            projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            ProjectItemElement copiedReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            copiedReference.AddMetadata("BuildReference", "false");
+            copiedReference.AddMetadata("OutputItemType", "Content");
+            copiedReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            projectRootElement.Save();
+            dependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertNoPredictions();
+        }
+
+        [Fact]
         public void MixedConfiguredProjectReferenceOutputIsConservativelyPredicted()
         {
             string projectFile = Path.Combine(_rootDir, @"src\project.csproj");

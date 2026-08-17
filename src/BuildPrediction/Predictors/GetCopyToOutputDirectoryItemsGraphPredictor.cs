@@ -241,7 +241,8 @@ namespace Microsoft.Build.Prediction.Predictors
             public void Add(ProjectItemInstance item)
             {
                 bool copiesContent =
-                    item.GetMetadataValue("OutputItemType").Equals("Content", StringComparison.OrdinalIgnoreCase)
+                    !item.GetMetadataValue("BuildReference").Equals("false", StringComparison.OrdinalIgnoreCase)
+                    && item.GetMetadataValue("OutputItemType").Equals("Content", StringComparison.OrdinalIgnoreCase)
                     && ShouldCopyProjectReferenceOutput(item);
                 if (!copiesContent)
                 {
