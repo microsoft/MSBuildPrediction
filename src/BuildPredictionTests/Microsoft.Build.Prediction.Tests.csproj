@@ -9,7 +9,14 @@
     <ProjectReference Include="..\BuildPrediction\Microsoft.Build.Prediction.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build.Framework" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build.Locator" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.StringTools" ExcludeAssets="runtime" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <!-- MSBuild 18 uses Immutable 10 APIs when loaded into the .NET Framework test host. -->
+    <PackageReference Include="System.Collections.Immutable" VersionOverride="10.0.0" PrivateAssets="all" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.analyzers" />
     <PackageReference Include="xunit.runner.visualstudio" />
