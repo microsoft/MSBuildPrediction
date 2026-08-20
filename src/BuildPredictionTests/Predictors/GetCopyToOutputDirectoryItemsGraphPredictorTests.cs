@@ -270,6 +270,336 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     null);
         }
 
+        [Theory]
+        [InlineData("Always")]
+        [InlineData("PreserveNewest")]
+        [InlineData("IfDifferent")]
+        public void TransitiveProjectReferenceOutputCopiedAsContent(string copyToOutputDirectory)
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
+
+            string directDependencyFile = Path.Combine(_rootDir, @"direct\direct.csproj");
+            ProjectRootElement directDependency = ProjectRootElement.Create(directDependencyFile);
+            directDependency.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
+
+            string contentDependencyFile = Path.Combine(_rootDir, @"content\content.csproj");
+            ProjectRootElement contentDependency = ProjectRootElement.Create(contentDependencyFile);
+            contentDependency.AddProperty("TargetPath", @"bin\content.dll");
+
+            projectRootElement.AddItem("ProjectReference", @"..\direct\direct.csproj");
+            ProjectItemElement contentReference = directDependency.AddItem("ProjectReference", @"..\content\content.csproj");
+            contentReference.AddMetadata("OutputItemType", "Content");
+            contentReference.AddMetadata("CopyToOutputDirectory", copyToOutputDirectory);
+
+            projectRootElement.Save();
+            directDependency.Save();
+            contentDependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    [new PredictedItem(@"content\bin\content.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null,
+                    [new PredictedItem(@"src\bin\content.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null);
+        }
+
+        [Fact]
+        public void SharedTransitiveProjectReferenceOutputCopiedAsContent()
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
+
+            ProjectRootElement ordinaryDependency = ProjectRootElement.Create(Path.Combine(_rootDir, @"aaa\aaa.csproj"));
+            ProjectRootElement contentDependency = ProjectRootElement.Create(Path.Combine(_rootDir, @"bbb\bbb.csproj"));
+            ProjectRootElement sharedDependency = ProjectRootElement.Create(Path.Combine(_rootDir, @"zzz\zzz.csproj"));
+            ordinaryDependency.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
+            contentDependency.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.MSBuildCopyContentTransitivelyPropertyName, "true");
+            sharedDependency.AddProperty("TargetPath", @"bin\content.dll");
+
+            projectRootElement.AddItem("ProjectReference", @"..\aaa\aaa.csproj");
+            projectRootElement.AddItem("ProjectReference", @"..\bbb\bbb.csproj");
+            ordinaryDependency.AddItem("ProjectReference", @"..\zzz\zzz.csproj");
+            ProjectItemElement contentReference = contentDependency.AddItem("ProjectReference", @"..\zzz\zzz.csproj");
+            contentReference.AddMetadata("OutputItemType", "Content");
+            contentReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            projectRootElement.Save();
+            ordinaryDependency.Save();
+            contentDependency.Save();
+            sharedDependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    [new PredictedItem(@"zzz\bin\content.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null,
+                    [new PredictedItem(@"src\bin\content.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null);
+        }
+
+        [Fact]
+        public void UnsetMSBuildCopyContentTransitivelyUsesLegacyOneLevelBehavior()
+        {
+            string projectFile = Path.Combine(_rootDir, "src", "project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, "bin");
+
+            string directDependencyFile = Path.Combine(_rootDir, "direct", "direct.csproj");
+            ProjectRootElement directDependency = ProjectRootElement.Create(directDependencyFile);
+
+            string contentDependencyFile = Path.Combine(_rootDir, "content", "content.csproj");
+            ProjectRootElement contentDependency = ProjectRootElement.Create(contentDependencyFile);
+            contentDependency.AddProperty("TargetPath", Path.Combine("bin", "content.dll"));
+
+            projectRootElement.AddItem("ProjectReference", Path.Combine("..", "direct", "direct.csproj"));
+            ProjectItemElement contentReference = directDependency.AddItem("ProjectReference", Path.Combine("..", "content", "content.csproj"));
+            contentReference.AddMetadata("OutputItemType", "Content");
+            contentReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            projectRootElement.Save();
+            directDependency.Save();
+            contentDependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertNoPredictions();
+        }
+
+        [Theory]
+        [InlineData("TargetPath", "nested", "renamed.dll")]
+        [InlineData("Link", "linked", "linked.dll")]
+        public void ProjectReferenceOutputUsesDestinationMetadata(string metadataName, string destinationDirectory, string destinationFileName)
+        {
+            string destinationPath = Path.Combine(destinationDirectory, destinationFileName);
+            string projectFile = Path.Combine(_rootDir, "src", "project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, "bin");
+
+            string dependencyFile = Path.Combine(_rootDir, "dep", "dep.csproj");
+            ProjectRootElement dependency = ProjectRootElement.Create(dependencyFile);
+            dependency.AddProperty("TargetPath", Path.Combine("bin", "dep.dll"));
+
+            ProjectItemElement projectReference = projectRootElement.AddItem("ProjectReference", Path.Combine("..", "dep", "dep.csproj"));
+            projectReference.AddMetadata("OutputItemType", "Content");
+            projectReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+            projectReference.AddMetadata(metadataName, destinationPath);
+
+            projectRootElement.Save();
+            dependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    [new PredictedItem(Path.Combine("dep", "bin", "dep.dll"), nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null,
+                    [new PredictedItem(Path.Combine("src", "bin", destinationPath), nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null);
+        }
+
+        [Fact]
+        public void MultipleProjectReferenceOutputDestinationsArePredicted()
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+
+            string dependencyFile = Path.Combine(_rootDir, @"dep\dep.csproj");
+            ProjectRootElement dependency = ProjectRootElement.Create(dependencyFile);
+            dependency.AddProperty("TargetPath", @"bin\dep.dll");
+
+            ProjectItemElement targetPathReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            targetPathReference.AddMetadata("OutputItemType", "Content");
+            targetPathReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+            targetPathReference.AddMetadata("TargetPath", "nested/renamed.dll");
+
+            ProjectItemElement linkReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            linkReference.AddMetadata("OutputItemType", "Content");
+            linkReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+            linkReference.AddMetadata("Link", "linked/linked.dll");
+
+            projectRootElement.Save();
+            dependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    [new PredictedItem(@"dep\bin\dep.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null,
+                    [
+                        new PredictedItem(@"src\bin\nested\renamed.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\linked\linked.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ],
+                    null);
+        }
+
+        [Theory]
+        [InlineData("Content", "Never")]
+        [InlineData(null, "PreserveNewest")]
+        public void ProjectReferenceOutputNotCopiedAsContent(string outputItemType, string copyToOutputDirectory)
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+
+            string dependencyFile = Path.Combine(_rootDir, @"dep\dep.csproj");
+            ProjectRootElement dependency = ProjectRootElement.Create(dependencyFile);
+            dependency.AddProperty("TargetPath", @"bin\dep.dll");
+
+            ProjectItemElement projectReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            if (outputItemType != null)
+            {
+                projectReference.AddMetadata("OutputItemType", outputItemType);
+            }
+
+            projectReference.AddMetadata("CopyToOutputDirectory", copyToOutputDirectory);
+
+            projectRootElement.Save();
+            dependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertNoPredictions();
+        }
+
+        [Fact]
+        public void AnySameConfigurationProjectReferenceOutputIsPredicted()
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+
+            string dependencyFile = Path.Combine(_rootDir, @"dep\dep.csproj");
+            ProjectRootElement dependency = ProjectRootElement.Create(dependencyFile);
+            dependency.AddProperty("TargetPath", @"bin\dep.dll");
+
+            ProjectItemElement copiedReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            copiedReference.AddMetadata("OutputItemType", "Content");
+            copiedReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+            projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+
+            projectRootElement.Save();
+            dependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    [new PredictedItem(@"dep\bin\dep.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null,
+                    [new PredictedItem(@"src\bin\dep.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null);
+        }
+
+        [Fact]
+        public void BuildReferenceFalseDoesNotContributeProjectReferenceOutput()
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+
+            string dependencyFile = Path.Combine(_rootDir, @"dep\dep.csproj");
+            ProjectRootElement dependency = ProjectRootElement.Create(dependencyFile);
+            dependency.AddProperty("TargetPath", @"bin\dep.dll");
+
+            projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            ProjectItemElement copiedReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            copiedReference.AddMetadata("BuildReference", "false");
+            copiedReference.AddMetadata("OutputItemType", "Content");
+            copiedReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            projectRootElement.Save();
+            dependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertNoPredictions();
+        }
+
+        [Fact]
+        public void MixedConfiguredProjectReferenceOutputIsConservativelyPredicted()
+        {
+            string projectFile = Path.Combine(_rootDir, @"src\project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, @"bin\");
+
+            string dependencyFile = Path.Combine(_rootDir, @"dep\dep.csproj");
+            ProjectRootElement dependency = ProjectRootElement.Create(dependencyFile);
+            dependency.AddProperty("TargetPath", @"bin\dep.$(Flavor).dll");
+
+            ProjectItemElement copiedReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            copiedReference.AddMetadata("AdditionalProperties", "Flavor=A");
+            copiedReference.AddMetadata("OutputItemType", "Content");
+            copiedReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+
+            ProjectItemElement ordinaryReference = projectRootElement.AddItem("ProjectReference", @"..\dep\dep.csproj");
+            ordinaryReference.AddMetadata("AdditionalProperties", "Flavor=B");
+
+            projectRootElement.Save();
+            dependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    [
+                        new PredictedItem(@"dep\bin\dep.A.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"dep\bin\dep.B.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ],
+                    null,
+                    [
+                        new PredictedItem(@"src\bin\dep.A.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                        new PredictedItem(@"src\bin\dep.B.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor)),
+                    ],
+                    null);
+        }
+
+        [Fact]
+        public void CaseSensitiveProjectPathsAreDistinct()
+        {
+            if (Environment.OSVersion.Platform != PlatformID.MacOSX
+                && Environment.OSVersion.Platform != PlatformID.Unix)
+            {
+                return;
+            }
+
+            string projectFile = Path.Combine(_rootDir, "src", "project.csproj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            projectRootElement.AddProperty(GetCopyToOutputDirectoryItemsGraphPredictor.OutDirPropertyName, "bin");
+
+            ProjectRootElement copiedDependency = ProjectRootElement.Create(Path.Combine(_rootDir, "Dep", "project.csproj"));
+            copiedDependency.AddProperty("TargetPath", Path.Combine("bin", "copied.dll"));
+            ProjectRootElement ordinaryDependency = ProjectRootElement.Create(Path.Combine(_rootDir, "dep", "project.csproj"));
+            ordinaryDependency.AddProperty("TargetPath", Path.Combine("bin", "ordinary.dll"));
+
+            ProjectItemElement copiedReference = projectRootElement.AddItem("ProjectReference", Path.Combine("..", "Dep", "project.csproj"));
+            copiedReference.AddMetadata("OutputItemType", "Content");
+            copiedReference.AddMetadata("CopyToOutputDirectory", "PreserveNewest");
+            projectRootElement.AddItem("ProjectReference", Path.Combine("..", "dep", "project.csproj"));
+
+            projectRootElement.Save();
+            copiedDependency.Save();
+            ordinaryDependency.Save();
+
+            new GetCopyToOutputDirectoryItemsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertPredictions(
+                    _rootDir,
+                    [new PredictedItem(Path.Combine("Dep", "bin", "copied.dll"), nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null,
+                    [new PredictedItem(Path.Combine("src", "bin", "copied.dll"), nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null);
+        }
+
         private ProjectRootElement CreateDependencyProject(string projectName, bool shouldCopy)
         {
             string projectDir = Path.Combine(_rootDir, projectName);
