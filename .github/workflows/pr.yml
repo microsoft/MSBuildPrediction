@@ -13,17 +13,17 @@ jobs:
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0 # Git Versioning requires a non-shallow clone
 
       - name: Install .NET 8
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@55ec9447dda3d1cf6bd587150f3262f30ee10815 # v3.4.2
         with:
           dotnet-version: '8.x'
 
       - name: Install .NET 10
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@55ec9447dda3d1cf6bd587150f3262f30ee10815 # v3.4.2
         with:
           dotnet-version: '10.x'
 
@@ -39,21 +39,21 @@ jobs:
         if: matrix.os != 'ubuntu-latest'
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: test-results-${{ matrix.os }}
           path: ./TestResults
         if: ${{ always() }} # Always run this step even on failure
 
       - name: Upload logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: logs-${{ matrix.os }}
           path: ./logs
         if: ${{ always() }} # Always run this step even on failure
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: artifacts-${{ matrix.os }}
           path: ./artifacts
