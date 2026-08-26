@@ -18,7 +18,6 @@ namespace Microsoft.Build.Prediction.Predictors
         internal const string OutDirPropertyName = "OutDir";
         internal const string MSBuildCopyContentTransitivelyPropertyName = "MSBuildCopyContentTransitively";
         internal const string CopyToOutputDirectoryMetadataName = "CopyToOutputDirectory";
-
         internal const string HasRuntimeOutputPropertyName = "HasRuntimeOutput";
 
         /// <inheritdoc/>

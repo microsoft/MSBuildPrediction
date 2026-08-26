@@ -223,7 +223,7 @@ namespace Microsoft.Build.Prediction
         /// See the GetCopyToOutputDirectoryItems target: https://github.com/microsoft/msbuild/blob/master/src/Tasks/Microsoft.Common.CurrentVersion.targets.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ShouldCopyToOutputDirectory(this ProjectItemInstance item) => item.ShouldCopyToDirectory("CopyToOutputDirectory");
+        public static bool ShouldCopyToOutputDirectory(this ProjectItemInstance item) => item.ShouldCopyToDirectory(GetCopyToOutputDirectoryItemsGraphPredictor.CopyToOutputDirectoryMetadataName);
 
         /// <summary>
         /// Determines whether the CopyToPublishDirectory metadata is a value which would typically cause it to be copied.
@@ -234,6 +234,9 @@ namespace Microsoft.Build.Prediction
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ShouldCopyToPublishDirectory(this ProjectItemInstance item) => item.ShouldCopyToDirectory(GetCopyToPublishDirectoryItemsGraphPredictor.CopyToPublishDirectoryMetadataName);
 
+        /// <summary>
+        /// Determines whether the metadata value is a value which would typically cause it to be copied.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ShouldCopyToDirectory(this ProjectItemInstance item, string metadataName)
         {

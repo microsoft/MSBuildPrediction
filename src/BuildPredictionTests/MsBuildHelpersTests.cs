@@ -33,6 +33,27 @@ namespace Microsoft.Build.Prediction.Tests
         }
 
         [Theory]
+        [InlineData(null, false)]
+        [InlineData("Never", false)]
+        [InlineData("Always", true)]
+        [InlineData("PreserveNewest", true)]
+        [InlineData("IfDifferent", true)]
+        public void ShouldCopyToPublishDirectory(string copyToPublishDirectoryValue, bool expectedResult)
+        {
+            ProjectRootElement projectRootElement = ProjectRootElement.Create();
+            ProjectItemElement item = projectRootElement.AddItem("Foo", "Foo.xml");
+            if (!string.IsNullOrEmpty(copyToPublishDirectoryValue))
+            {
+                item.AddMetadata("CopyToPublishDirectory", copyToPublishDirectoryValue);
+            }
+
+            ProjectInstance projectInstance = TestHelpers.CreateProjectInstanceFromRootElement(projectRootElement);
+            ProjectItemInstance itemInstance = projectInstance.GetItems("Foo").Single();
+
+            Assert.Equal(expectedResult, itemInstance.ShouldCopyToPublishDirectory());
+        }
+
+        [Theory]
         [InlineData("Foo.xml", null, "Foo.xml")]
         [InlineData("Foo.xml", @"Link=Bar\Baz.xml", @"Bar\Baz.xml")]
         [InlineData("Foo.xml", @"TargetPath=Bar\Baz.xml;Link=ShouldNotBeUsed.xml", @"Bar\Baz.xml")]
