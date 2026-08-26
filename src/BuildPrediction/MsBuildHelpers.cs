@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Build.Exceptions;
 using Microsoft.Build.Execution;
+using Microsoft.Build.Prediction.Predictors;
 
 namespace Microsoft.Build.Prediction
 {
@@ -222,17 +223,24 @@ namespace Microsoft.Build.Prediction
         /// See the GetCopyToOutputDirectoryItems target: https://github.com/microsoft/msbuild/blob/master/src/Tasks/Microsoft.Common.CurrentVersion.targets.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ShouldCopyToOutputDirectory(this ProjectItemInstance item)
-        {
-            var copyToOutputDirectoryValue = item.GetMetadataValue("CopyToOutputDirectory");
-            if (copyToOutputDirectoryValue.Equals("Always", StringComparison.OrdinalIgnoreCase)
-                || copyToOutputDirectoryValue.Equals("PreserveNewest", StringComparison.OrdinalIgnoreCase)
-                || copyToOutputDirectoryValue.Equals("IfDifferent", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+        public static bool ShouldCopyToOutputDirectory(this ProjectItemInstance item) => item.ShouldCopyToDirectory("CopyToOutputDirectory");
 
-            return false;
+        /// <summary>
+        /// Determines whether the CopyToPublishDirectory metadata is a value which would typically cause it to be copied.
+        /// </summary>
+        /// <remarks>
+        /// See the CopyToPublishDirectory target: https://github.com/dotnet/sdk/blob/master/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.Publish.targets.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ShouldCopyToPublishDirectory(this ProjectItemInstance item) => item.ShouldCopyToDirectory(GetCopyToPublishDirectoryItemsGraphPredictor.CopyToPublishDirectoryMetadataName);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ShouldCopyToDirectory(this ProjectItemInstance item, string metadataName)
+        {
+            var copyToDirectoryValue = item.GetMetadataValue(metadataName);
+            return copyToDirectoryValue.Equals("Always", StringComparison.OrdinalIgnoreCase)
+                || copyToDirectoryValue.Equals("PreserveNewest", StringComparison.OrdinalIgnoreCase)
+                || copyToDirectoryValue.Equals("IfDifferent", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>

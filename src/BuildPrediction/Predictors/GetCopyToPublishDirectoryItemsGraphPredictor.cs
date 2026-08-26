@@ -139,7 +139,7 @@ namespace Microsoft.Build.Prediction.Predictors
         {
             foreach (ProjectItemInstance item in projectInstance.GetItems(itemName))
             {
-                if (item.ShouldCopyToOutputDirectory())
+                if (item.ShouldCopyToPublishDirectory())
                 {
                     // The item will be relative to the project instance passed in, not the current project instance, so make the path absolute.
                     predictionReporter.ReportInputFile(Path.Combine(projectInstance.Directory, item.EvaluatedInclude));
