@@ -197,14 +197,6 @@ namespace Microsoft.Build.Prediction.Predictors
             return projectReferenceContentByPath;
         }
 
-        private static bool ShouldCopyProjectReferenceOutput(ProjectItemInstance item)
-        {
-            string copyToOutputDirectory = item.GetMetadataValue("CopyToOutputDirectory");
-            return copyToOutputDirectory.Equals("Always", StringComparison.OrdinalIgnoreCase)
-                || copyToOutputDirectory.Equals("PreserveNewest", StringComparison.OrdinalIgnoreCase)
-                || copyToOutputDirectory.Equals("IfDifferent", StringComparison.OrdinalIgnoreCase);
-        }
-
         private static void ReportCopyToOutputDirectoryItemsAsInputs(
             ProjectInstance projectInstance,
             string itemName,
@@ -243,7 +235,7 @@ namespace Microsoft.Build.Prediction.Predictors
                 bool copiesContent =
                     !item.GetMetadataValue("BuildReference").Equals("false", StringComparison.OrdinalIgnoreCase)
                     && item.GetMetadataValue("OutputItemType").Equals("Content", StringComparison.OrdinalIgnoreCase)
-                    && ShouldCopyProjectReferenceOutput(item);
+                    && item.ShouldCopyToOutputDirectory();
                 if (!copiesContent)
                 {
                     return;

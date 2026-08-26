@@ -16,6 +16,7 @@ namespace Microsoft.Build.Prediction.Tests
         [InlineData("Never", false)]
         [InlineData("Always", true)]
         [InlineData("PreserveNewest", true)]
+        [InlineData("IfDifferent", true)]
         public void ShouldCopyToOutputDirectory(string copyToOutputDirectoryValue, bool expectedResult)
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();

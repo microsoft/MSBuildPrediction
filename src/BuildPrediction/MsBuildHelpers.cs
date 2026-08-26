@@ -226,7 +226,8 @@ namespace Microsoft.Build.Prediction
         {
             var copyToOutputDirectoryValue = item.GetMetadataValue("CopyToOutputDirectory");
             if (copyToOutputDirectoryValue.Equals("Always", StringComparison.OrdinalIgnoreCase)
-                || copyToOutputDirectoryValue.Equals("PreserveNewest", StringComparison.OrdinalIgnoreCase))
+                || copyToOutputDirectoryValue.Equals("PreserveNewest", StringComparison.OrdinalIgnoreCase)
+                || copyToOutputDirectoryValue.Equals("IfDifferent", StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
