@@ -78,9 +78,18 @@ extends:
           inputs:
             version: '10.x'
             includePreviewVersions: true
+        - task: NuGetAuthenticate@1
+          displayName: 'NuGet Authenticate'
+        - task: DotNetCoreCLI@2
+          displayName: 'Restore Solution'
+          inputs:
+            command: 'restore'
+            projects: '$(Solution)'
+            feedsToUse: 'config'
+            nugetConfigPath: 'azure-pipelines/nuget.config'
         - task: DotNetCoreCLI@2
           displayName: 'Build Solution'
           inputs:
             command: 'build'
             projects: '$(Solution)'
-            arguments: '$(MSBuildArgs)'
+            arguments: '--no-restore $(MSBuildArgs)'
