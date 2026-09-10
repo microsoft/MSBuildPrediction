@@ -79,16 +79,8 @@ extends:
             version: '10.x'
             includePreviewVersions: true
         - task: DotNetCoreCLI@2
-          displayName: 'Restore Solution'
-          inputs:
-            # Pass the public source directly without task-managed feeds or credentials.
-            command: 'custom'
-            custom: 'restore'
-            projects: '$(Solution)'
-            arguments: '--source https://pkgs.dev.azure.com/msbuildcache/public/_packaging/MSBuildPrediction/nuget/v3/index.json'
-        - task: DotNetCoreCLI@2
           displayName: 'Build Solution'
           inputs:
             command: 'build'
             projects: '$(Solution)'
-            arguments: '--no-restore $(MSBuildArgs)'
+            arguments: '$(MSBuildArgs)'
