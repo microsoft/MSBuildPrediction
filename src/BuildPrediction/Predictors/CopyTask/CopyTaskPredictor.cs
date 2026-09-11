@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Execution;
 
 namespace Microsoft.Build.Prediction.Predictors.CopyTask
@@ -25,6 +26,10 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
         private const string CopyTaskSourceFolders = "SourceFolders";
         private const string CopyTaskDestinationFiles = "DestinationFiles";
         private const string CopyTaskDestinationFolder = "DestinationFolder";
+
+        // Matches simple MSBuild property references like $(PropertyName), excluding complex
+        // expressions with dots (e.g., $(Foo.Bar)), nested references, or function calls.
+        private static readonly Regex SimplePropertyReferenceRegex = new Regex(@"\$\(([A-Za-z_][A-Za-z0-9_]*)\)", RegexOptions.Compiled);
 
         /// <inheritdoc />
         public void PredictInputsAndOutputs(
@@ -56,99 +61,214 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
 
             projectInstance.AddBeforeAndAfterTargets(activeTargets);
 
+            // Create a deep copy so that target-local property/item evaluation does not
+            // mutate the shared ProjectInstance. Predictors may run in parallel.
+            ProjectInstance evaluationInstance = projectInstance.DeepCopy();
+
             // Then parse copy tasks for these targets.
             foreach (KeyValuePair<string, ProjectTargetInstance> target in activeTargets)
             {
-                ParseCopyTask(target.Value, projectInstance, predictionReporter);
+                ParseCopyTask(target.Value, evaluationInstance, predictionReporter);
             }
         }
 
         /// <summary>
         /// Parses the input and output files for copy tasks of given target.
+        /// Iterates through target children in order so that PropertyGroup and ItemGroup
+        /// definitions within the target are evaluated before Copy tasks that reference them.
         /// </summary>
         private static void ParseCopyTask(
             ProjectTargetInstance target,
             ProjectInstance projectInstance,
             ProjectPredictionReporter predictionReporter)
         {
-            // Get all Copy tasks from targets.
-            List<ProjectTaskInstance> tasks = target.Tasks
-                .Where(task => string.Equals(task.Name, CopyTaskName, StringComparison.Ordinal))
-                .ToList();
-
-            if (tasks.Any() && projectInstance.EvaluateConditionCarefully(target.Condition))
+            if (!projectInstance.EvaluateConditionCarefully(target.Condition))
             {
-                foreach (ProjectTaskInstance task in tasks)
+                return;
+            }
+
+            // Check if this target has any Copy tasks at all before doing work.
+            bool hasCopyTasks = false;
+            foreach (ProjectTargetInstanceChild child in target.Children)
+            {
+                if (child is ProjectTaskInstance taskChild
+                    && string.Equals(taskChild.Name, CopyTaskName, StringComparison.Ordinal))
                 {
-                    if (projectInstance.EvaluateConditionCarefully(task.Condition))
-                    {
-                        bool hasSourceFiles = task.Parameters.TryGetValue(CopyTaskSourceFiles, out string sourceFiles) && !string.IsNullOrEmpty(sourceFiles);
-                        bool hasSourceFolders = task.Parameters.TryGetValue(CopyTaskSourceFolders, out string sourceFolders) && !string.IsNullOrEmpty(sourceFolders);
-                        bool hasDestinationFiles = task.Parameters.TryGetValue(CopyTaskDestinationFiles, out string destinationFiles) && !string.IsNullOrEmpty(destinationFiles);
-                        bool hasDestinationFolder = task.Parameters.TryGetValue(CopyTaskDestinationFolder, out string destinationFolder) && !string.IsNullOrEmpty(destinationFolder);
-
-                        // The task will nop if there are no sources.
-                        if (!hasSourceFiles && !hasSourceFolders)
-                        {
-                            continue;
-                        }
-
-                        // The task will error if there is no destination
-                        if (!hasDestinationFiles && !hasDestinationFolder)
-                        {
-                            continue;
-                        }
-
-                        // The task will error if both destination types are used.
-                        if (hasDestinationFolder && hasDestinationFiles)
-                        {
-                            continue;
-                        }
-
-                        // SourceFolders and DestinationFiles can't be used together.
-                        if (hasSourceFolders && hasDestinationFiles)
-                        {
-                            continue;
-                        }
-
-                        var inputs = EvaluateExpression(hasSourceFolders ? sourceFolders : sourceFiles, projectInstance, task);
-                        if (inputs.NumExpressions == 0)
-                        {
-                            continue;
-                        }
-
-                        foreach (string file in inputs.Paths)
-                        {
-                            if (hasSourceFolders)
-                            {
-                                predictionReporter.ReportInputDirectory(file);
-                            }
-                            else
-                            {
-                                predictionReporter.ReportInputFile(file);
-                            }
-                        }
-
-                        var outputs = EvaluateExpression(hasDestinationFolder ? destinationFolder : destinationFiles, projectInstance, task);
-                        if (outputs.NumExpressions == 0)
-                        {
-                            continue;
-                        }
-
-                        // When using batch tokens, the user should specify exactly one total token, and it must appear in both the input and output.
-                        // If not using batch tokens, then any number of other tokens is fine.
-                        if ((outputs.NumBatchExpressions == 1 && outputs.NumExpressions == 1 &&
-                             inputs.NumBatchExpressions == 1 && inputs.NumExpressions == 1) ||
-                            (outputs.NumBatchExpressions == 0 && inputs.NumBatchExpressions == 0))
-                        {
-                            ProcessOutputs(inputs.Paths, outputs.Paths, hasDestinationFolder, predictionReporter);
-                        }
-                        else
-                        {
-                            // Ignore case we cannot handle.
-                        }
-                    }
+                    hasCopyTasks = true;
+                    break;
                 }
+            }
+
+            if (!hasCopyTasks)
+            {
+                return;
+            }
+
+            // Iterate through children in order. Properties and items set inside the target
+            // are replayed on the (deep-copied) project instance so that subsequent Copy task
+            // expressions can reference them.
+            foreach (ProjectTargetInstanceChild child in target.Children)
+            {
+                if (child is ProjectPropertyGroupTaskInstance propertyGroup)
+                {
+                    EvaluatePropertyGroup(propertyGroup, projectInstance);
+                }
+                else if (child is ProjectItemGroupTaskInstance itemGroup)
+                {
+                    EvaluateItemGroup(itemGroup, projectInstance);
+                }
+                else if (child is ProjectTaskInstance task
+                    && string.Equals(task.Name, CopyTaskName, StringComparison.Ordinal))
+                {
+                    ProcessCopyTask(task, projectInstance, predictionReporter);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Evaluates a PropertyGroup defined inside a target, setting properties on the
+        /// project instance so they are available for subsequent expression expansion.
+        /// </summary>
+        private static void EvaluatePropertyGroup(
+            ProjectPropertyGroupTaskInstance propertyGroup,
+            ProjectInstance projectInstance)
+        {
+            if (!projectInstance.EvaluateConditionCarefully(propertyGroup.Condition))
+            {
+                return;
+            }
+
+            foreach (ProjectPropertyGroupTaskPropertyInstance property in propertyGroup.Properties)
+            {
+                if (!projectInstance.EvaluateConditionCarefully(property.Condition))
+                {
+                    continue;
+                }
+
+                string evaluatedValue = projectInstance.ExpandString(property.Value);
+                projectInstance.SetProperty(property.Name, evaluatedValue);
+            }
+        }
+
+        /// <summary>
+        /// Evaluates an ItemGroup defined inside a target, adding items to the
+        /// project instance so they are available for subsequent expression expansion.
+        /// </summary>
+        private static void EvaluateItemGroup(
+            ProjectItemGroupTaskInstance itemGroup,
+            ProjectInstance projectInstance)
+        {
+            if (!projectInstance.EvaluateConditionCarefully(itemGroup.Condition))
+            {
+                return;
+            }
+
+            foreach (ProjectItemGroupTaskItemInstance item in itemGroup.Items)
+            {
+                if (!projectInstance.EvaluateConditionCarefully(item.Condition))
+                {
+                    continue;
+                }
+
+                string evaluatedInclude = projectInstance.ExpandString(item.Include);
+                if (string.IsNullOrEmpty(evaluatedInclude))
+                {
+                    continue;
+                }
+
+                foreach (string includePart in evaluatedInclude.SplitStringList())
+                {
+                    projectInstance.AddItem(item.ItemType, includePart);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Processes a single Copy task instance, evaluating its parameters and reporting predictions.
+        /// </summary>
+        private static void ProcessCopyTask(
+            ProjectTaskInstance task,
+            ProjectInstance projectInstance,
+            ProjectPredictionReporter predictionReporter)
+        {
+            if (!projectInstance.EvaluateConditionCarefully(task.Condition))
+            {
+                return;
+            }
+
+            bool hasSourceFiles = task.Parameters.TryGetValue(CopyTaskSourceFiles, out string sourceFiles) && !string.IsNullOrEmpty(sourceFiles);
+            bool hasSourceFolders = task.Parameters.TryGetValue(CopyTaskSourceFolders, out string sourceFolders) && !string.IsNullOrEmpty(sourceFolders);
+            bool hasDestinationFiles = task.Parameters.TryGetValue(CopyTaskDestinationFiles, out string destinationFiles) && !string.IsNullOrEmpty(destinationFiles);
+            bool hasDestinationFolder = task.Parameters.TryGetValue(CopyTaskDestinationFolder, out string destinationFolder) && !string.IsNullOrEmpty(destinationFolder);
+
+            // The task will nop if there are no sources.
+            if (!hasSourceFiles && !hasSourceFolders)
+            {
+                return;
+            }
+
+            // The task will error if there is no destination
+            if (!hasDestinationFiles && !hasDestinationFolder)
+            {
+                return;
+            }
+
+            // The task will error if both destination types are used.
+            if (hasDestinationFolder && hasDestinationFiles)
+            {
+                return;
+            }
+
+            // SourceFolders and DestinationFiles can't be used together.
+            if (hasSourceFolders && hasDestinationFiles)
+            {
+                return;
+            }
+
+            var inputs = EvaluateExpression(hasSourceFolders ? sourceFolders : sourceFiles, projectInstance, task);
+            if (inputs.NumExpressions == 0)
+            {
+                return;
+            }
+
+            foreach (string file in inputs.Paths)
+            {
+                if (hasSourceFolders)
+                {
+                    predictionReporter.ReportInputDirectory(file);
+                }
+                else
+                {
+                    predictionReporter.ReportInputFile(file);
+                }
+            }
+
+            // Skip output prediction if the destination expression references properties that
+            // cannot be resolved (e.g., properties set only at build time by task outputs).
+            // Predicting with unresolved properties would produce incorrect paths.
+            string rawDestinationExpression = hasDestinationFolder ? destinationFolder : destinationFiles;
+            if (HasUnresolvableProperties(rawDestinationExpression, projectInstance))
+            {
+                return;
+            }
+
+            var outputs = EvaluateExpression(rawDestinationExpression, projectInstance, task);
+            if (outputs.NumExpressions == 0)
+            {
+                return;
+            }
+
+            // When using batch tokens, the user should specify exactly one total token, and it must appear in both the input and output.
+            // If not using batch tokens, then any number of other tokens is fine.
+            if ((outputs.NumBatchExpressions == 1 && outputs.NumExpressions == 1 &&
+                 inputs.NumBatchExpressions == 1 && inputs.NumExpressions == 1) ||
+                (outputs.NumBatchExpressions == 0 && inputs.NumBatchExpressions == 0))
+            {
+                ProcessOutputs(inputs.Paths, outputs.Paths, hasDestinationFolder, predictionReporter);
+            }
+            else
+            {
+                // Ignore case we cannot handle.
             }
         }
 
@@ -234,6 +354,25 @@ namespace Microsoft.Build.Prediction.Predictors.CopyTask
             }
 
             return (paths, expressions.Count, numBatchExpressions);
+        }
+
+        /// <summary>
+        /// Checks whether an expression contains simple MSBuild property references $(PropertyName)
+        /// that cannot be resolved to a non-empty value. Properties that remain unresolved would
+        /// produce incorrect path predictions (e.g., $(Undefined)\folder expands to \folder).
+        /// </summary>
+        private static bool HasUnresolvableProperties(string expression, ProjectInstance projectInstance)
+        {
+            foreach (Match match in SimplePropertyReferenceRegex.Matches(expression))
+            {
+                string propertyName = match.Groups[1].Value;
+                if (string.IsNullOrEmpty(projectInstance.GetPropertyValue(propertyName)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
