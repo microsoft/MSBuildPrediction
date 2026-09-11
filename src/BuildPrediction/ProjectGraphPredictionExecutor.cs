@@ -80,15 +80,16 @@ namespace Microsoft.Build.Prediction
             {
                 foreach (var projectNode in projectGraph.ProjectNodes)
                 {
-                    ExecuteAllPredictors(projectNode, _projectPredictors, _projectGraphPredictors, projectPredictionCollector);
+                    ExecuteAllPredictors(projectNode, _projectPredictors, _projectGraphPredictors, projectPredictionCollector, _options.MaxDegreeOfParallelismPerProject);
                 }
             }
             else
             {
+                int maxDegreeOfParallelismPerProject = _options.MaxDegreeOfParallelismPerProject;
                 Parallel.ForEach(
                     projectGraph.ProjectNodes.ToArray(),
                     new ParallelOptions() { MaxDegreeOfParallelism = _options.MaxDegreeOfParallelism },
-                    projectNode => ExecuteAllPredictors(projectNode, _projectPredictors, _projectGraphPredictors, projectPredictionCollector));
+                    projectNode => ExecuteAllPredictors(projectNode, _projectPredictors, _projectGraphPredictors, projectPredictionCollector, maxDegreeOfParallelismPerProject));
             }
         }
 
@@ -96,12 +97,13 @@ namespace Microsoft.Build.Prediction
             ProjectGraphNode projectGraphNode,
             ValueAndTypeName<IProjectPredictor>[] projectPredictors,
             ValueAndTypeName<IProjectGraphPredictor>[] projectGraphPredictors,
-            IProjectPredictionCollector projectPredictionCollector)
+            IProjectPredictionCollector projectPredictionCollector,
+            int maxDegreeOfParallelismPerProject)
         {
             ProjectInstance projectInstance = projectGraphNode.ProjectInstance;
 
-            // Run the project predictors. Use single-threaded prediction since we're already parallelizing on projects.
-            ProjectPredictionExecutor.ExecuteProjectPredictors(projectInstance, projectPredictors, projectPredictionCollector, maxDegreeOfParallelism: 1);
+            // Run the project predictors.
+            ProjectPredictionExecutor.ExecuteProjectPredictors(projectInstance, projectPredictors, projectPredictionCollector, maxDegreeOfParallelismPerProject);
 
             // Run the graph predictors
             for (var i = 0; i < projectGraphPredictors.Length; i++)
