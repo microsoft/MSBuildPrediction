@@ -74,9 +74,14 @@ extends:
           displayName: 'Set SignType to Real for tagged commits'
           condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
         - task: UseDotNet@2
-          displayName: 'Install .NET'
+          displayName: 'Install .NET 10'
           inputs:
             version: '10.x'
+            includePreviewVersions: true
+        - task: UseDotNet@2
+          displayName: 'Install .NET 11'
+          inputs:
+            version: '11.x'
             includePreviewVersions: true
         - task: DotNetCoreCLI@2
           displayName: 'Build Solution'

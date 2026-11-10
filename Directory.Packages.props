@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <PropertyGroup>
-    <!-- Use the highest version which supports a given target framework -->
-    <MSBuildPackageVersion>17.11.4</MSBuildPackageVersion>
+    <MSBuildPackageVersion>17.14.28</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net10.0'">18.9.6</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net11.0'">18.11.0</MSBuildPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
