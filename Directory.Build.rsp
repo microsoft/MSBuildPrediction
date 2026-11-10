@@ -1,4 +1,5 @@
-/ConsoleLoggerParameters:Verbosity=Minimal;Summary;ForceNoAlign
-/MaxCPUCount
-/NodeReuse:false
-/Restore
+-ConsoleLoggerParameters:Verbosity=Minimal;Summary;ForceNoAlign
+-MaxCPUCount
+-multithreaded
+-Restore
+-interactive
