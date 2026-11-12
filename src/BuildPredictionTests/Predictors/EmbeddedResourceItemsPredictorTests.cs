@@ -14,7 +14,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         public void NoCopy()
         {
             ProjectRootElement projectRootElement = ProjectRootElement.Create();
-            projectRootElement.AddProperty(NoneItemsPredictor.OutDirPropertyName, @"bin\");
+            projectRootElement.AddProperty(EmbeddedResourceItemsPredictor.OutDirPropertyName, @"bin\");
             projectRootElement.AddItem(EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, "Resource1.resx");
             projectRootElement.AddItem(EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, "Resource2.resx");
             projectRootElement.AddItem(EmbeddedResourceItemsPredictor.EmbeddedResourceItemName, "Resource3.resx");
