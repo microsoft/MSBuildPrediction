@@ -343,6 +343,26 @@ namespace Microsoft.Build.Prediction.Tests
                 expectedOutputDirectories);
         }
 
+        [Fact]
+        public void PredictionsForEveryNodeRejectsAnUnrelatedNode()
+        {
+            ProjectRootElement projectA = CreateProject("a");
+            ProjectRootElement projectB = CreateProject("b");
+            projectA.Save();
+            projectB.Save();
+
+            var projectGraph = new ProjectGraph(projectA.FullPath, new ProjectCollection());
+            var unrelatedGraph = new ProjectGraph(projectB.FullPath, new ProjectCollection());
+            var predictions = new Dictionary<ProjectGraphNode, ProjectPredictions>();
+            foreach (ProjectGraphNode node in unrelatedGraph.ProjectNodes)
+            {
+                predictions.Add(node, new ProjectPredictions(null, null, null, null));
+            }
+
+            var graphPredictions = new ProjectGraphPredictions(predictions);
+            Assert.Throws<Xunit.Sdk.TrueException>(() => AssertPredictionsMadeForEveryNode(projectGraph, graphPredictions));
+        }
+
         private ProjectRootElement CreateProject(string projectName)
         {
             string projectPath = Path.Combine(_rootDir, projectName, projectName + ".proj");
@@ -371,7 +391,7 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.Equal(projectGraph.ProjectNodes.Count, graphPredictions.PredictionsPerNode.Count);
             foreach (ProjectGraphNode node in projectGraph.ProjectNodes)
             {
-                graphPredictions.PredictionsPerNode.ContainsKey(node);
+                Assert.True(graphPredictions.PredictionsPerNode.ContainsKey(node));
             }
         }
 
