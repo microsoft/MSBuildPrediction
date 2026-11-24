@@ -16,7 +16,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
         public ProjectFileAndImportsGraphPredictorTests()
         {
             // Isolate each test into its own folder
-            _rootDir = Path.Combine(Directory.GetCurrentDirectory(), nameof(ArtifactsSdkPredictorTests), Guid.NewGuid().ToString());
+            _rootDir = Path.Combine(Directory.GetCurrentDirectory(), nameof(ProjectFileAndImportsGraphPredictorTests), Guid.NewGuid().ToString());
             Directory.CreateDirectory(_rootDir);
         }
 

@@ -56,8 +56,8 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
         /// <summary>
         /// Tests copy parsing for non-standard default targets.
-        /// Makes sure that when DefaultTargets/InitialTargets specified differ from the default Build target,
-        /// we ignore the default and only consider the Build target.
+        /// Makes sure that a non-standard default target's imported dependencies are considered,
+        /// rather than assuming that Build is the entry point.
         /// </summary>
         [Fact]
         public void TestCopyParseNonStandardDefaultTargets()

@@ -85,7 +85,7 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
             service2.Save();
             service3.Save();
 
-            new ServiceFabricPackageRootFilesGraphPredictor()
+            new ServiceFabricCopyFilesToPublishDirectoryGraphPredictor()
                 .GetProjectPredictions(projectFile)
                 .AssertNoPredictions();
         }
