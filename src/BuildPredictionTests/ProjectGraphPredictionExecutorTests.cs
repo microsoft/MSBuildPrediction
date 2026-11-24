@@ -371,7 +371,7 @@ namespace Microsoft.Build.Prediction.Tests
             Assert.Equal(projectGraph.ProjectNodes.Count, graphPredictions.PredictionsPerNode.Count);
             foreach (ProjectGraphNode node in projectGraph.ProjectNodes)
             {
-                graphPredictions.PredictionsPerNode.ContainsKey(node);
+                Assert.True(graphPredictions.PredictionsPerNode.ContainsKey(node));
             }
         }
 
