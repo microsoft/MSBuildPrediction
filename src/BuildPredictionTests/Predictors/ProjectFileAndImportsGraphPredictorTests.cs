@@ -2,8 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Construction;
+using Microsoft.Build.Evaluation;
+using Microsoft.Build.Execution;
+using Microsoft.Build.Graph;
 using Microsoft.Build.Prediction.Predictors;
 using Xunit;
 
@@ -67,6 +71,58 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
                     null);
         }
 
+        [Fact]
+        public void ProjectWithoutReferencesProducesNoPredictions()
+        {
+            string projectFile = Path.Combine(_rootDir, "project.proj");
+            ProjectRootElement.Create(projectFile).Save();
+
+            new ProjectFileAndImportsGraphPredictor()
+                .GetProjectPredictions(projectFile)
+                .AssertNoPredictions();
+        }
+
+        [Fact]
+        public void SharedImportsAreReportedOnlyOnce()
+        {
+            string projectFile = Path.Combine(_rootDir, "project.proj");
+            ProjectRootElement projectRootElement = ProjectRootElement.Create(projectFile);
+            ProjectRootElement dep1 = CreateDependencyProject("dep1");
+            ProjectRootElement dep2 = CreateDependencyProject("dep2");
+            string sharedImport = Path.Combine(_rootDir, "shared.targets");
+            ProjectRootElement.Create(sharedImport).Save();
+
+            dep1.AddImport(sharedImport);
+            dep2.AddImport(sharedImport);
+            projectRootElement.AddItem("ProjectReference", dep1.FullPath);
+            projectRootElement.AddItem("ProjectReference", dep2.FullPath);
+            projectRootElement.Save();
+            dep1.Save();
+            dep2.Save();
+
+            using var projectCollection = new ProjectCollection();
+            var graph = new ProjectGraph(projectFile, null, projectCollection);
+            ProjectGraphNode entryPoint = Assert.Single(graph.EntryPointNodes);
+            var collector = new RecordingPredictionCollector(entryPoint.ProjectInstance);
+            var reporter = new ProjectPredictionReporter(
+                collector,
+                entryPoint.ProjectInstance,
+                nameof(ProjectFileAndImportsGraphPredictor));
+
+            new ProjectFileAndImportsGraphPredictor().PredictInputsAndOutputs(entryPoint, reporter);
+
+            var expectedInputs = new HashSet<string>(StringComparer.Ordinal)
+            {
+                dep1.FullPath,
+                Path.Combine(_rootDir, "dep1", "dep1.targets"),
+                dep2.FullPath,
+                Path.Combine(_rootDir, "dep2", "dep2.targets"),
+                sharedImport,
+            };
+            Assert.Equal(expectedInputs.Count, collector.InputFiles.Count);
+            Assert.True(expectedInputs.SetEquals(collector.InputFiles));
+        }
+
         private ProjectRootElement CreateDependencyProject(string projectName)
         {
             string projectDir = Path.Combine(_rootDir, projectName);
@@ -83,6 +139,40 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             // The caller may modify the returned project, so don't save it yet.
             return projectRootElement;
+        }
+
+        private sealed class RecordingPredictionCollector : IProjectPredictionCollector
+        {
+            private readonly ProjectInstance _projectInstance;
+
+            public RecordingPredictionCollector(ProjectInstance projectInstance)
+            {
+                _projectInstance = projectInstance;
+            }
+
+            internal List<string> InputFiles { get; } = new List<string>();
+
+            public void AddInputFile(string path, ProjectInstance projectInstance, string predictorName)
+            {
+                Assert.Same(_projectInstance, projectInstance);
+                Assert.Equal(nameof(ProjectFileAndImportsGraphPredictor), predictorName);
+                InputFiles.Add(path);
+            }
+
+            public void AddInputDirectory(string path, ProjectInstance projectInstance, string predictorName)
+            {
+                throw new InvalidOperationException("Unexpected input directory prediction.");
+            }
+
+            public void AddOutputFile(string path, ProjectInstance projectInstance, string predictorName)
+            {
+                throw new InvalidOperationException("Unexpected output file prediction.");
+            }
+
+            public void AddOutputDirectory(string path, ProjectInstance projectInstance, string predictorName)
+            {
+                throw new InvalidOperationException("Unexpected output directory prediction.");
+            }
         }
     }
 }
