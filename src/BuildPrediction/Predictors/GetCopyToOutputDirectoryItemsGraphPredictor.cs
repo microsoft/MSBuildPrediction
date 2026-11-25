@@ -40,7 +40,7 @@ namespace Microsoft.Build.Prediction.Predictors
             var useCommonOutputDirectory = projectInstance.GetPropertyValue(UseCommonOutputDirectoryPropertyName);
             if (!useCommonOutputDirectory.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
-                bool copyContentTransitively = projectInstance.GetPropertyValue(MSBuildCopyContentTransitivelyPropertyName).Equals("true", StringComparison.OrdinalIgnoreCase);
+                bool copyContentTransitively = !projectInstance.GetPropertyValue(MSBuildCopyContentTransitivelyPropertyName).Equals("false", StringComparison.OrdinalIgnoreCase);
                 Dictionary<string, ProjectReferenceContentInfo> projectReferenceContentByPath = GetProjectReferenceContentByPath(projectInstance);
 
                 foreach (ProjectGraphNode dependency in projectGraphNode.ProjectReferences)

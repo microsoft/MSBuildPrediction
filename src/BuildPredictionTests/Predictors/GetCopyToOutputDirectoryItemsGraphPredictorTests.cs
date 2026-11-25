@@ -370,7 +370,12 @@ namespace Microsoft.Build.Prediction.Tests.Predictors
 
             new GetCopyToOutputDirectoryItemsGraphPredictor()
                 .GetProjectPredictions(projectFile)
-                .AssertNoPredictions();
+                .AssertPredictions(
+                    _rootDir,
+                    [new PredictedItem(@"content\bin\content.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null,
+                    [new PredictedItem(@"src\bin\content.dll", nameof(GetCopyToOutputDirectoryItemsGraphPredictor))],
+                    null);
         }
 
         [Theory]
